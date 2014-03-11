@@ -16,7 +16,6 @@ result_folder = ''
 selection = []
 im_names =[]
 
-# <codecell>
 
 ###############################  the main pipeline #############################
 def runIteration(Y,currentIter,lamda,gridSize,maxDisp):
@@ -43,7 +42,7 @@ def runIteration(Y,currentIter,lamda,gridSize,maxDisp):
     for i in range(num_of_data):
         lrIm = result_folder+'/'+ 'Iter'+ str(currentIter)+'_LowRank_' + str(i)  +'.nrrd'
         listOfImages.append(lrIm)
-    AverageImages(listOfImages,atlas_im_name)  
+    AverageImages(listOfImages,atlas_im_name)
 
     ps=[]
     for i in range(num_of_data):
@@ -120,7 +119,7 @@ reference_im_name = '/home/xiaoxiao/work/data/SRI24/T1_Crop.nii.gz'
 data_folder= '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data'
 im_names = readTxtIntoList(data_folder +'/Flair_FN.txt')
 
-lamda = 0.8
+lamda = 0.7
 result_folder = '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/Unbiased_Atlas_Flair_w'+str(lamda)
 selection = [0,1,3,4,6,7,9,10]
 
@@ -136,7 +135,10 @@ def main():
     global lamda
     s = time.clock()
     # save script to the result folder for paramter checkups
-    os.system('cp /home/xiaoxiao/work/src/TubeTK/Base/Python/pyrpca/examples/BRATS_Unbiased_LowRank_Atlas_Buildling.py   ' +result_folder)
+    currentPyFile = os.path.realpath(__file__)
+    print currentPyFile
+    os.system('cp   ' + currentPyFile+' ' +result_folder)
+
 
     #showReferenceImage(reference_im_name)
     affineRegistrationStep()
@@ -151,7 +153,7 @@ def main():
     num_of_data = len(selection)
 
 
-    NUM_OF_ITERATIONS = 12
+    NUM_OF_ITERATIONS = 8
     sparsity = np.zeros(NUM_OF_ITERATIONS)
     sum_sparse = np.zeros(NUM_OF_ITERATIONS)
 
@@ -178,11 +180,10 @@ def main():
 
         sparsity[iterCount-1], sum_sparse[iterCount-1] = runIteration(Y, iterCount, lamda,gridSize, maxDisp)
         gc.collect()
+        lamda += 0.025
         if iterCount%2 == 0 :
           if gridSize[0] < 10:
             gridSize = np.add( gridSize,[1,1,1])
-
-
 
         #a = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
         #print 'Current memory usage :',a/1024.0/1024.0,'GB'
@@ -208,7 +209,7 @@ def main():
         atlasIm = result_folder+'/'+ 'Iter'+str(i+1) +'_atlas.nrrd'
         im = sitk.ReadImage(atlasIm) # image in SITK format
         im_array = sitk.GetArrayFromImage(im)
-	z_dim, x_dim, y_dim = im_array.shape # get 3D volume shape
+        z_dim, x_dim, y_dim = im_array.shape # get 3D volume shape
         plt.figure()
         implot = plt.imshow(im_array[z_dim/2,:,:],plt.cm.gray)
         plt.title('Iter'+str(i)+ ' atlas')
@@ -216,4 +217,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
