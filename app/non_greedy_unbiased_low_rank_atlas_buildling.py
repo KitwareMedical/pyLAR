@@ -18,8 +18,18 @@ im_names =[]
 USE_HEALTHY_ATLAS = True
 
 ###############################  the main pipeline #############################
-def runIteration(Y,currentIter,lamda,gridSize,maxDisp):
+def runIteration(vector_length,currentIter,lamda,gridSize,maxDisp):
     global reference_im_name
+    # prepare data matrix
+    num_of_data = len(selection)
+    Y = np.zeros((vector_length,num_of_data))
+    for i in range(num_of_data) :
+          im_file =  result_folder+'/'+ 'Iter'+str(currentIter-1)+'_Flair_' + str(i)  + '.nrrd'
+          tmp = sitk.ReadImage(im_file)
+          tmp = sitk.GetArrayFromImage(tmp)
+          Y[:,i] = tmp.reshape(-1)
+          del tmp
+
     low_rank, sparse, n_iter,rank, sparsity, sum_sparse = rpca(Y,lamda)
     saveImagesFromDM(low_rank,result_folder+'/'+ 'Iter'+str(currentIter) +'_LowRank_', reference_im_name)
     saveImagesFromDM(sparse,result_folder+'/'+ 'Iter'+str(currentIter) +'_Sparse_', reference_im_name)
@@ -33,7 +43,6 @@ def runIteration(Y,currentIter,lamda,gridSize,maxDisp):
     fig.clf()
     plt.close(fig)
 
-    num_of_data = Y.shape[1]
     del low_rank, sparse,Y
 
     
@@ -47,21 +56,23 @@ def runIteration(Y,currentIter,lamda,gridSize,maxDisp):
             listOfImages.append(lrIm)
         AverageImages(listOfImages,reference_im_name)
 
-    ps=[]
+    ps = []
     for i in range(num_of_data):
-
 
         logFile = open(result_folder+'/Iter'+str(currentIter)+'_RUN_'+ str(i)+'.log', 'w')
 
         # pipe steps sequencially
-        previousIterDVF = result_folder + '/'+ 'Iter'+ str(currentIter-1)+'_DVF_' + str(i) +  '.nrrd'
-        inverseDVF = result_folder + '/'+ 'Iter'+ str(currentIter-1)+'_INV_DVF_' + str(i) +  '.nrrd'
-        cmd = genInverseDVF(previousIterDVF,inverseDVF)
+        cmd = ''
+        invWarpedlowRankIm = result_folder + '/'+ 'Iter'+ str(currentIter)+'_LowRank_' + str(i)  +'.nrrd'
+        if currentIter > 1:
+		previousIterDVF = result_folder + '/'+ 'Iter'+ str(currentIter-1)+'_DVF_' + str(i) +  '.nrrd'
+		inverseDVF = result_folder + '/'+ 'Iter'+ str(currentIter-1)+'_INV_DVF_' + str(i) +  '.nrrd'
+		cmd = genInverseDVF(previousIterDVF,inverseDVF)
 
 
-        lowRankIm = result_folder+'/'+ 'Iter'+ str(currentIter)+'_LowRank_' + str(i)  +'.nrrd'
-        invWarpedlowRankIm = result_folder+'/'+ 'Iter'+ str(currentIter)+'_InvWarped_LowRank_' + str(i)  +'.nrrd'
-        cmd += ";"+updateInputImageWithDVF( lowRankIm, reference_im_name, inverseDVF, invWarpedlowRankIm)
+		lowRankIm = result_folder+'/'+ 'Iter'+ str(currentIter)+'_LowRank_' + str(i)  +'.nrrd'
+		invWarpedlowRankIm = result_folder+'/'+ 'Iter'+ str(currentIter)+'_InvWarped_LowRank_' + str(i)  +'.nrrd'
+		cmd += ";"+updateInputImageWithDVF( lowRankIm, reference_im_name, inverseDVF, invWarpedlowRankIm)
 
 
         outputIm = result_folder+'/'+ 'Iter'+ str(currentIter)+'_Deformed_LowRank' + str(i)  + '.nrrd'
@@ -120,7 +131,7 @@ reference_im_name = '/home/xiaoxiao/work/data/SRI24/T1_Crop.nii.gz'
 data_folder= '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data'
 im_names = readTxtIntoList(data_folder +'/Flair_FN.txt')
 
-lamda = 0.7
+lamda = 0.8
 result_folder = '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/non_greedy_Flair_w'+str(lamda)
 selection = [0,1,3,4,6,7,9,10]
 
@@ -159,7 +170,7 @@ def main():
     sum_sparse = np.zeros(NUM_OF_ITERATIONS)
 
     gridSize = [6,8,6]
-    Y = np.zeros((vector_length,num_of_data))
+
     for iterCount in range(1,NUM_OF_ITERATIONS + 1):
 
 
@@ -170,16 +181,9 @@ def main():
         a = time.clock()
 
 
-        # prepare data matrix
-        for i in range(num_of_data) :
-            im_file =  result_folder+'/'+ 'Iter'+str(iterCount-1)+'_Flair_' + str(i)  + '.nrrd'
-            tmp = sitk.ReadImage(im_file)
-            tmp = sitk.GetArrayFromImage(tmp)
-            Y[:,i] = tmp.reshape(-1)
-            del tmp
 
 
-        sparsity[iterCount-1], sum_sparse[iterCount-1] = runIteration(Y, iterCount, lamda,gridSize, maxDisp)
+        sparsity[iterCount-1], sum_sparse[iterCount-1] = runIteration(vector_length, iterCount, lamda,gridSize, maxDisp)
         gc.collect()
         #lamda += 0.025
         if iterCount%2 == 0 :
