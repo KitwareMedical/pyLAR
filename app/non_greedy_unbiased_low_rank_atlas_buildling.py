@@ -19,6 +19,7 @@ USE_HEALTHY_ATLAS = True
 
 ###############################  the main pipeline #############################
 def runIteration(Y,currentIter,lamda,gridSize,maxDisp):
+    global reference_im_name
     low_rank, sparse, n_iter,rank, sparsity, sum_sparse = rpca(Y,lamda)
     saveImagesFromDM(low_rank,result_folder+'/'+ 'Iter'+str(currentIter) +'_LowRank_', reference_im_name)
     saveImagesFromDM(sparse,result_folder+'/'+ 'Iter'+str(currentIter) +'_Sparse_', reference_im_name)
@@ -116,12 +117,11 @@ def affineRegistrationStep():
 
 #######################################  main ##################################
 reference_im_name = '/home/xiaoxiao/work/data/SRI24/T1_Crop.nii.gz'
-
 data_folder= '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data'
 im_names = readTxtIntoList(data_folder +'/Flair_FN.txt')
 
 lamda = 0.7
-result_folder = '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/Unbiased_Atlas_Flair_w'+str(lamda)
+result_folder = '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/non_greedy_Flair_w'+str(lamda)
 selection = [0,1,3,4,6,7,9,10]
 
 print 'Results will be stored in:',result_folder
