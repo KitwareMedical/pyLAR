@@ -69,10 +69,9 @@ def runIteration(vector_length,currentIter,lamda,gridSize,maxDisp):
 		inverseDVF = result_folder + '/'+ 'Iter'+ str(currentIter-1)+'_INV_DVF_' + str(i) +  '.nrrd'
 		cmd = genInverseDVF(previousIterDVF,inverseDVF)
 
-
 		lowRankIm = result_folder+'/'+ 'Iter'+ str(currentIter)+'_LowRank_' + str(i)  +'.nrrd'
 		invWarpedlowRankIm = result_folder+'/'+ 'Iter'+ str(currentIter)+'_InvWarped_LowRank_' + str(i)  +'.nrrd'
-		cmd += ";"+updateInputImageWithDVF( lowRankIm, reference_im_name, inverseDVF, invWarpedlowRankIm)
+		cmd += ';'+updateInputImageWithDVF( lowRankIm, reference_im_name, inverseDVF, invWarpedlowRankIm) +';'
 
 
         outputIm = result_folder+'/'+ 'Iter'+ str(currentIter)+'_Deformed_LowRank' + str(i)  + '.nrrd'
@@ -81,7 +80,7 @@ def runIteration(vector_length,currentIter,lamda,gridSize,maxDisp):
 
         initialInputImage= result_folder+'/Iter0_Flair_' +str(i) +  '.nrrd'
         newInputImage = result_folder+'/Iter'+ str(currentIter)+'_Flair_' +str(i) +  '.nrrd'
-        cmd += ";"+BSplineReg_BRAINSFit(reference_im_name,invWarpedlowRankIm,outputIm,outputTransform,gridSize, maxDisp)
+        cmd += BSplineReg_BRAINSFit(reference_im_name,invWarpedlowRankIm,outputIm,outputTransform,gridSize, maxDisp)
         cmd +=';'+ ConvertTransform(reference_im_name,outputTransform,outputDVF)
 
 
@@ -165,7 +164,7 @@ def main():
     num_of_data = len(selection)
 
 
-    NUM_OF_ITERATIONS = 8
+    NUM_OF_ITERATIONS = 12
     sparsity = np.zeros(NUM_OF_ITERATIONS)
     sum_sparse = np.zeros(NUM_OF_ITERATIONS)
 
@@ -209,7 +208,7 @@ def main():
     plt.plot(range(NUM_OF_ITERATIONS), sum_sparse)
     plt.savefig(result_folder+'/sumSparse.png')
 
-    if USE_HEALTHY_ATLAS:
+    if not USE_HEALTHY_ATLAS:
       for i in range(NUM_OF_ITERATIONS):
           atlasIm = result_folder+'/'+ 'Iter'+str(i+1) +'_atlas.nrrd'
           im = sitk.ReadImage(atlasIm) # image in SITK format
