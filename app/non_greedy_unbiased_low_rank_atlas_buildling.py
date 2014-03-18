@@ -65,13 +65,13 @@ def runIteration(vector_length,currentIter,lamda,gridSize,maxDisp):
         cmd = ''
         invWarpedlowRankIm = result_folder + '/'+ 'Iter'+ str(currentIter)+'_LowRank_' + str(i)  +'.nrrd'
         if currentIter > 1:
-		previousIterDVF = result_folder + '/'+ 'Iter'+ str(currentIter-1)+'_DVF_' + str(i) +  '.nrrd'
-		inverseDVF = result_folder + '/'+ 'Iter'+ str(currentIter-1)+'_INV_DVF_' + str(i) +  '.nrrd'
-		cmd = genInverseDVF(previousIterDVF,inverseDVF)
+            previousIterDVF = result_folder + '/'+ 'Iter'+ str(currentIter-1)+'_DVF_' + str(i) +  '.nrrd'
+            inverseDVF = result_folder + '/'+ 'Iter'+ str(currentIter-1)+'_INV_DVF_' + str(i) +  '.nrrd'
+            cmd = genInverseDVF(previousIterDVF,inverseDVF)
 
-		lowRankIm = result_folder+'/'+ 'Iter'+ str(currentIter)+'_LowRank_' + str(i)  +'.nrrd'
-		invWarpedlowRankIm = result_folder+'/'+ 'Iter'+ str(currentIter)+'_InvWarped_LowRank_' + str(i)  +'.nrrd'
-		cmd += ';'+updateInputImageWithDVF( lowRankIm, reference_im_name, inverseDVF, invWarpedlowRankIm) +';'
+            lowRankIm = result_folder+'/'+ 'Iter'+ str(currentIter)+'_LowRank_' + str(i)  +'.nrrd'
+            invWarpedlowRankIm = result_folder+'/'+ 'Iter'+ str(currentIter)+'_InvWarped_LowRank_' + str(i)  +'.nrrd'
+            cmd += ';'+updateInputImageWithDVF( lowRankIm, reference_im_name, inverseDVF, invWarpedlowRankIm) +';'
 
 
         outputIm = result_folder+'/'+ 'Iter'+ str(currentIter)+'_Deformed_LowRank' + str(i)  + '.nrrd'
@@ -131,7 +131,7 @@ data_folder= '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data'
 im_names = readTxtIntoList(data_folder +'/Flair_FN.txt')
 
 lamda = 0.8
-result_folder = '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/non_greedy_Flair_w'+str(lamda)
+result_folder = '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/double_max_disp_non_greedy_Flair_w'+str(lamda)
 selection = [0,1,3,4,6,7,9,10]
 
 print 'Results will be stored in:',result_folder
@@ -164,7 +164,7 @@ def main():
     num_of_data = len(selection)
 
 
-    NUM_OF_ITERATIONS = 12
+    NUM_OF_ITERATIONS = 10
     sparsity = np.zeros(NUM_OF_ITERATIONS)
     sum_sparse = np.zeros(NUM_OF_ITERATIONS)
 
@@ -173,7 +173,7 @@ def main():
     for iterCount in range(1,NUM_OF_ITERATIONS + 1):
 
 
-        maxDisp = z_dim/gridSize[2]/2
+        maxDisp = z_dim/gridSize[2]
         print 'Iteration ' +  str(iterCount) + ' lamda=%f'  %lamda
         print 'Grid size: ', gridSize
         print 'Max Displacement: ', maxDisp 

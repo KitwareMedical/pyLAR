@@ -21,15 +21,16 @@ def collectStatstics(InputNum, NUM_OF_ITERATIONS):
     allStats = [ ]
     for currentIter in range(1,NUM_OF_ITERATIONS+1):
         outputComposedDVFIm = result_folder+'/'+ 'Iter'+ str(currentIter)+'_Composed_DVF_' + str(InputNum) +  '.nrrd'
+        outputDVFIm = result_folder+'/'+ 'Iter'+ str(currentIter)+'_DVF_' + str(InputNum) +  '.nrrd'
         inputImage = result_folder+'/Iter'+ str(currentIter)+'_Flair_' +str(InputNum) +  '.nrrd'
-        tumorMaskImage= '/home/xiaoxiao/work/data/BRATS/BRATS-2/Synthetic_Data/TumorMask/affine3more_' +str(InputNum) +  '.nrrd'
-        deformedTumorMaskImage= '/home/xiaoxiao/work/data/BRATS/BRATS-2/Synthetic_Data/TumorMask/deformed_3more_' +str(InputNum) +  '.nrrd'
+        tumorMaskImage= '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/TumorMask/affine3more_' +str(InputNum) +  '.nrrd'
+        deformedTumorMaskImage= '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/TumorMask/deformed_3more_' +str(InputNum) +  '.nrrd'
 
 
         #outputTissueImage = result_folder+'/tissues_'+str(InputNum) + '_Iter'+ str(currentIter) +  '.nrrd'
         logFile = open(result_folder+'/Iter'+str(currentIter)+'_TissueStats_'+ str(InputNum)+'.log', 'w')
 
-        updateInputImageWithDVF(tumorMaskImage,tumorMaskImage,outputComposedDVFIm, deformedTumorMaskImage,True)
+        updateInputImageWithDVF(tumorMaskImage,tumorMaskImage,outputDVFIm, deformedTumorMaskImage,True)
 
         # stats is a matrix of the statistics, including four metrics: mean, std, var,min, max
         stats = computeLabelStatistics(inputImage, tissues_Image, deformedTumorMaskImage)
@@ -43,7 +44,7 @@ def collectStatstics(InputNum, NUM_OF_ITERATIONS):
 def main():
 
     global result_folder, NUM_OF_ITERATIONS, num_of_data 
-    result_folder = '/home/xiaoxiao/work/data/BRATS/BRATS-2/Synthetic_Data/Flair_w0.9'
+    result_folder = '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/double_max_disp_non_greedy_Flair_w0.8'
 
     num_of_data = 8
     NUM_OF_ITERATIONS = 10
