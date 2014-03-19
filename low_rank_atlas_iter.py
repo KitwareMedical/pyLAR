@@ -356,6 +356,14 @@ def TBDapplyInverseDVFToTissue(DVFImage, inputTissueImage, outputTissueImage, EX
         tempFile.close()
     return cmd
 
+def GaussianBlur(inputIm, outputIm, sigma):
+    inIm = sitk.ReadImage(inputIm)
+    srg = sitk.SmoothingRecursiveGaussianImageFilter()
+    srg.SetSigma(sigma)
+    outIm = srg.Execute(inIm)
+
+    sitk.WriteImage(outIm, outputIm)
+
 def computeLabelStatistics(inputIm, labelmapIm, tumorMaskImage = None):
 
     inIm = sitk.ReadImage(inputIm)

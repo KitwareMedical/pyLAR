@@ -16,17 +16,24 @@ result_folder = ''
 selection = []
 im_names =[]
 USE_HEALTHY_ATLAS = True
+USE_BLUR = True
 
 ###############################  the main pipeline #############################
-def runIteration(vector_length,currentIter,lamda,gridSize,maxDisp):
+def runIteration(vector_length,currentIter,lamda,gridSize,maxDisp,sigma):
     global reference_im_name
     # prepare data matrix
     num_of_data = len(selection)
     Y = np.zeros((vector_length,num_of_data))
     for i in range(num_of_data) :
           im_file =  result_folder+'/'+ 'Iter'+str(currentIter-1)+'_Flair_' + str(i)  + '.nrrd'
-          tmp = sitk.ReadImage(im_file)
-          tmp = sitk.GetArrayFromImage(tmp)
+          inIm = sitk.ReadImage(im_file)
+          tmp = sitk.GetArrayFromImage(inIm)
+          if USE_BLUR:
+              if sigma > 0:
+                srg = sitk.SmoothingRecursiveGaussianImageFilter()
+                srg.SetSigma(sigma)
+                outIm = srg.Execute(inIm)
+                tmp = sitk.GetArrayFromImage(outIm)
           Y[:,i] = tmp.reshape(-1)
           del tmp
 
@@ -67,11 +74,11 @@ def runIteration(vector_length,currentIter,lamda,gridSize,maxDisp):
         if currentIter > 1:
             previousIterDVF = result_folder + '/'+ 'Iter'+ str(currentIter-1)+'_DVF_' + str(i) +  '.nrrd'
             inverseDVF = result_folder + '/'+ 'Iter'+ str(currentIter-1)+'_INV_DVF_' + str(i) +  '.nrrd'
-            cmd = genInverseDVF(previousIterDVF,inverseDVF)
+            genInverseDVF(previousIterDVF,inverseDVF, True)
 
             lowRankIm = result_folder+'/'+ 'Iter'+ str(currentIter)+'_LowRank_' + str(i)  +'.nrrd'
             invWarpedlowRankIm = result_folder+'/'+ 'Iter'+ str(currentIter)+'_InvWarped_LowRank_' + str(i)  +'.nrrd'
-            cmd += ';'+updateInputImageWithDVF( lowRankIm, reference_im_name, inverseDVF, invWarpedlowRankIm) +';'
+            updateInputImageWithDVF( lowRankIm, reference_im_name, inverseDVF, invWarpedlowRankIm,True)
 
 
         outputIm = result_folder+'/'+ 'Iter'+ str(currentIter)+'_Deformed_LowRank' + str(i)  + '.nrrd'
@@ -80,7 +87,11 @@ def runIteration(vector_length,currentIter,lamda,gridSize,maxDisp):
 
         initialInputImage= result_folder+'/Iter0_Flair_' +str(i) +  '.nrrd'
         newInputImage = result_folder+'/Iter'+ str(currentIter)+'_Flair_' +str(i) +  '.nrrd'
-        cmd += BSplineReg_BRAINSFit(reference_im_name,invWarpedlowRankIm,outputIm,outputTransform,gridSize, maxDisp)
+
+        movingIm = invWarpedlowRankIm
+
+
+        cmd += BSplineReg_BRAINSFit(reference_im_name,movingIm,outputIm,outputTransform,gridSize, maxDisp)
         cmd +=';'+ ConvertTransform(reference_im_name,outputTransform,outputDVF)
 
 
@@ -131,9 +142,10 @@ data_folder= '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data'
 im_names = readTxtIntoList(data_folder +'/Flair_FN.txt')
 
 lamda = 0.8
-result_folder = '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/double_max_disp_non_greedy_Flair_w'+str(lamda)
+result_folder = '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/blur3_non_greedy_Flair_w'+str(lamda)
 selection = [0,1,3,4,6,7,9,10]
 
+sigma = 3
 print 'Results will be stored in:',result_folder
 if not os.path.exists(result_folder):
 	os.system('mkdir '+ result_folder)
@@ -143,7 +155,7 @@ def main():
     import time
     import resource
 
-    global lamda
+    global lamda, sigma
     s = time.clock()
     # save script to the result folder for paramter checkups
     currentPyFile = os.path.realpath(__file__)
@@ -171,23 +183,20 @@ def main():
     gridSize = [6,8,6]
 
     for iterCount in range(1,NUM_OF_ITERATIONS + 1):
-
-
         maxDisp = z_dim/gridSize[2]
         print 'Iteration ' +  str(iterCount) + ' lamda=%f'  %lamda
         print 'Grid size: ', gridSize
         print 'Max Displacement: ', maxDisp 
         a = time.clock()
 
-
-
-
-        sparsity[iterCount-1], sum_sparse[iterCount-1] = runIteration(vector_length, iterCount, lamda,gridSize, maxDisp)
+        sparsity[iterCount-1], sum_sparse[iterCount-1] = runIteration(vector_length, iterCount, lamda,gridSize, maxDisp,sigma)
         gc.collect()
         #lamda += 0.025
         if iterCount%2 == 0 :
           if gridSize[0] < 10:
             gridSize = np.add( gridSize,[1,1,1])
+        if sigma > 0:
+              sigma = sigma -0.5
 
         #a = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
         #print 'Current memory usage :',a/1024.0/1024.0,'GB'
