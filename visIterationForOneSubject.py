@@ -3,7 +3,7 @@ sys.path.append('/home/xiaoxiao/work/src/TubeTK/Base/Python/pyrpca/examples')
 from low_rank_atlas_iter import *
 
 
-result_folder ='/home/xiaoxiao/work/data/BRATS/BRATS-2/Synthetic_Data/Flair_w0.9'
+result_folder ='/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/double_max_disp_non_greedy_Flair_w0.8'
 outputPNGFolder = result_folder
 os.system('mkdir '+outputPNGFolder)
 madality = 'Flair'
@@ -31,7 +31,7 @@ def showIteraionSlices(typename, row, numList, t):
 
 
 
-for inputNumber in range(8):
+for inputNumber in [0]:#range(8):
      fig = plt.figure(figsize=(15,5))
      showIteraionSlices('Flair',0, range(0,NUM_OF_ITERATIONS),'D') #iteraion i's input image is output of iter(i-!)
      showIteraionSlices('LowRank',1, range(1,NUM_OF_ITERATIONS+1),'L')

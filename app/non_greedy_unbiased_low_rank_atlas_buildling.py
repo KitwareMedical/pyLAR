@@ -89,9 +89,15 @@ def runIteration(vector_length,currentIter,lamda,gridSize,maxDisp,sigma):
         newInputImage = result_folder+'/Iter'+ str(currentIter)+'_Flair_' +str(i) +  '.nrrd'
 
         movingIm = invWarpedlowRankIm
+        fixedIm =  reference_im_name
 
+        if sigma > 0:
+                srg = sitk.SmoothingRecursiveGaussianImageFilter()
+                srg.SetSigma(sigma)
+                outIm = srg.Execute(inIm)
+                tmp = sitk.GetArrayFromImage(outIm)
 
-        cmd += BSplineReg_BRAINSFit(reference_im_name,movingIm,outputIm,outputTransform,gridSize, maxDisp)
+        cmd += BSplineReg_BRAINSFit(fixedIm,movingIm,outputIm,outputTransform,gridSize, maxDisp)
         cmd +=';'+ ConvertTransform(reference_im_name,outputTransform,outputDVF)
 
 
@@ -142,7 +148,7 @@ data_folder= '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data'
 im_names = readTxtIntoList(data_folder +'/Flair_FN.txt')
 
 lamda = 0.8
-result_folder = '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/blur3_non_greedy_Flair_w'+str(lamda)
+result_folder = '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/blur2_non_greedy_Flair_w'+str(lamda)
 selection = [0,1,3,4,6,7,9,10]
 
 sigma = 3
@@ -176,7 +182,7 @@ def main():
     num_of_data = len(selection)
 
 
-    NUM_OF_ITERATIONS = 10
+    NUM_OF_ITERATIONS = 12
     sparsity = np.zeros(NUM_OF_ITERATIONS)
     sum_sparse = np.zeros(NUM_OF_ITERATIONS)
 
@@ -192,10 +198,10 @@ def main():
         sparsity[iterCount-1], sum_sparse[iterCount-1] = runIteration(vector_length, iterCount, lamda,gridSize, maxDisp,sigma)
         gc.collect()
         #lamda += 0.025
-        if iterCount%2 == 0 :
+        if iterCount%3 == 0 :
           if gridSize[0] < 10:
-            gridSize = np.add( gridSize,[1,1,1])
-        if sigma > 0:
+             gridSize = np.add( gridSize,[1,1,1])
+          if sigma > 0:
               sigma = sigma -0.5
 
         #a = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
