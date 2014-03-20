@@ -1,24 +1,26 @@
-# -*- coding: utf-8 -*-
-# <nbformat>3.0</nbformat>
-
-# <codecell>
-
 import sys
-sys.path.append('../')
 from low_rank_atlas_iter import *
 
-# <codecell>
 
 # global variables
-data_folder = ''
-reference_im_name = ''
-result_folder = ''
-selection = []
-im_names =[]
 USE_HEALTHY_ATLAS = True
 USE_BLUR = True
 
-###############################  the main pipeline #############################
+reference_im_name = '/home/xiaoxiao/work/data/SRI24/T1_Crop.nii.gz'
+data_folder = '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data'
+im_names = readTxtIntoList(data_folder +'/Flair_FN.txt')
+
+lamda = 0.8
+result_folder = '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/blur2_non_greedy_Flair_w'+str(lamda)
+selection = [0,1,3,4,6,7,9,10]
+
+sigma = 3
+print 'Results will be stored in:',result_folder
+if not os.path.exists(result_folder):
+	os.system('mkdir '+ result_folder)
+
+
+############################################## #############################
 def runIteration(vector_length,currentIter,lamda,gridSize,maxDisp,sigma):
     global reference_im_name
     # prepare data matrix
@@ -52,7 +54,6 @@ def runIteration(vector_length,currentIter,lamda,gridSize,maxDisp,sigma):
 
     del low_rank, sparse,Y
 
-    
     if not USE_HEALTHY_ATLAS:
         reference_im_name = result_folder+'/Iter'+ str(currentIter) +'_atlas.nrrd'
       # Average lowrank images
@@ -143,19 +144,6 @@ def affineRegistrationStep():
 
 
 #######################################  main ##################################
-reference_im_name = '/home/xiaoxiao/work/data/SRI24/T1_Crop.nii.gz'
-data_folder= '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data'
-im_names = readTxtIntoList(data_folder +'/Flair_FN.txt')
-
-lamda = 0.8
-result_folder = '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/blur2_non_greedy_Flair_w'+str(lamda)
-selection = [0,1,3,4,6,7,9,10]
-
-sigma = 3
-print 'Results will be stored in:',result_folder
-if not os.path.exists(result_folder):
-	os.system('mkdir '+ result_folder)
-
 #@profile
 def main():
     import time

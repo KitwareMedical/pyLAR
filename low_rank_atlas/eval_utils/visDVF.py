@@ -1,9 +1,9 @@
 import sys
-sys.path.append('/home/xiaoxiao/work/src/TubeTK/Base/Python/pyrpca/examples')
+sys.path.insert(0, '../')
 from low_rank_atlas_iter import *
 
 
-result_folder ='/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/blur3_non_greedy_Flair_w0.8'
+result_folder ='/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/blur2_non_greedy_Flair_w0.8'
 outputPNGFolder = result_folder
 inputNumber = 0
 slicerNum = 77

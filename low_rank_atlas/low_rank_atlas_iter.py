@@ -6,11 +6,11 @@ import sys
 import subprocess
 import os
 import matplotlib.pyplot as plt
-sys.path.append('/home/xiaoxiao/work/src/TubeTK/Base/Python/pyrpca')
-import core.ialm as ialm
 import time
 import nrrd
 import gc
+sys.path.insert(0, '../')
+import core.ialm as ialm
 
 ###################################################
 # preprocessing

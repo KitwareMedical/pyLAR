@@ -1,12 +1,6 @@
-# -*- coding: utf-8 -*-
-# <nbformat>3.0</nbformat>
-
-# <codecell>
-
 import sys
-sys.path.append('/home/xiaoxiao/work/src/TubeTK/Base/Python/pyrpca/examples')
+sys.path.insert(0, '../')
 from low_rank_atlas_iter import *
-
 
 
 lamda=0.9

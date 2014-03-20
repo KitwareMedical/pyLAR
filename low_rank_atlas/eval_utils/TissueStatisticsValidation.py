@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 import sys
-sys.path.append('./')
+sys.path.insert(0, '../')
 from low_rank_atlas_iter import *
 import pickle
 
