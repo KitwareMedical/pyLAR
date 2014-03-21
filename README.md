@@ -5,12 +5,13 @@ pyrpca contains Python implmentations of Robust PCA for medical imaging and
 computer vision applications, featuring a low-rank atlas building technique
 applied to traumatic brain injury(TBI) MRI images.
 
-Subdirectory content:
-core --- two implementations of RPCA
-examples -- a couple of ipython notebook examples of running RPCA
-tests -- testing scripts of the core functionalities
-low_rank_atlas -- the study of using  RPCA in a low-rank atlas building framework
-eval_utils -- the utilitiy scripts to evaluate the results on the low rank atlas building framework
+Subdirectory content: 
+* core --- two implementations of RPCA
+* examples -- a couple of ipython notebook examples of running RPCA
+* tests -- testing scripts of the core functionalities
+* low_rank_atlas -- the study of using  RPCA in a low-rank atlas building framework
+* eval_utils -- the utilitiy scripts to evaluate the results on the low rank atlas building framework
+
 
 pyrpca implements two recent proposals for *robust PCA*:
 ```bibtex
