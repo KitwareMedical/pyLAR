@@ -11,23 +11,26 @@ data_folder = '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data'
 im_names = readTxtIntoList(data_folder +'/Flair_FN.txt')
 
 lamda = 0.8
-result_folder = '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/blur2_non_greedy_Flair_w'+str(lamda)
+result_folder = '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/multi_level_non_greedy_Flair_w'+str(lamda)
 selection = [0,1,3,4,6,7,9,10]
 
 sigma = 3
+gridSize = [10,13,10]
+NUM_OF_ITERATIONS_PER_LEVEL = 3
+NUM_OF_LEVELS = 4
 print 'Results will be stored in:',result_folder
 if not os.path.exists(result_folder):
 	os.system('mkdir '+ result_folder)
 
 
 ############################################## #############################
-def runIteration(vector_length,currentIter,lamda,gridSize,maxDisp,sigma):
+def runIteration(vector_length,level,currentIter,lamda,gridSize,maxDisp,sigma):
     global reference_im_name
     # prepare data matrix
     num_of_data = len(selection)
     Y = np.zeros((vector_length,num_of_data))
     for i in range(num_of_data) :
-          im_file =  result_folder+'/'+ 'Iter'+str(currentIter-1)+'_Flair_' + str(i)  + '.nrrd'
+          im_file =  result_folder+'/L'+ str(level) +'_Iter'+str(currentIter-1)+'_Flair_' + str(i)  + '.nrrd'
           inIm = sitk.ReadImage(im_file)
           tmp = sitk.GetArrayFromImage(inIm)
           if USE_BLUR:
@@ -40,70 +43,68 @@ def runIteration(vector_length,currentIter,lamda,gridSize,maxDisp,sigma):
           del tmp
 
     low_rank, sparse, n_iter,rank, sparsity, sum_sparse = rpca(Y,lamda)
-    saveImagesFromDM(low_rank,result_folder+'/'+ 'Iter'+str(currentIter) +'_LowRank_', reference_im_name)
-    saveImagesFromDM(sparse,result_folder+'/'+ 'Iter'+str(currentIter) +'_Sparse_', reference_im_name)
+    saveImagesFromDM(low_rank,result_folder+'/L'+ str(level)+'_Iter'+str(currentIter) +'_LowRank_', reference_im_name)
+    saveImagesFromDM(sparse,result_folder+'/L'+str(level)+ '_Iter'+str(currentIter) +'_Sparse_', reference_im_name)
 
     # Visualize and inspect
     fig = plt.figure(figsize=(15,5))
-    showSlice(Y, 'Iter'+str(currentIter) +' Input',plt.cm.gray,0,reference_im_name)
-    showSlice(low_rank,'Iter'+str(currentIter) +' low rank',plt.cm.gray,1, reference_im_name)
-    showSlice(sparse,'Iter'+str(currentIter) +' sparse',plt.cm.gray,2, reference_im_name)
-    plt.savefig(result_folder+'/'+'Iter'+ str(currentIter)+'_w_'+str(lamda)+'.png')
+    showSlice(Y,'L'+str(level)+ '_'+str(currentIter) +' Input',plt.cm.gray,0,reference_im_name)
+    showSlice(low_rank,'L'+str(level)+ '_'+str(currentIter) +' low rank',plt.cm.gray,1, reference_im_name)
+    showSlice(sparse,'L'+str(level)+ '_'+str(currentIter)+' sparse',plt.cm.gray,2, reference_im_name)
+    plt.savefig(result_folder+'/'+'L'+str(level)+'_Iter'+ str(currentIter)+'.png')
     fig.clf()
     plt.close(fig)
 
     del low_rank, sparse,Y
 
     if not USE_HEALTHY_ATLAS:
-        reference_im_name = result_folder+'/Iter'+ str(currentIter) +'_atlas.nrrd'
+        reference_im_name = result_folder+'/L'+str(level)+'_Iter'+ str(currentIter) +'_atlas.nrrd'
       # Average lowrank images
         listOfImages = []
         num_of_data = len(selection)
         for i in range(num_of_data):
-            lrIm = result_folder+'/'+ 'Iter'+ str(currentIter)+'_LowRank_' + str(i)  +'.nrrd'
+            lrIm = result_folder+'/L'+str(level)+ '_Iter'+ str(currentIter)+'_LowRank_' + str(i)  +'.nrrd'
             listOfImages.append(lrIm)
         AverageImages(listOfImages,reference_im_name)
+        im = sitk.ReadImage(reference_im_name) # image in SITK format
+        im_array = sitk.GetArrayFromImage(im)
+        z_dim, x_dim, y_dim = im_array.shape # get 3D volume shape
+        plt.figure()
+        implot = plt.imshow(im_array[z_dim/2,:,:],plt.cm.gray)
+        plt.title('Level'+str(i)+ ' atlas')
+        plt.savefig(result_folder+'/L'+str(i)+'Iter'+str(currentIter)+'_atlas.png')
 
     ps = []
     for i in range(num_of_data):
 
-        logFile = open(result_folder+'/Iter'+str(currentIter)+'_RUN_'+ str(i)+'.log', 'w')
+        logFile = open(result_folder+'/L'+str(level)+'_Iter'+str(currentIter)+'_RUN_'+ str(i)+'.log', 'w')
 
         # pipe steps sequencially
         cmd = ''
-        invWarpedlowRankIm = result_folder + '/'+ 'Iter'+ str(currentIter)+'_LowRank_' + str(i)  +'.nrrd'
+        invWarpedlowRankIm = result_folder + '/L'+str(level)+'_Iter'+ str(currentIter)+'_LowRank_' + str(i)  +'.nrrd'
         if currentIter > 1:
-            previousIterDVF = result_folder + '/'+ 'Iter'+ str(currentIter-1)+'_DVF_' + str(i) +  '.nrrd'
-            inverseDVF = result_folder + '/'+ 'Iter'+ str(currentIter-1)+'_INV_DVF_' + str(i) +  '.nrrd'
+            previousIterDVF = result_folder + '/L'+str(level)+ '_Iter'+ str(currentIter-1)+'_DVF_' + str(i) +  '.nrrd'
+            inverseDVF = result_folder + '/L'+str(level)+ '_Iter'+ str(currentIter-1)+'_INV_DVF_' + str(i) +  '.nrrd'
             genInverseDVF(previousIterDVF,inverseDVF, True)
 
-            lowRankIm = result_folder+'/'+ 'Iter'+ str(currentIter)+'_LowRank_' + str(i)  +'.nrrd'
-            invWarpedlowRankIm = result_folder+'/'+ 'Iter'+ str(currentIter)+'_InvWarped_LowRank_' + str(i)  +'.nrrd'
+            lowRankIm = result_folder+'/L'+ str(level)+'_Iter'+ str(currentIter)+'_LowRank_' + str(i)  +'.nrrd'
+            invWarpedlowRankIm = result_folder+'/L'+ str(level)+'_Iter'+ str(currentIter)+'_InvWarped_LowRank_' + str(i)  +'.nrrd'
             updateInputImageWithDVF( lowRankIm, reference_im_name, inverseDVF, invWarpedlowRankIm,True)
 
 
-        outputIm = result_folder+'/'+ 'Iter'+ str(currentIter)+'_Deformed_LowRank' + str(i)  + '.nrrd'
-        outputTransform = result_folder+'/'+ 'Iter'+ str(currentIter)+'_Transform_' + str(i) +  '.tfm'
-        outputDVF = result_folder+'/'+ 'Iter'+ str(currentIter)+'_DVF_' + str(i) +  '.nrrd'
+        outputIm = result_folder+'/L'+ str(level)+'_Iter'+ str(currentIter)+'_Deformed_LowRank' + str(i)  + '.nrrd'
+        outputTransform = result_folder+'/L'+ str(level)+'_Iter'+ str(currentIter)+'_Transform_' + str(i) +  '.tfm'
+        outputDVF = result_folder+'/L'+ str(level)+'_Iter'+ str(currentIter)+'_DVF_' + str(i) +  '.nrrd'
 
-        initialInputImage= result_folder+'/Iter0_Flair_' +str(i) +  '.nrrd'
-        newInputImage = result_folder+'/Iter'+ str(currentIter)+'_Flair_' +str(i) +  '.nrrd'
 
         movingIm = invWarpedlowRankIm
         fixedIm =  reference_im_name
-
-        if sigma > 0:
-                srg = sitk.SmoothingRecursiveGaussianImageFilter()
-                srg.SetSigma(sigma)
-                outIm = srg.Execute(inIm)
-                tmp = sitk.GetArrayFromImage(outIm)
-
         cmd += BSplineReg_BRAINSFit(fixedIm,movingIm,outputIm,outputTransform,gridSize, maxDisp)
         cmd +=';'+ ConvertTransform(reference_im_name,outputTransform,outputDVF)
 
 
-        initialInputImage= result_folder+'/Iter0_Flair_' +str(i) +  '.nrrd'
-        newInputImage = result_folder+'/Iter'+ str(currentIter)+'_Flair_' +str(i) +  '.nrrd'
+        initialInputImage= result_folder+'/L'+str(level)+'_Iter0_Flair_' +str(i) +  '.nrrd'
+        newInputImage = result_folder+'/L'+str(level)+'_Iter'+ str(currentIter)+'_Flair_' +str(i) +  '.nrrd'
         cmd += ";" + updateInputImageWithDVF(initialInputImage,reference_im_name, \
                                        outputDVF,newInputImage)
 
@@ -138,7 +139,7 @@ def showReferenceImage(reference_im_name):
 def affineRegistrationStep():
     num_of_data = len(selection)
     for i in range(num_of_data):
-        outputIm =  result_folder+'/Iter0_Flair_' + str(i)  + '.nrrd'
+        outputIm =  result_folder+'/L0_Iter0_Flair_' + str(i)  + '.nrrd'
         AffineReg(reference_im_name,im_names[selection[i]],outputIm)
     return
 
@@ -149,13 +150,12 @@ def main():
     import time
     import resource
 
-    global lamda, sigma
+    global lamda, gridSize, sigma
     s = time.clock()
     # save script to the result folder for paramter checkups
     currentPyFile = os.path.realpath(__file__)
     print currentPyFile
     os.system('cp   ' + currentPyFile+' ' +result_folder)
-
 
     #showReferenceImage(reference_im_name)
     affineRegistrationStep()
@@ -169,28 +169,36 @@ def main():
 
     num_of_data = len(selection)
 
+    for level in range(0, NUM_OF_LEVELS):
+        for iterCount in range(1,NUM_OF_ITERATIONS_PER_LEVEL+1):
+            maxDisp = z_dim/gridSize[2]/2
+            print 'Level: ', level
+            print 'Iteration ' +  str(iterCount) + ' lamda=%f'  %lamda
+            print 'Grid size: ', gridSize
+            print 'Sigma: ', sigma
 
-    NUM_OF_ITERATIONS = 12
-    sparsity = np.zeros(NUM_OF_ITERATIONS)
-    sum_sparse = np.zeros(NUM_OF_ITERATIONS)
+            runIteration(vector_length,level, iterCount, lamda,gridSize, maxDisp,sigma)
+            gc.collect()
 
-    gridSize = [6,8,6]
+        # based off from preious level
+        # update the input image, greedy version
+        for i in range(num_of_data):
+            newLevelInitIm = result_folder + '/L'+str(level+1)+'_Iter0_Flair_'+str(i)+'.nrrd'
+            initialInputImage = result_folder + '/L0_Iter0_Flair_'+str(i)+'.nrrd'
+            outputComposedDVFIm = result_folder + '/L'+str(level) + '_Composed_DVF_'+str(i)+'.nrrd'
+            DVFImageList=[]
+            for k in range(level+1):
+                DVFImageList.append(result_folder+'/L'+ str(k)+'_Iter'+ str(NUM_OF_ITERATIONS_PER_LEVEL)+'_DVF_' + str(i) +  '.nrrd')
+            composeMultipleDVFs(reference_im_name,DVFImageList,outputComposedDVFIm, True)
+            updateInputImageWithDVF(initialInputImage,reference_im_name, \
+                                           outputComposedDVFIm, newLevelInitIm, True)
+            finalDVFIm =  result_folder + '/L'+str(level)+'_Iter'+ str(NUM_OF_ITERATIONS_PER_LEVEL)+'_DVF_' + str(i) +  '.nrrd'
 
-    for iterCount in range(1,NUM_OF_ITERATIONS + 1):
-        maxDisp = z_dim/gridSize[2]
-        print 'Iteration ' +  str(iterCount) + ' lamda=%f'  %lamda
-        print 'Grid size: ', gridSize
-        print 'Max Displacement: ', maxDisp 
-        a = time.clock()
 
-        sparsity[iterCount-1], sum_sparse[iterCount-1] = runIteration(vector_length, iterCount, lamda,gridSize, maxDisp,sigma)
-        gc.collect()
-        #lamda += 0.025
-        if iterCount%3 == 0 :
-          if gridSize[0] < 10:
-             gridSize = np.add( gridSize,[1,1,1])
-          if sigma > 0:
-              sigma = sigma -0.5
+        if gridSize[0] < 10:
+             gridSize = np.add( gridSize,[1,2,1])
+        if sigma > 0:
+             sigma = sigma - 1
 
         #a = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
         #print 'Current memory usage :',a/1024.0/1024.0,'GB'
@@ -202,25 +210,9 @@ def main():
     l = e - s
     print 'Total running time:  %f mins'%(l/60.0)
 
-    # plot the sparsity curve
-    plt.figure()
-    plt.plot(range(NUM_OF_ITERATIONS), sparsity)
-    plt.savefig(result_folder+'/sparsity.png')
 
-    plt.figure()
-    plt.plot(range(NUM_OF_ITERATIONS), sum_sparse)
-    plt.savefig(result_folder+'/sumSparse.png')
 
-    if not USE_HEALTHY_ATLAS:
-      for i in range(NUM_OF_ITERATIONS):
-          atlasIm = result_folder+'/'+ 'Iter'+str(i+1) +'_atlas.nrrd'
-          im = sitk.ReadImage(atlasIm) # image in SITK format
-          im_array = sitk.GetArrayFromImage(im)
-          z_dim, x_dim, y_dim = im_array.shape # get 3D volume shape
-          plt.figure()
-          implot = plt.imshow(im_array[z_dim/2,:,:],plt.cm.gray)
-          plt.title('Iter'+str(i)+ ' atlas')
-          plt.savefig(result_folder+'/Iter'+str(i)+'_atlas.png')
+
 
 if __name__ == "__main__":
     main()
