@@ -77,7 +77,7 @@ def runIteration(vector_length,level,currentIter,lamda,gridSize,maxDisp,sigma):
         plt.figure()
         implot = plt.imshow(im_array[z_dim/2,:,:],plt.cm.gray)
         plt.title('Level'+str(i)+ ' atlas')
-        plt.savefig(result_folder+'/L'+str(level)+'_Iter'+str(currentIter)+'_atlas.png')
+        plt.savefig(result_folder+'/atlas_L'+str(level)+'_Iter'+str(currentIter)+'.png')
 
     ps = []
     for i in range(num_of_data):
