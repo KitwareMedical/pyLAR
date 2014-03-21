@@ -1,23 +1,28 @@
 import sys
 from low_rank_atlas_iter import *
+import imp
 
+configFN = sys.argv[1]
+f = open(configFN)
+config  = imp.load_source('config', '', f)
+f.close()
 
 # global variables
-USE_HEALTHY_ATLAS = True
-USE_BLUR = True
+USE_HEALTHY_ATLAS = config.USE_HEALTHY_ATLAS
+USE_BLUR = config.USE_BLUR
+reference_im_name = config.reference_im_name
+data_folder = config.data_folder
+fileListFN = config.fileListFN
+lamda = config.lamda
+result_folder = config.result_folder 
+selection = config.selection
+sigma = config.sigma 
+gridSize = config.gridSize 
+NUM_OF_ITERATIONS_PER_LEVEL = config.NUM_OF_ITERATIONS_PER_LEVEL
+NUM_OF_LEVELS = config.NUM_OF_LEVELS
 
-reference_im_name = '/home/xiaoxiao/work/data/SRI24/T1_Crop.nii.gz'
-data_folder = '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data'
-im_names = readTxtIntoList(data_folder +'/Flair_FN.txt')
 
-lamda = 0.8
-result_folder = '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/multi_level_non_greedy_Flair_w'+str(lamda)
-selection = [0,1,3,4,6,7,9,10]
-
-sigma = 3
-gridSize = [10,13,10]
-NUM_OF_ITERATIONS_PER_LEVEL = 3
-NUM_OF_LEVELS = 4
+im_names = readTxtIntoList(data_folder +'/'+ fileListFN)
 print 'Results will be stored in:',result_folder
 if not os.path.exists(result_folder):
 	os.system('mkdir '+ result_folder)
@@ -72,7 +77,7 @@ def runIteration(vector_length,level,currentIter,lamda,gridSize,maxDisp,sigma):
         plt.figure()
         implot = plt.imshow(im_array[z_dim/2,:,:],plt.cm.gray)
         plt.title('Level'+str(i)+ ' atlas')
-        plt.savefig(result_folder+'/L'+str(i)+'Iter'+str(currentIter)+'_atlas.png')
+        plt.savefig(result_folder+'/L'+str(i)+'_Iter'+str(currentIter)+'_atlas.png')
 
     ps = []
     for i in range(num_of_data):
