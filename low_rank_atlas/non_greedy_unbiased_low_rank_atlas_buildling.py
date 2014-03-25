@@ -90,6 +90,7 @@ def runIteration(vector_length,level,currentIter,lamda,gridSize,maxDisp,sigma):
 
         # pipe steps sequencially
         cmd = ''
+        invWarpedlowRankIm = result_folder+'/L'+ str(level)+'_Iter'+ str(currentIter)+'_LowRank_' + str(i)  +'.nrrd'
         if currentIter > 1:
             lowRankIm = result_folder+'/L'+ str(level)+'_Iter'+ str(currentIter)+'_LowRank_' + str(i)  +'.nrrd'
             invWarpedlowRankIm = result_folder+'/L'+ str(level)+'_Iter'+ str(currentIter)+'_InvWarped_LowRank_' + str(i)  +'.nrrd'
