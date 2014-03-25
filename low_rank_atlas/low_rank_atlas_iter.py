@@ -148,7 +148,41 @@ def AffineReg(fixedIm,movingIm,outputIm, outputTransform = None):
     return
 
 # deformable image registration
-# call BrainsFit
+def ANTS(fixedIm,movingIm,outputIm,EXECUTE = False):
+    dim = 3
+    executable = '/home/xiaoxiao/work/bin/ANTS/bin/ANTS'
+    result_folder = os.path.dirname(movingIm)
+    # CC[%s,%s,1,4]
+    arguments = str(dim) +' -m MI[ %s , %s , 1 , 32] -t SyN[0.25]  -o %s -i 30x20x10'%(fixedIm, movingIm, outputIm) 
+    cmd = executable + ' ' + arguments
+    if (EXECUTE):
+        tempFile = open(result_folder+'/ANTS.log', 'w')
+        process = subprocess.Popen(cmd, stdout=tempFile, shell=True)
+        process.wait()
+        tempFile.close()
+    return cmd
+
+def ANTSWarpImage(inputIm, outputIm, referenceIm, transformPrefix,inverse = False, EXECUTE = False):
+    dim = 3
+    executable = '/home/xiaoxiao/work/bin/ANTS/bin/WarpImageMultiTransform'
+    result_folder = os.path.dirname(outputIm)
+    if not inverse:
+      t1 = transformPrefix+'Warp.nrrd'
+      t2 = transformPrefix+'Affine.txt'
+    else:
+      t1 = '-i '+transformPrefix + 'Affine.nrrd'
+      t2 = transformPrefix + 'InverseWarp.nrrd'
+    arguments = str(dim) +' %s  %s  -R %s %s %s'%(inputIm, outputIm, referenceIm, t1,t2) 
+    cmd = executable + ' ' + arguments
+    if (EXECUTE):
+        tempFile = open(result_folder+'/ANTSWarpImage.log', 'w')
+        process = subprocess.Popen(cmd, stdout=tempFile, shell=True)
+        process.wait()
+        tempFile.close()
+    return cmd
+    
+
+
 def DemonsReg(fixedIm,movingIm,outputIm, outputDVF,EXECUTE = False):
     executable = '/home/xiaoxiao/work/bin/BRAINSTools/bin/BRAINSDemonWarp'
     result_folder = os.path.dirname(movingIm)
