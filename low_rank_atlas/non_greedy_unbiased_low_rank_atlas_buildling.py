@@ -7,6 +7,7 @@ f = open(configFN)
 config  = imp.load_source('config', '', f)
 f.close()
 
+
 # global variables
 USE_HEALTHY_ATLAS = config.USE_HEALTHY_ATLAS
 USE_BLUR = config.USE_BLUR
@@ -17,20 +18,25 @@ lamda = config.lamda
 result_folder = config.result_folder
 selection = config.selection
 sigma = config.sigma
-gridSize = config.gridSize
+
 NUM_OF_ITERATIONS_PER_LEVEL = config.NUM_OF_ITERATIONS_PER_LEVEL
 NUM_OF_LEVELS = config.NUM_OF_LEVELS
 REGISTRATION_TYPE = config.REGISTRATION_TYPE
 
+if REGISTRATION_TYPE =='BSpline':
+  gridSize = config.gridSize
+else:
+  gridSize =[0,0,0]
 
 im_names = readTxtIntoList(data_folder +'/'+ fileListFN)
 print 'Results will be stored in:',result_folder
 if not os.path.exists(result_folder):
 	os.system('mkdir '+ result_folder)
 
+os.system('cp   ' + configFN+' ' +result_folder)
 
 ############################################## #############################
-def runIteration(vector_length,level,currentIter,lamda,gridSize,maxDisp,sigma):
+def runIteration(vector_length,level,currentIter,lamda,sigma, gridSize,maxDisp):
     global reference_im_name
 
     # prepare data matrix
@@ -100,7 +106,7 @@ def runIteration(vector_length,level,currentIter,lamda,gridSize,maxDisp,sigma):
               genInverseDVF(previousIterDVF,inverseDVF, True)
               updateInputImageWithDVF( lowRankIm, reference_im_name, inverseDVF, invWarpedlowRankIm,True)
             if REGISTRATION_TYPE == 'ANTS':
-              outputTransformPrefix = result_folder+'/L'+ str(level)+'_Iter'+ str(currentIter-1)
+              outputTransformPrefix = result_folder+'/L'+ str(level)+'_Iter'+ str(currentIter-1)+'_'
               ANTSWarpImage(lowRankIm,invWarpedlowRankIm, reference_im_name,outputTransformPrefix,True, True)
 
 
@@ -124,7 +130,7 @@ def runIteration(vector_length,level,currentIter,lamda,gridSize,maxDisp,sigma):
           cmd += ";" + updateInputImageWithDVF(initialInputImage,reference_im_name, outputDVF,newInputImage)
         elif REGISTRATION_TYPE == 'ANTS':
           # will generate a warp(DVF) file and an affine file
-          outputTransformPrefix = result_folder+'/L'+ str(level)+'_Iter'+ str(currentIter)
+          outputTransformPrefix = result_folder+'/L'+ str(level)+'_Iter'+ str(currentIter) +'_'
           cmd += ANTS(fixedIm,movingIm,outputTransformPrefix+'.nrrd')
           cmd += ";"+ANTSWarpImage(movingIm, outputIm, fixedIm, outputTransformPrefix)
           cmd += ";" + ANTSWarpImage(initialInputImage,newInputImage, reference_im_name,outputTransformPrefix)
@@ -196,14 +202,16 @@ def main():
     factor = 0.5 #for BSpline
     for level in range(0, NUM_OF_LEVELS):
         for iterCount in range(1,NUM_OF_ITERATIONS_PER_LEVEL+1):
-            maxDisp = z_dim/gridSize[2]*factor
+            maxDisp = -1
             print 'Level: ', level
             print 'Iteration ' +  str(iterCount) + ' lamda=%f'  %lamda
             if REGISTRATION_TYPE == 'BSpline':
               print 'Grid size: ', gridSize
+              maxDisp = z_dim/gridSize[2]*factor
+
             print 'Sigma: ', sigma
 
-            runIteration(vector_length,level, iterCount, lamda,gridSize, maxDisp,sigma)
+            runIteration(vector_length,level, iterCount, lamda,sigma, gridSize, maxDisp)
 
             if REGISTRATION_TYPE == 'BSpline' and  gridSize[0] < 10:
                  gridSize = np.add( gridSize,[1,2,1])
