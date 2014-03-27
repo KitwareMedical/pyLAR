@@ -107,7 +107,7 @@ def runIteration(vector_length,level,currentIter,lamda,sigma, gridSize,maxDisp):
               genInverseDVF(previousIterDVF,inverseDVF, True)
               updateInputImageWithDVF( lowRankIm, reference_im_name, inverseDVF, invWarpedlowRankIm,True)
             if REGISTRATION_TYPE == 'ANTS':
-              outputTransformPrefix = result_folder+'/L'+ str(level)+'_Iter'+ str(currentIter-1)+'_'
+              outputTransformPrefix = result_folder+'/L'+ str(level)+'_Iter'+ str(currentIter-1)+'_'+str(i)+'_'
               ANTSWarpImage(lowRankIm,invWarpedlowRankIm, reference_im_name,outputTransformPrefix,True, True)
 
 
@@ -131,7 +131,7 @@ def runIteration(vector_length,level,currentIter,lamda,sigma, gridSize,maxDisp):
           cmd += ";" + updateInputImageWithDVF(initialInputImage,reference_im_name, outputDVF,newInputImage)
         elif REGISTRATION_TYPE == 'ANTS':
           # will generate a warp(DVF) file and an affine file
-          outputTransformPrefix = result_folder+'/L'+ str(level)+'_Iter'+ str(currentIter) +'_'
+          outputTransformPrefix = result_folder+'/L'+ str(level)+'_Iter'+ str(currentIter) +'_'+str(i)+'_'
           cmd += ANTS(fixedIm,movingIm,outputTransformPrefix+'.nrrd')
           cmd += ";"+ANTSWarpImage(movingIm, outputIm, fixedIm, outputTransformPrefix)
           cmd += ";" + ANTSWarpImage(initialInputImage,newInputImage, reference_im_name,outputTransformPrefix)
