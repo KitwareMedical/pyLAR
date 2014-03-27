@@ -1,0 +1,20 @@
+USE_HEALTHY_ATLAS = True
+USE_BLUR = True
+
+reference_im_name = '/home/xiaoxiao/work/data/SRI24/T1_Crop.nii.gz'
+data_folder = '/home/xiaoxiao/work/data/BRATS/BRATS-2/Synthetic_Data'
+fileListFN ='Flair_FN.txt'
+lamda = 0.8
+result_folder = '/home/xiaoxiao/work/data/BRATS/BRATS-2/Synthetic_Data/ANTS_Flair_w'+str(lamda)
+selection = [0,2,5,7,12,17,19,23]
+
+
+sigma = 0
+
+NUM_OF_ITERATIONS_PER_LEVEL = 5
+NUM_OF_LEVELS = 1
+
+#REGISTRATION_TYPE = 'BSpline'
+#gridSize = [10,13,10]
+
+REGISTRATION_TYPE = 'ANTS'

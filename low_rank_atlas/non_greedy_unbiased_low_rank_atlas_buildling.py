@@ -34,6 +34,7 @@ if not os.path.exists(result_folder):
 	os.system('mkdir '+ result_folder)
 
 os.system('cp   ' + configFN+' ' +result_folder)
+os.system('cp   ' + data_folder +'/'+fileListFN + ' ' +result_folder)
 
 ############################################## #############################
 def runIteration(vector_length,level,currentIter,lamda,sigma, gridSize,maxDisp):
