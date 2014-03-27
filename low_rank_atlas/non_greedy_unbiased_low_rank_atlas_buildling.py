@@ -135,7 +135,7 @@ def runIteration(vector_length,level,currentIter,lamda,sigma, gridSize,maxDisp):
           cmd += ANTS(fixedIm,movingIm,outputTransformPrefix+'.nrrd')
           cmd += ";"+ANTSWarpImage(movingIm, outputIm, fixedIm, outputTransformPrefix)
           cmd += ";" + ANTSWarpImage(initialInputImage,newInputImage, reference_im_name,outputTransformPrefix)
-          print cmd
+          #print cmd
         else:
           print "unrecognized registration type:", REGISTRATION_TYPE
 
@@ -192,7 +192,7 @@ def main():
     #showReferenceImage(reference_im_name)
     affineRegistrationStep()
 
-    #sys.stdout = open(result_folder+'/RUN.log', "w")
+    sys.stdout = open(result_folder+'/RUN.log', "w")
     im_ref = sitk.ReadImage(reference_im_name) # image in SITK format
     im_ref_array = sitk.GetArrayFromImage(im_ref) # get numpy array
     z_dim, x_dim, y_dim = im_ref_array.shape # get 3D volume shape
