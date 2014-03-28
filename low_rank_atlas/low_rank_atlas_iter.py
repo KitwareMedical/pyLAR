@@ -153,7 +153,7 @@ def ANTS(fixedIm,movingIm,outputIm,EXECUTE = False):
     executable = '/home/xiaoxiao/work/bin/ANTS/bin/ANTS'
     result_folder = os.path.dirname(movingIm)
     # CC[%s,%s,1,4]
-    arguments = str(dim) +' -m MI[ %s , %s , 1] -t SyN[0.25]  -o %s -i 100x50x25 --MI-Option 50x50000'%(fixedIm, movingIm, outputIm) 
+    arguments = str(dim) +' -m MI[ %s , %s , 1] -t SyN[0.25]  -o %s -i 100x50x25 --MI-option 50x50000'%(fixedIm, movingIm, outputIm)
     cmd = executable + ' ' + arguments
     if (EXECUTE):
         tempFile = open(result_folder+'/ANTS.log', 'w')
@@ -170,7 +170,7 @@ def ANTSWarpImage(inputIm, outputIm, referenceIm, transformPrefix,inverse = Fals
       t1 = transformPrefix+'Warp.nrrd'
       t2 = transformPrefix+'Affine.txt'
     else:
-      t1 = '-i '+transformPrefix + 'Affine.nrrd'
+      t1 = '-i '+transformPrefix + 'Affine.txt'
       t2 = transformPrefix + 'InverseWarp.nrrd'
     arguments = str(dim) +' %s  %s  -R %s %s %s'%(inputIm, outputIm, referenceIm, t1,t2) 
     cmd = executable + ' ' + arguments
