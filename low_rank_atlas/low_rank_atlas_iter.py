@@ -201,7 +201,7 @@ def ANTSWarpImage(inputIm, outputIm, referenceIm, transformPrefix,inverse = Fals
       t = transformPrefix+'0Warp.nii.gz'
     else:
       t = transformPrefix + '0InverseWarp.nii.gz'
-    arguments = str(dim) +' %s  %s  -R %s %s %s'%(inputIm, outputIm, referenceIm, t)
+    arguments = str(dim) +' %s  %s  -R %s %s '%(inputIm, outputIm, referenceIm, t)
     cmd = executable + ' ' + arguments
     if (EXECUTE):
         tempFile = open(result_folder+'/ANTSWarpImage.log', 'w')
