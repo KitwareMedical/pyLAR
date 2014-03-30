@@ -153,14 +153,16 @@ def AffineReg(fixedIm,movingIm,outputIm, outputTransform = None):
     return
 
 # deformable image registration
-def ANTS(fixedIm,movingIm,outputTransformPrefix,initialTransform=None, EXECUTE = False):
+def ANTS(fixedIm,movingIm,outputTransformPrefix,params,initialTransform=None, EXECUTE = False):
     dim = 3
     executable = '/home/xiaoxiao/work/bin/ANTS/bin/antsRegistration'
     result_folder = os.path.dirname(movingIm)
 
-    SYNCONVERGENCE="[100x70x50x20,1e-6,10]"
-    SYNSHRINKFACTORS="8x4x2x1"
-    SYNSMOOTHINGSIGMAS="3x2x1x0vox"
+    SYNCONVERGENCE = params['SyNConvergence'] #"[100x70x50x20,1e-6,10]"
+    SYNSHRINKFACTORS = params['SyNShrinkFactors'] #"8x4x2x1"
+    SYNSMOOTHINGSIGMAS = params['SynSmoothingSigmas'] #"3x2x1x0vox"
+    METRIC = params['Metric'] # "MI[%s,%s, 1,50]" %(fixedIm,movingIm)
+    TRANSFORM= params['Transform'] # "SyN[0.25]"
     #Notes From ANTS/Eaxmples/antsRegistration.cxx
       #"CC[fixedImage,movingImage,metricWeight,radius,<samplingStrategy={None,Regular,Random}>,<samplingPercentage=[0,1]>]" );
 
@@ -171,13 +173,15 @@ def ANTS(fixedIm,movingIm,outputTransformPrefix,initialTransform=None, EXECUTE =
     arguments = ' --dimensionality '+ str(dim)  \
                 +' --float 1'   \
                 +' --interpolation Linear'\
-                +' --output [%s,%s_Warped.nrrd]' %(outputTransformPrefix, outputTransformPrefix) \
+                +' --output [%s,%sWarped.nrrd]' %(outputTransformPrefix, outputTransformPrefix) \
                 +' --interpolation Linear' \
-                +' --transform SyN[0.5]' \
-                +' -m MI[%s,%s,1,50] ' %(fixedIm, movingIm)\
+                +' --transform '+ TRANSFORM \
+                +' -m '+ METRIC \
                 +' --convergence '+ SYNCONVERGENCE \
                 +' --shrink-factors '+ SYNSHRINKFACTORS \
-                +' --smoothing-sigmas '+SYNSMOOTHINGSIGMAS \
+                +' --smoothing-sigmas '+SYNSMOOTHINGSIGMAS
+    if initialTransform:
+         arguments += ' --initial-moving-transform  %s' %(initialTransform)
 
 #                +' --winsorize-image-intensities [0.005,0.995]' \
 
@@ -194,12 +198,10 @@ def ANTSWarpImage(inputIm, outputIm, referenceIm, transformPrefix,inverse = Fals
     executable = '/home/xiaoxiao/work/bin/ANTS/bin/WarpImageMultiTransform'
     result_folder = os.path.dirname(outputIm)
     if not inverse:
-      t1 = transformPrefix+'Warp.nrrd'
-      t2 = transformPrefix+'Affine.txt'
+      t = transformPrefix+'0Warp.nii.gz'
     else:
-      t1 = '-i '+transformPrefix + 'Affine.txt'
-      t2 = transformPrefix + 'InverseWarp.nrrd'
-    arguments = str(dim) +' %s  %s  -R %s %s %s'%(inputIm, outputIm, referenceIm, t1,t2) 
+      t = transformPrefix + '0InverseWarp.nii.gz'
+    arguments = str(dim) +' %s  %s  -R %s %s %s'%(inputIm, outputIm, referenceIm, t)
     cmd = executable + ' ' + arguments
     if (EXECUTE):
         tempFile = open(result_folder+'/ANTSWarpImage.log', 'w')
