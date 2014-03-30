@@ -9,7 +9,7 @@ result_folder = '/home/xiaoxiao/work/data/BRATS/BRATS-2/Synthetic_Data/ANTS_Flai
 selection = [0,2,5,7,12,17,19,23]
 
 
-sigma = 0
+sigma = 3
 
 NUM_OF_ITERATIONS_PER_LEVEL = 8
 NUM_OF_LEVELS = 1
