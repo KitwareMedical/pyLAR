@@ -138,7 +138,7 @@ def runIteration(vector_length,level,currentIter,lamda,sigma, gridSize,maxDisp):
           # will generate a warp(DVF) file and an affine file
           outputTransformPrefix = result_folder+'/L'+ str(level)+'_Iter'+ str(currentIter) +'_'+str(i)+'_'
           if currentIter > 1:
-            initialTransform = result_folder+'L'+str(level)+'_Iter'+str(currentIter-1)+'_'+str(i)+'_0Warp.nii.gz'
+            initialTransform = result_folder+'/L'+str(level)+'_Iter'+str(currentIter-1)+'_'+str(i)+'_0Warp.nii.gz'
           else:
             initialTransform = None
           antsParams['Metric'] = antsParams['Metric'].replace('fixedIm', fixedIm)
