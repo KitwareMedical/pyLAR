@@ -88,31 +88,36 @@ def saveImagesFromDM(dataMatrix,outputPrefix,referenceImName):
 
 
 def gridVisDVF(dvfImFileName,sliceNum = -1,titleString = 'DVF',saveFigPath ='.',deformedImFileName = None, contourNum=40):
-     dvfIm, options = nrrd.read(dvfImFileName)
-     dim,x_dim, y_dim,z_dim = dvfIm.shape
+     dvf = sitk.ReadImage(dvfImFileName)
+     dvfIm  = sitk.GetArrayFromImage(dvf) # get numpy array
+     z_dim, y_dim, x_dim, channels = dvfIm.shape # get 3D volume shape
+     if not (channels == 3 ):
+       print "dvf image expected to have three scalor channels"
+ 
      if sliceNum == -1:
             sliceNum = z_dim/2
      [gridX,gridY]=np.meshgrid(np.arange(1,x_dim+1),np.arange(1,y_dim+1))
 
      fig = plt.figure()
      if deformedImFileName :
-         bgGrayIm,options = nrrd.read(deformedImFileName)
-         plt.imshow(np.transpose(bgGrayIm[:,:,sliceNum]),cmap=plt.cm.gray)
+         bgGray = sitk.ReadImage(deformedImFileName)
+         bgGrayIm  = sitk.GetArrayFromImage(bgGray) # get numpy array
+         plt.imshow(np.fliplr(np.flipud(bgGrayIm[sliceNum,:,:])),cmap=plt.cm.gray)
 
-     idMap = np.zeros((dvfIm.shape))
-     for x in range(dvfIm.shape[1]):
-        for y in range(dvfIm.shape[2]):
-            for z in range(dvfIm.shape[3]):
-                idMap[0,x,y,z] = x
-                idMap[1,x,y,z] = y
-                idMap[2,x,y,z] = z
+     idMap = np.zeros(dvfIm.shape)
+     for i in range(z_dim):
+        for j in range(y_dim):
+            for k in range(x_dim):
+                idMap[i,j,k,0] = i
+                idMap[i,j,k,1] = j
+                idMap[i,j,k,2] = k
     # for composed DVF, sometimes it get really big  values?
      overflow_values_indices = dvfIm > 10000
      dvfIm[overflow_values_indices] = 0
      mapIm = dvfIm + idMap
 
-     CS = plt.contour(gridX,gridY,np.transpose(mapIm[0,:,:,sliceNum]), contourNum, hold='on', colors='red')
-     CS = plt.contour(gridX,gridY,np.transpose(mapIm[1,:,:,sliceNum]), contourNum, hold='on', colors='red')
+     CS = plt.contour(gridX,gridY,np.fliplr(np.flipud(mapIm[sliceNum,:,:,1])), contourNum, hold='on', colors='red')
+     CS = plt.contour(gridX,gridY,np.fliplr(np.flipud(mapIm[sliceNum,:,:,2])), contourNum, hold='on', colors='red')
      plt.title(titleString)
      plt.savefig(saveFigPath + '/' + titleString)
      fig.clf()
@@ -148,12 +153,34 @@ def AffineReg(fixedIm,movingIm,outputIm, outputTransform = None):
     return
 
 # deformable image registration
-def ANTS(fixedIm,movingIm,outputIm,EXECUTE = False):
+def ANTS(fixedIm,movingIm,outputTransformPrefix,initialTransform=None, EXECUTE = False):
     dim = 3
-    executable = '/home/xiaoxiao/work/bin/ANTS/bin/ANTS'
+    executable = '/home/xiaoxiao/work/bin/ANTS/bin/antsRegistration'
     result_folder = os.path.dirname(movingIm)
-    # CC[%s,%s,1,4]
-    arguments = str(dim) +' -m MI[ %s , %s , 1] -t SyN[0.25]  -o %s -i 100x50x25 --MI-option 50x50000'%(fixedIm, movingIm, outputIm)
+
+    SYNCONVERGENCE="[100x70x50x20,1e-6,10]"
+    SYNSHRINKFACTORS="8x4x2x1"
+    SYNSMOOTHINGSIGMAS="3x2x1x0vox"
+    #Notes From ANTS/Eaxmples/antsRegistration.cxx
+      #"CC[fixedImage,movingImage,metricWeight,radius,<samplingStrategy={None,Regular,Random}>,<samplingPercentage=[0,1]>]" );
+
+      #"Mattes[fixedImage,movingImage,metricWeight,numberOfBins,<samplingStrategy={None,Regular,Random}>,<samplingPercentage=[0,1]>]" );
+
+      #"Demons[fixedImage,movingImage,metricWeight,radius=NA,<samplingStrategy={None,Regular,Random}>,<samplingPercentage=[0,1]>]" );
+      #option->SetUsageOption( 10, "SyN[gradientStep,updateFieldVarianceInVoxelSpace,totalFieldVarianceInVoxelSpace]" );
+    arguments = ' --dimensionality '+ str(dim)  \
+                +' --float 1'   \
+                +' --interpolation Linear'\
+                +' --output [%s,%s_Warped.nrrd]' %(outputTransformPrefix, outputTransformPrefix) \
+                +' --interpolation Linear' \
+                +' --transform SyN[0.5]' \
+                +' -m MI[%s,%s,1,50] ' %(fixedIm, movingIm)\
+                +' --convergence '+ SYNCONVERGENCE \
+                +' --shrink-factors '+ SYNSHRINKFACTORS \
+                +' --smoothing-sigmas '+SYNSMOOTHINGSIGMAS \
+
+#                +' --winsorize-image-intensities [0.005,0.995]' \
+
     cmd = executable + ' ' + arguments
     if (EXECUTE):
         tempFile = open(result_folder+'/ANTS.log', 'w')
