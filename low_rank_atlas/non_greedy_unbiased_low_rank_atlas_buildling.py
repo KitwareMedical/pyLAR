@@ -28,6 +28,10 @@ if REGISTRATION_TYPE =='BSpline':
 else:
   gridSize =[0,0,0]
 
+antsParams ={None:None}
+if REGISTRATION_TYPE == 'ANTS':
+   antsParams = config.antsParams
+
 im_names = readTxtIntoList(data_folder +'/'+ fileListFN)
 print 'Results will be stored in:',result_folder
 if not os.path.exists(result_folder):
@@ -91,6 +95,7 @@ def runIteration(vector_length,level,currentIter,lamda,sigma, gridSize,maxDisp):
         plt.title('Level'+str(i)+ ' atlas')
         plt.savefig(result_folder+'/atlas_L'+str(level)+'_Iter'+str(currentIter)+'.png')
 
+
     ps = []
     for i in range(num_of_data):
         logFile = open(result_folder+'/L'+str(level)+'_Iter'+str(currentIter)+'_RUN_'+ str(i)+'.log', 'w')
@@ -136,7 +141,9 @@ def runIteration(vector_length,level,currentIter,lamda,sigma, gridSize,maxDisp):
             initialTransform = result_folder+'L'+str(level)+'_Iter'+str(currentIter-1)+'_'+str(i)+'_0Warp.nii.gz'
           else:
             initialTransform = None
-e         cmd += ANTS(fixedIm,movingIm,outputTransformPrefix, initialTransform)
+          antsParams['Metric'] = antsParams['Metric'].replace('fixedIm', fixedIm)
+          antsParams['Metric'] = antsParams['Metric'].replace('movingIm', movingIm)
+          cmd += ANTS(fixedIm,movingIm,outputTransformPrefix,antsParams, initialTransform)
           cmd += ";"+ANTSWarpImage(movingIm, outputIm, fixedIm, outputTransformPrefix)
           #cmd += ";" + ANTSWarpImage(initialInputImage,newInputImage, reference_im_name,outputTransformPrefix)
           #print cmd
