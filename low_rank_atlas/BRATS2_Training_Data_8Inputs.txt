@@ -8,7 +8,7 @@ lamda = 0.8
 result_folder = '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/ANTS_Flair_w'+str(lamda)
 selection = [0,1,3,4,6,7,9,10]
 
-sigma = 0
+sigma = 3
 
 NUM_OF_ITERATIONS_PER_LEVEL = 8
 NUM_OF_LEVELS = 1
@@ -17,9 +17,9 @@ NUM_OF_LEVELS = 1
 #gridSize = [10,13,10]
 
 REGISTRATION_TYPE = 'ANTS'
-antsParams = {'SyNConvergence' : '[100x50x25,1e-6,10]',\
-          'SyNShrinkFactors' : '4x2x1',\
-          'SynSmoothingSigmas' : '4x2x0vox',\
+antsParams = {'SyNConvergence' : '[100x100x50x25,1e-6,10]',\
+          'SyNShrinkFactors' : '8x4x2x1',\
+          'SynSmoothingSigmas' : '3x2x1x0vox',\
           'Transform' :'SyN[0.5]',\
-          'Metric': 'Mattes[fixedIm,movingIm,1,50,Regular,1 ]'}
+          'Metric': 'Mattes[fixedIm,movingIm,1,50,Regular,0.95]'}
 

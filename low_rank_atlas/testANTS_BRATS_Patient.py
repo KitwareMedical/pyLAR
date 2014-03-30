@@ -17,11 +17,11 @@ movingIm = result_folder+'/L'+ str(level)+'_Iter'+ str(currentIter)+'_LowRank_' 
 outputTransformPrefix = result_folder+'/L'+ str(level)+'_Iter'+ str(currentIter)+'_'+str(i)+'_'
 
 
-params = {'SyNConvergence' : '[100x50x25,1e-6,10]',\
-          'SyNShrinkFactors' : '4x2x1',\
-          'SynSmoothingSigmas' : '4x2x0vox',\
-          'Transform' :'SyN[0.5]',\
-          'Metric': 'Mattes[%s,%s,1,50,Regular,1 ]' %(fixedIm,movingIm)}
+params = {'SyNConvergence' : '[100x100x50x25,1e-6,10]',\
+          'SyNShrinkFactors' : '8x4x2x1',\
+          'SynSmoothingSigmas' : '3x2x1x0vox',\
+          'Transform' :'SyN[0.5,3,0]',
+          'Metric': 'Mattes[%s,%s,1,50,Regular,0.95 ]' %(fixedIm,movingIm)}
 
 s = time.clock()
 cmd=''

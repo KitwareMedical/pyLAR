@@ -179,11 +179,12 @@ def ANTS(fixedIm,movingIm,outputTransformPrefix,params,initialTransform=None, EX
                 +' -m '+ METRIC \
                 +' --convergence '+ SYNCONVERGENCE \
                 +' --shrink-factors '+ SYNSHRINKFACTORS \
-                +' --smoothing-sigmas '+SYNSMOOTHINGSIGMAS
+                +' --smoothing-sigmas '+SYNSMOOTHINGSIGMAS\
+                +' --winsorize-image-intensities [0.005,0.995]'
     if initialTransform:
          arguments += ' --initial-moving-transform  %s' %(initialTransform)
 
-#                +' --winsorize-image-intensities [0.005,0.995]' \
+
 
     cmd = executable + ' ' + arguments
     if (EXECUTE):
