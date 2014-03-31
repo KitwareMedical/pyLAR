@@ -144,8 +144,7 @@ def runIteration(vector_length,level,currentIter,lamda,sigma, gridSize,maxDisp):
           antsParams['Metric'] = antsParams['Metric'].replace('fixedIm', fixedIm)
           antsParams['Metric'] = antsParams['Metric'].replace('movingIm', movingIm)
           cmd += ANTS(fixedIm,movingIm,outputTransformPrefix,antsParams, initialTransform)
-          cmd += ";"+ANTSWarpImage(movingIm, outputIm, fixedIm, outputTransformPrefix)
-          #cmd += ";" + ANTSWarpImage(initialInputImage,newInputImage, reference_im_name,outputTransformPrefix)
+          cmd += ";" + ANTSWarpImage(initialInputImage,newInputImage, reference_im_name,outputTransformPrefix)
           #print cmd
         else:
           print "unrecognized registration type:", REGISTRATION_TYPE
