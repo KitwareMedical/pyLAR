@@ -3,7 +3,8 @@ USE_BLUR = True
 
 reference_im_name = '/home/xiaoxiao/work/data/SRI24/T1_Crop.nii.gz'
 data_folder = '/home/xiaoxiao/work/data/BRATS/BRATS-2/Synthetic_Data'
-fileListFN ='Flair_FN.txt'
+fileListFN = 'Flair_FN.txt'
+modality = 'Flair'
 lamda = 0.8
 result_folder = '/home/xiaoxiao/work/data/BRATS/BRATS-2/Synthetic_Data/ANTS_Flair_w'+str(lamda)
 selection = [0,2,5,7,12,17,19,23]
