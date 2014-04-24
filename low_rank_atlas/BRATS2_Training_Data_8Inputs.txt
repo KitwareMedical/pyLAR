@@ -19,6 +19,7 @@ NUM_OF_LEVELS = 1
 
 REGISTRATION_TYPE = 'ANTS'
 antsParams = {'SyNConvergence' : '[100x100x50x25,1e-6,10]',\
+          'Dimension': 3,\
           'SyNShrinkFactors' : '8x4x2x1',\
           'SynSmoothingSigmas' : '3x2x1x0vox',\
           'Transform' :'SyN[0.5]',\

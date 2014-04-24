@@ -152,17 +152,20 @@ def AffineReg(fixedIm,movingIm,outputIm, outputTransform = None):
     tempFile.close()
     return
 
-# deformable image registration
+
 def ANTS(fixedIm,movingIm,outputTransformPrefix,params,initialTransform=None, EXECUTE = False):
-    dim = 3
+
     executable = '/home/xiaoxiao/work/bin/ANTS/bin/antsRegistration'
     result_folder = os.path.dirname(movingIm)
 
-    SYNCONVERGENCE = params['SyNConvergence'] #"[100x70x50x20,1e-6,10]"
-    SYNSHRINKFACTORS = params['SyNShrinkFactors'] #"8x4x2x1"
-    SYNSMOOTHINGSIGMAS = params['SynSmoothingSigmas'] #"3x2x1x0vox"
-    METRIC = params['Metric'] # "MI[%s,%s, 1,50]" %(fixedIm,movingIm)
+    dim = params['Dimension']
+    CONVERGENCE = params['Convergence'] #"[100x70x50x20,1e-6,10]"
+    SHRINKFACTORS = params['ShrinkFactors'] #"8x4x2x1"
+    SMOOTHINGSIGMAS = params['SmoothingSigmas'] #"3x2x1x0vox"
     TRANSFORM= params['Transform'] # "SyN[0.25]"
+    METRIC = params['Metric'] # "MI[%s,%s, 1,50]" %(fixedIm,movingIm)
+    METRIC = METRIC.replace('fixedIm', fixedIm)
+    METRIC = METRIC.replace('movingIm', movingIm)
     #Notes From ANTS/Eaxmples/antsRegistration.cxx
       #"CC[fixedImage,movingImage,metricWeight,radius,<samplingStrategy={None,Regular,Random}>,<samplingPercentage=[0,1]>]" );
 
@@ -177,10 +180,11 @@ def ANTS(fixedIm,movingIm,outputTransformPrefix,params,initialTransform=None, EX
                 +' --interpolation Linear' \
                 +' --transform '+ TRANSFORM \
                 +' -m '+ METRIC \
-                +' --convergence '+ SYNCONVERGENCE \
-                +' --shrink-factors '+ SYNSHRINKFACTORS \
-                +' --smoothing-sigmas '+SYNSMOOTHINGSIGMAS\
-                +' --winsorize-image-intensities [0.005,0.995]'
+                +' --convergence '+ CONVERGENCE \
+                +' --shrink-factors '+ SHRINKFACTORS \
+                +' --smoothing-sigmas '+SMOOTHINGSIGMAS\
+                +' --use-histogram-match'
+    #            +' --winsorize-image-intensities [0.005,0.995]'
     if initialTransform:
          arguments += ' --initial-moving-transform  %s' %(initialTransform)
 
@@ -212,6 +216,23 @@ def ANTSWarpImage(inputIm, outputIm, referenceIm, transformPrefix,inverse = Fals
     return cmd
     
 
+def ANTSWarp2DImage(inputIm, outputIm, referenceIm, transformPrefix,inverse = False, EXECUTE = False):
+    dim = 2
+    executable = '/home/xiaoxiao/work/bin/ANTS/bin/WarpImageMultiTransform'
+    result_folder = os.path.dirname(outputIm)
+    if not inverse:
+      t = transformPrefix+'0Warp.nii.gz'
+    else:
+      t = transformPrefix + '0InverseWarp.nii.gz'
+    arguments = str(dim) +' %s  %s  -R %s %s '%(inputIm, outputIm, referenceIm, t)
+    cmd = executable + ' ' + arguments
+    if (EXECUTE):
+        tempFile = open(result_folder+'/ANTSWarpImage.log', 'w')
+        process = subprocess.Popen(cmd, stdout=tempFile, shell=True)
+        process.wait()
+        tempFile.close()
+    return cmd
+    
 
 def DemonsReg(fixedIm,movingIm,outputIm, outputDVF,EXECUTE = False):
     executable = '/home/xiaoxiao/work/bin/BRAINSTools/bin/BRAINSDemonWarp'
