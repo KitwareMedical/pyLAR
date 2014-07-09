@@ -1,19 +1,27 @@
-Python Robust PCA
+pyLAR
 =================
 
-pyrpca contains Python implmentations of Robust PCA for medical imaging and
-computer vision applications, featuring a low-rank atlas building technique
-applied to traumatic brain injury(TBI) MRI images.
+pyLAR features Python implmentations of a low-rank atlas-to-image
+registration(LAR) framework and its applications in medical image analysis
+and computer vision. The core machine learning technique is Robust PCA.
 
-Subdirectory content: 
+Subdirectory content:
 * core --- two implementations of RPCA
 * examples -- a couple of ipython notebook examples of running RPCA
 * tests -- testing scripts of the core functionalities
-* low_rank_atlas -- the study of using  RPCA in a low-rank atlas building framework
+* low_rank_atlas -- the study of using  RPCA in a low-rank atlas buildling framework
 * eval_utils -- the utilitiy scripts to evaluate the results on the low rank atlas building framework
 
+pyLAR contains implementation of the following paper:
+```bibtex
+@article{Liu14,
+    author = {X.~Liu and M.~Niethammer and R.~Kwitt and M.~McCormick and S.~Aylward},
+    title = {Low-Rank to the Rescue – Atlas-based Analyses in the Presence of Pathologies},
+    year = 2014,
+    journal = {MICCAI},
+```
 
-pyrpca implements two recent proposals for *robust PCA*:
+The implementations of two recent proposals for *robust PCA* can be found in the "core" subdirectory:
 ```bibtex
 @article{Candes11a,
     author = {E.J.~Cand\'es and X.~Li and Y.~Ma and J.~Wright},
@@ -35,7 +43,7 @@ and
     pages = {3047-3064},
     year = 2012}
 ```
-Please cite these articles in case you use this code. Note that the original
+Please cite these articles in case you use the code in "core". Note that the original
 authors of those articles also provide MATLAB code. Further, the objectives
 of the two works are different: Candes et al.'s approach assumes randomly
 distributed corruptions throughout the dataset, while Xu et al.'s approach
