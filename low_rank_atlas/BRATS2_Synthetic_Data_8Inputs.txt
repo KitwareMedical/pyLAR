@@ -5,9 +5,9 @@ lamda = 0.8
 sigma = 3
 
 # data directory setting
-reference_im_name = '/home/xiaoxiao/work/data/SRI24/T1_Crop.nii.gz'
-data_folder = '/home/xiaoxiao/work/data/BRATS/BRATS-2/Synthetic_Data'
-result_folder = '/home/xiaoxiao/work/data/BRATS/BRATS-2/Synthetic_Data/ANTS_Flair_w'+str(lamda)
+reference_im_fn = '/home/xiaoxiao/work/data/SRI24/T1_Crop.nii.gz'
+data_dir = '/home/xiaoxiao/work/data/BRATS/BRATS-2/Synthetic_Data'
+result_dir = '/home/xiaoxiao/work/data/BRATS/BRATS-2/Synthetic_Data/results/ANTS_Flair_w'+str(lamda)
 
 fileListFN = 'Flair_FN.txt'
 modality = 'Flair'

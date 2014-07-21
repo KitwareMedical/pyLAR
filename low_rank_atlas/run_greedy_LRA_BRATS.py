@@ -6,21 +6,20 @@
 
 
 import sys
-sys.path.append('/home/xiaoxiao/work/src/TubeTK/Base/Python/pyrpca/examples')
 from low_rank_atlas_iter import *
 
 ###############################  the main pipeline #############################
-def runIteration(Y,currentIter,lamda,gridSize,maxDisp):
+def runIteration(Y,cIter,lamda,gridSize,maxDisp):
     low_rank, sparse, n_iter,rank, sparsity, sum_sparse = rpca(Y,lamda)
-    saveImagesFromDM(low_rank,result_folder+'/'+ 'Iter'+str(currentIter) +'_LowRank_', reference_im_name)
-    saveImagesFromDM(sparse,result_folder+'/'+ 'Iter'+str(currentIter) +'_Sparse_', reference_im_name)
+    saveImagesFromDM(low_rank,result_dir+'/'+ 'Iter'+str(cIter) +'_LowRank_', reference_im_fn)
+    saveImagesFromDM(sparse,result_dir+'/'+ 'Iter'+str(cIter) +'_Sparse_', reference_im_fn)
 
     # Visualize and inspect
     fig = plt.figure(figsize=(15,5))
-    showSlice(Y, ' Input',plt.cm.gray,0,reference_im_name)
-    showSlice(low_rank,' low rank',plt.cm.gray,1, reference_im_name)
-    showSlice(sparse,' sparse',plt.cm.gray,2, reference_im_name)
-    plt.savefig(result_folder+'/'+'Iter'+ str(currentIter)+'_w_'+str(lamda)+'.png')
+    showSlice(Y, ' Input',plt.cm.gray,0,reference_im_fn)
+    showSlice(low_rank,' low rank',plt.cm.gray,1, reference_im_fn)
+    showSlice(sparse,' sparse',plt.cm.gray,2, reference_im_fn)
+    plt.savefig(result_dir+'/'+'Iter'+ str(cIter)+'_w_'+str(lamda)+'.png')
     fig.clf()
     plt.close(fig)
 
@@ -33,32 +32,32 @@ def runIteration(Y,currentIter,lamda,gridSize,maxDisp):
     ps=[]
 
     for i in range(num_of_data):
-        movingIm = result_folder+'/'+ 'Iter'+ str(currentIter)+'_LowRank_' + str(i)  +'.nrrd'
-        outputIm = result_folder+'/'+ 'Iter'+ str(currentIter)+'_Deformed_LowRank' + str(i)  + '.nrrd'
-        outputTransform = result_folder+'/'+ 'Iter'+ str(currentIter)+'_Transform_' + str(i) +  '.tfm'
-        outputDVF = result_folder+'/'+ 'Iter'+ str(currentIter)+'_DVF_' + str(i) +  '.nrrd'
-        previousInputImage = result_folder+'/Iter'+str(currentIter-1)+ '_Flair_' + str(i)  + '.nrrd'
-        logFile = open(result_folder+'/Iter'+str(currentIter)+'_RUN_'+ str(i)+'.log', 'w')
+        movingIm = result_dir+'/'+ 'Iter'+ str(cIter)+'_LowRank_' + str(i)  +'.nrrd'
+        outputIm = result_dir+'/'+ 'Iter'+ str(cIter)+'_Deformed_LowRank' + str(i)  + '.nrrd'
+        outputTransform = result_dir+'/'+ 'Iter'+ str(cIter)+'_Transform_' + str(i) +  '.tfm'
+        outputDVF = result_dir+'/'+ 'Iter'+ str(cIter)+'_DVF_' + str(i) +  '.nrrd'
+        previousInputImage = result_dir+'/Iter'+str(cIter-1)+ '_Flair_' + str(i)  + '.nrrd'
+        logFile = open(result_dir+'/Iter'+str(cIter)+'_RUN_'+ str(i)+'.log', 'w')
 
         # pipe steps sequencially
-        cmd = BSplineReg_BRAINSFit(reference_im_name,movingIm,outputIm,outputTransform,gridSize, maxDisp)
+        cmd = BSplineReg_BRAINSFit(reference_im_fn,movingIm,outputIm,outputTransform,gridSize, maxDisp)
 
-        cmd +=';'+ ConvertTransform(reference_im_name,outputTransform,outputDVF)
+        cmd +=';'+ ConvertTransform(reference_im_fn,outputTransform,outputDVF)
 
-        outputComposedDVFIm = result_folder+'/'+ 'Iter'+ str(currentIter)+'_Composed_DVF_' + str(i) +  '.nrrd'
-        initialInputImage= result_folder+'/Iter0_Flair_' +str(i) +  '.nrrd'
-        newInputImage = result_folder+'/Iter'+ str(currentIter)+'_Flair_' +str(i) +  '.nrrd'
+        outputComposedDVFIm = result_dir+'/'+ 'Iter'+ str(cIter)+'_Composed_DVF_' + str(i) +  '.nrrd'
+        initialInputImage= result_dir+'/Iter0_Flair_' +str(i) +  '.nrrd'
+        newInputImage = result_dir+'/Iter'+ str(cIter)+'_Flair_' +str(i) +  '.nrrd'
 
         # compose deformations
         COMPOSE_DVF = True
         if COMPOSE_DVF:
           DVFImageList=[]
-          for k in range(currentIter):
-              DVFImageList.append(result_folder+'/'+ 'Iter'+ str(k+1)+'_DVF_' + str(i) +  '.nrrd')
+          for k in range(cIter):
+              DVFImageList.append(result_dir+'/'+ 'Iter'+ str(k+1)+'_DVF_' + str(i) +  '.nrrd')
 
-              cmd += ';'+ composeMultipleDVFs(reference_im_name,DVFImageList,outputComposedDVFIm)
+              cmd += ';'+ composeMultipleDVFs(reference_im_fn,DVFImageList,outputComposedDVFIm)
 
-        cmd += ";" + updateInputImageWithDVF(initialInputImage,reference_im_name, \
+        cmd += ";" + updateInputImageWithDVF(initialInputImage,reference_im_fn, \
                                        outputComposedDVFIm,newInputImage)
         process = subprocess.Popen(cmd, stdout=logFile, shell = True)
         ps.append(process)
@@ -69,8 +68,8 @@ def runIteration(Y,currentIter,lamda,gridSize,maxDisp):
     return sparsity, sum_sparse
 
 
-def showReferenceImage(reference_im_name):
-    im_ref = sitk.ReadImage(reference_im_name) # image in SITK format
+def showReferenceImage(reference_im_fn):
+    im_ref = sitk.ReadImage(reference_im_fn) # image in SITK format
     im_ref_array = sitk.GetArrayFromImage(im_ref) # get numpy array
     z_dim, x_dim, y_dim = im_ref_array.shape # get 3D volume shape
     vector_length = z_dim* x_dim*y_dim
@@ -93,27 +92,25 @@ def showReferenceImage(reference_im_name):
 def affineRegistrationStep():
     num_of_data = len(selection)
     for i in range(num_of_data):
-        outputIm =  result_folder+'/Iter0_Flair_' + str(i)  + '.nrrd'
-        AffineReg(reference_im_name,im_names[selection[i]],outputIm)
+        outputIm =  result_dir+'/Iter0_Flair_' + str(i)  + '.nrrd'
+        AffineReg(reference_im_fn,im_fns[selection[i]],outputIm)
     return
 
 
+################### global paths and parameters ################
+reference_im_fn = '/home/xiaoxiao/work/data/SRI24/T1_Crop.nii.gz'
+data_dir = '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data'
+im_fns = readTxtIntoList(data_dir +'/Flair_FN.txt')
 
-
-#######################################  manual setting  ##################################
-reference_im_name = '/home/xiaoxiao/work/data/SRI24/T1_Crop.nii.gz'
-
-data_folder= '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data'
-im_names = readTxtIntoList(data_folder +'/Flair_FN.txt')
-
-lamda = 0.8
-result_folder = '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/Flair_w'+str(lamda)
 selection = [0,1,3,4,6,7,9,10]
+lamda = 0.8
 
-print 'Results will be stored in:',result_folder
-if not os.path.exists(result_folder):
-	os.system('mkdir '+ result_folder)
+result_dir = '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/results/Flair_w'+str(lamda)
+print 'Results will be stored in:',result_dir
+if not os.path.exists(result_dir):
+	os.system('mkdir '+ result_dir)
 
+######################   main pipeline ##########################
 #@profile
 def main():
     import time
@@ -122,22 +119,21 @@ def main():
     global lamda
 
     s = time.clock()
-    # save script to the result folder for paramter checkups
-    os.system('cp /home/xiaoxiao/work/src/TubeTK/Base/Python/pyrpca/examples/Low_Rank_Atlas_Iter_BRATS_flair.py   ' +result_folder)
+    # save script to the result dir for paramter checkups
+    currentPyFile = os.path.realpath(__file__)
+    os.system('cp   ' + currentPyFile+' ' +result_dir)
 
-    #showReferenceImage(reference_im_name)
+    #showReferenceImage(reference_im_fn)
     affineRegistrationStep()
 
-
-    sys.stdout = open(result_folder+'/RUN.log', "w")
-    im_ref = sitk.ReadImage(reference_im_name) # image in SITK format
+    sys.stdout = open(result_dir+'/RUN.log', "w")
+    im_ref = sitk.ReadImage(reference_im_fn) # image in SITK format
     im_ref_array = sitk.GetArrayFromImage(im_ref) # get numpy array
     z_dim, x_dim, y_dim = im_ref_array.shape # get 3D volume shape
     vector_length = z_dim * x_dim * y_dim
     del im_ref, im_ref_array
 
     num_of_data = len(selection)
-
 
     NUM_OF_ITERATIONS = 12
     sparsity = np.zeros(NUM_OF_ITERATIONS)
@@ -155,7 +151,7 @@ def main():
 
         # prepare data matrix
         for i in range(num_of_data) :
-            im_file =  result_folder+'/'+ 'Iter'+str(iterCount-1)+'_Flair_' + str(i)  + '.nrrd'
+            im_file =  result_dir+'/'+ 'Iter'+str(iterCount-1)+'_Flair_' + str(i)  + '.nrrd'
             tmp = sitk.ReadImage(im_file)
             tmp = sitk.GetArrayFromImage(tmp)
             Y[:,i] = tmp.reshape(-1)
@@ -184,22 +180,13 @@ def main():
     # plot the sparsity curve
     plt.figure()
     plt.plot(range(NUM_OF_ITERATIONS), sparsity)
-    plt.savefig(result_folder+'/sparsity.png')
-    
-
+    plt.savefig(result_dir+'/sparsity.png')
 
     plt.figure()
     plt.plot(range(NUM_OF_ITERATIONS), sum_sparse)
-    plt.savefig(result_folder+'/sumSparse.png')
+    plt.savefig(result_dir+'/sumSparse.png')
 
 
 ###################################################
-###################################################
-###################################################
-###################################################
-
-
-
 if __name__ == "__main__":
     main()
-
