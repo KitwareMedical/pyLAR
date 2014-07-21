@@ -1,3 +1,5 @@
+# Testing scripts to run ANTS for image registraiton on BRATS images
+
 import sys
 from low_rank_atlas_iter import *
 import imp

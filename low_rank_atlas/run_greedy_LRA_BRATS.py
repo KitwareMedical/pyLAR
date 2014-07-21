@@ -1,16 +1,13 @@
-# -*- coding: utf-8 -*-
-# <nbformat>3.0</nbformat>
+#############################################################################
+#This script is the greedy impementation of the LRA framework and uses the BRATS
+#dataset for experiments, as described in the MICCAI'14 paper.
+#############################################################################
 
-# <codecell>
+
 
 import sys
 sys.path.append('/home/xiaoxiao/work/src/TubeTK/Base/Python/pyrpca/examples')
 from low_rank_atlas_iter import *
-
-
-
-
-# <codecell>
 
 ###############################  the main pipeline #############################
 def runIteration(Y,currentIter,lamda,gridSize,maxDisp):

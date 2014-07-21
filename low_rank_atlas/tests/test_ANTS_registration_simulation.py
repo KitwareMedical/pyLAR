@@ -1,3 +1,5 @@
+# Testing scripts to run ANTS for image registraiton on simulated Bull's eye images
+
 import sys
 from low_rank_atlas_iter import *
 import imp

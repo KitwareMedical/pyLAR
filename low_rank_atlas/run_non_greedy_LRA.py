@@ -2,13 +2,12 @@ import sys
 from low_rank_atlas_iter import *
 import imp
 
+# assign global parameters from the input config txt file
 configFN = sys.argv[1]
 f = open(configFN)
 config  = imp.load_source('config', '', f)
 f.close()
 
-
-# global variables
 USE_HEALTHY_ATLAS = config.USE_HEALTHY_ATLAS
 USE_BLUR = config.USE_BLUR
 reference_im_name = config.reference_im_name
@@ -18,17 +17,15 @@ lamda = config.lamda
 result_folder = config.result_folder
 selection = config.selection
 sigma = config.sigma
-
 NUM_OF_ITERATIONS_PER_LEVEL = config.NUM_OF_ITERATIONS_PER_LEVEL
-NUM_OF_LEVELS = config.NUM_OF_LEVELS
+NUM_OF_LEVELS = config.NUM_OF_LEVELS # multiscale bluring (coarse-to-fine)
 REGISTRATION_TYPE = config.REGISTRATION_TYPE
 
+gridSize = [0,0,0]
 if REGISTRATION_TYPE =='BSpline':
   gridSize = config.gridSize
-else:
-  gridSize =[0,0,0]
 
-antsParams ={None:None}
+antsParams = {None:None}
 if REGISTRATION_TYPE == 'ANTS':
    antsParams = config.antsParams
 
@@ -232,9 +229,7 @@ def main():
             gc.collect()
 
 
-        # multilevel greedy appraoch:
-        # based off from preious level
-        # update the input image, greedy version
+        # update the input image at each iteration by composing deformations fields from previous iterations
         if NUM_OF_ITERATIONS_PER_LEVEL > 1:
             for i in range(num_of_data):
                 newLevelInitIm = result_folder + '/L'+str(level+1)+'_Iter0_Flair_'+str(i)+'.nrrd'
