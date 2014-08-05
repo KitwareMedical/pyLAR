@@ -93,7 +93,7 @@ def runIteration(vector_length,level,currentIter,lamda,sigma, gridSize,maxDisp):
         z_dim, x_dim, y_dim = im_array.shape # get 3D volume shape
         plt.figure()
         implot = plt.imshow(im_array[z_dim/2,:,:],plt.cm.gray)
-        plt.title('Level'+str(i)+ ' atlas')
+        plt.title('L'+str(level)+'_Iter'+ str(currentIter)+' atlas')
         plt.savefig(result_dir+'/atlas_L'+str(level)+'_Iter'+str(currentIter)+'.png')
 
 
@@ -231,19 +231,10 @@ def main():
             gc.collect()
 
 
-        # update the input image at each iteration by composing deformations fields from previous iterations
-        if NUM_OF_ITERATIONS_PER_LEVEL > 1:
+        if NUM_OF_LEVELS > 1:
+            print 'WARNING: No need for multiple levels! TO BE REMOVED!'
             for i in range(num_of_data):
                 newLevelInitIm = result_dir + '/L'+str(level+1)+'_Iter0_Flair_'+str(i)+'.nrrd'
-                initialInputImage = result_dir + '/L0_Iter0_Flair_'+str(i)+'.nrrd'
-                outputComposedDVFIm = result_dir + '/L'+str(level) + '_Composed_DVF_'+str(i)+'.nrrd'
-                DVFImageList=[]
-                for k in range(level+1):
-                    DVFImageList.append(result_dir+'/L'+ str(k)+'_Iter'+ str(NUM_OF_ITERATIONS_PER_LEVEL)+'_DVF_' + str(i) +  '.nrrd')
-                composeMultipleDVFs(reference_im_fn,DVFImageList,outputComposedDVFIm, True)
-                updateInputImageWithDVF(initialInputImage,reference_im_fn, \
-                                           outputComposedDVFIm, newLevelInitIm, True)
-                finalDVFIm =  result_dir + '/L'+str(level)+'_Iter'+ str(NUM_OF_ITERATIONS_PER_LEVEL)+'_DVF_' + str(i) +  '.nrrd'
 
             if gridSize[0] < 10:
                  gridSize = np.add( gridSize,[1,2,1])
