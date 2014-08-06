@@ -1,0 +1,21 @@
+USE_HEALTHY_ATLAS = False
+
+data_dir = '/Users/xiaoxiaoliu/work/data/BullEyeSimulation/3D'
+fileListFN ='Simu_FN.txt'
+modality ='Simu'
+lamda = 1.0
+result_dir = data_dir+'/results/LAB_ANTS_Simu'
+selection = [0,1,2,3,4,5,6,7]
+
+NUM_OF_ITERATIONS_PER_LEVEL = 5
+NUM_OF_LEVELS = 1
+sigma = 0
+
+REGISTRATION_TYPE = 'ANTS'
+antsParams = {'Convergence' : '[100x50x25,1e-6,10]',\
+          'Dimension': 3,\
+          'ShrinkFactors' : '4x2x1',\
+          'SmoothingSigmas' : '2x1x0vox',\
+          'Transform' :'SyN[0.1,1,0.1]',\
+          'Metric': 'CC[fixedIm,movingIm,1,5]'}
+

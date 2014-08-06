@@ -55,26 +55,32 @@ plt.imshow(imArray[size/2,:,:],plt.cm.gray)
 plt.title('healthy atlas (fMean)')
 
 
-num_of_simulation = 4
+num_of_simulation = 8
 stepRadius =(largeSphereRadius-smallSphereRadius )/(num_of_simulation +1)
 
 objectRadius = 6.0
 #import random
 
 #objectLocation: random.randrange(size/8,size-size/8)
-t = np.zeros((4,2))
-t[0] = [15,15]
+t = np.zeros((8,2))
 t[1] = [20,45]
 t[2] = [50,15]
 t[3] = [45,45]
+t[4] = [30,20]
+t[5] = [15,15]
+t[6] = [20,45]
+t[7] = [50,15]
+
+r = [3,5,2,4,2,3,5,2]
 
 fig = plt.figure(figsize=(15,5))
 for i in range (num_of_simulation):
     simuFileName = result_dir + '/simu'+str(i+1)+'.nrrd'
     midSphereRaidus = smallSphereRadius + stepRadius*(i+1)
     #objectLocation = [size/2,random.randrange(size/8,size-size/8), random.randrange(size/8,size-size/8)]
+    objectRadius = r[i]
     objectLocation = [size/2,t[i][0],t[i][1]]
-    imArray = simuGen([smallSphereRadius,midSphereRaidus,largeSphereRadius],10.0,simuFileName,            objectLocation, objectRadius)
+    imArray = simuGen([smallSphereRadius,midSphereRaidus,largeSphereRadius],10.0,simuFileName,objectLocation, objectRadius)
     fig.add_subplot(1,num_of_simulation,i+1)
     implot = plt.imshow(imArray[size/2,:,:],plt.cm.gray)
     plt.title('simu'+str(i+1))
@@ -84,7 +90,11 @@ fig = plt.figure(figsize=(15,5))
 for i in range (num_of_simulation):
     simuFileName = result_dir + '/healthySimu'+str(i+1)+'.nrrd'
     midSphereRaidus = smallSphereRadius + stepRadius*(i+1)
-    imArray = simuGen([smallSphereRadius,midSphereRaidus,largeSphereRadius],10.0,simuFileName,            [0,0,0], 0)
+    imArray = simuGen([smallSphereRadius,midSphereRaidus,largeSphereRadius],10.0,simuFileName,[0,0,0], 0)
     fig.add_subplot(1,num_of_simulation,i+1)
     implot = plt.imshow(imArray[size/2,:,:],plt.cm.gray)
     plt.title('healthy simu'+str(i+1))
+
+
+midSphereRaidus = smallSphereRadius + stepRadius*(1+2+3+4+5+6+7+8)/8
+simuGen([smallSphereRadius,midSphereRaidus,largeSphereRadius],10.0, result_dir + '/fMeanSimu.nrrd',[0,0,0], 0)
