@@ -5,10 +5,10 @@ from low_rank_atlas_iter import *
 import imp
 import time
 
-result_folder = '/home/xiaoxiao/work/data/BullEyeSimulation/testANTS'
+result_folder = '/Users/xiaoxiaoliu/work/data/BullEyeSimulation/testANTS'
 
-fixedIm= '/home/xiaoxiao/work/data/BullEyeSimulation/fMeanSimu.nrrd'
-movingIm = '/home/xiaoxiao/work/data/BullEyeSimulation/healthySimu1.nrrd'
+fixedIm= '/Users/xiaoxiaoliu/work/data/BullEyeSimulation/fMeanSimu.nrrd'
+movingIm = '/Users/xiaoxiaoliu/work/data/BullEyeSimulation/healthySimu1.nrrd'
 outputTransformPrefix = result_folder+'/output_simu1_'
 
 

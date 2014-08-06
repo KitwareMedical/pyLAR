@@ -3,9 +3,9 @@ from low_rank_atlas_iter import *
 
 
 
-reference_im_name = '/home/xiaoxiao/work/data/SRI24/T1_Crop.nii.gz'
-tissues_Image =  '/home/xiaoxiao/work/data/SRI24/tissues_crop.nrrd'
-data_folder = '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/flair_bsplineRegToSRI'
+reference_im_name = '/Users/xiaoxiaoliu/work/data/SRI24/T1_Crop.nii.gz'
+tissues_Image =  '/Users/xiaoxiaoliu/work/data/SRI24/tissues_crop.nrrd'
+data_folder = '/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Image_Data/flair_bsplineRegToSRI'
 
 sys.stdout = open(data_folder+'/RUN.log', "w")
 ps=[]
@@ -31,8 +31,8 @@ for i in range(num_of_data):
     #process = subprocess.Popen(cmd, stdout=logFile, shell = True) 
     #process.wait()
 
-    tumorMaskImage= '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/TumorMask/affine3more_' +str(i) +  '.nrrd'
-    deformedTumorMaskImage= '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/TumorMask/bspline_deformed_3more_' +str(i) +  '.nrrd'
+    tumorMaskImage= '/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Image_Data/TumorMask/affine3more_' +str(i) +  '.nrrd'
+    deformedTumorMaskImage= '/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Image_Data/TumorMask/bspline_deformed_3more_' +str(i) +  '.nrrd'
     updateInputImageWithDVF(tumorMaskImage,tumorMaskImage,outputDVF, deformedTumorMaskImage,True)
    
     stats = computeLabelStatistics(outputIm, tissues_Image, deformedTumorMaskImage)

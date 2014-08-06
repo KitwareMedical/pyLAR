@@ -6,8 +6,8 @@ import imp
 import time
 
 lamda =0.8
-result_folder = '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/ANTS_Flair_w'+str(lamda)
-reference_im_name = '/home/xiaoxiao/work/data/SRI24/T1_Crop.nii.gz'
+result_folder = '/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Image_Data/ANTS_Flair_w'+str(lamda)
+reference_im_name = '/Users/xiaoxiaoliu/work/data/SRI24/T1_Crop.nii.gz'
 
 level = 0
 currentIter =1

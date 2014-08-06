@@ -8,7 +8,7 @@ from low_rank_atlas_iter import *
 # In[26]:
 
 # global settings
-data_folder = '/home/xiaoxiao/work/data/BullEyeSimulation'
+data_folder = '/Users/xiaoxiaoliu/work/data/BullEyeSimulation'
 result_folder = data_folder +'/low-rank-atlas-building'
 os.system('mkdir '+result_folder)
 im_names = [  data_folder+'/simu1.nrrd',
@@ -52,7 +52,7 @@ slice_nr = 32  # just for vis purpose
 
 ###############################  the main pipeline #############################
 def AverageImages(currentIter,atlasIm):
-    executable = '/home/xiaoxiao/work/bin/ANTS/bin/AverageImages'
+    executable = '/Users/xiaoxiaoliu/work/bin/ANTS/bin/AverageImages'
     listOfImages = []
     for i in range(num_of_data):
         movingIm = result_folder+'/'+ 'Iter'+ str(currentIter)+'_LowRank_' + str(i)  +'.nrrd'
@@ -162,7 +162,7 @@ def runIteration(currentIter,lamda,gridSize=[3,3,3]):
 # In[30]:
 
 # main
-os.system('cp /home/xiaoxiao/work/src/TubeTK/Base/Python/pyrpca/examples/BULLSEYE_Unbiased_LowRank_Atlas_Building.py  '+result_folder)
+os.system('cp /Users/xiaoxiaoliu/work/src/TubeTK/Base/Python/pyrpca/examples/BULLSEYE_Unbiased_LowRank_Atlas_Building.py  '+result_folder)
 
 NUM_OF_ITERATIONS = 15
 

@@ -176,7 +176,7 @@ def gridVisDVF(dvfImFileName,sliceNum = -1,titleString = 'DVF',saveFigPath ='.',
 # Please manually edit the corresponding binary paths for all
 # executable paths: EXE_<executable name>
 
-EXE_BRAINSFit = '/home/xiaoxiao/work/bin/BRAINSTools/bin/BRAINSFit'
+EXE_BRAINSFit = '/Users/xiaoxiaoliu/work/bin/BRAINSTools/bin/BRAINSFit'
 def AffineReg(fixedIm,movingIm,outputIm, outputTransform = None):
     executable = EXE_BRAINSFit
     if not outputTransform:
@@ -203,7 +203,7 @@ def AffineReg(fixedIm,movingIm,outputIm, outputTransform = None):
     tempFile.close()
     return
 
-EXE_ANTS = '/home/xiaoxiao/work/bin/ANTS/bin/antsRegistration'
+EXE_ANTS = '/Users/xiaoxiaoliu/work/bin/ANTs/bin/antsRegistration'
 def ANTS(fixedIm,movingIm,outputTransformPrefix,params,initialTransform=None, EXECUTE = False):
     executable = EXE_ANTS
     result_folder = os.path.dirname(movingIm)
@@ -245,7 +245,7 @@ def ANTS(fixedIm,movingIm,outputTransformPrefix,params,initialTransform=None, EX
 
 
 
-EXE_WarpImageMultiTransform = '/home/xiaoxiao/work/bin/ANTS/bin/WarpImageMultiTransform'
+EXE_WarpImageMultiTransform = '/Users/xiaoxiaoliu/work/bin/ANTS/bin/WarpImageMultiTransform'
 def ANTSWarpImage(inputIm, outputIm, referenceIm, transformPrefix,inverse = False, EXECUTE = False):
     dim = 3
     executable = EXE_WarpImageMultiTransform
@@ -281,7 +281,7 @@ def ANTSWarp2DImage(inputIm, outputIm, referenceIm, transformPrefix,inverse = Fa
     return cmd
 
 
-EXE_BRAINSDemonWarp ='/home/xiaoxiao/work/bin/BRAINSTools/bin/BRAINSDemonWarp'
+EXE_BRAINSDemonWarp ='/Users/xiaoxiaoliu/work/bin/BRAINSTools/bin/BRAINSDemonWarp'
 def DemonsReg(fixedIm,movingIm,outputIm, outputDVF,EXECUTE = False):
     executable = EXE_BRAINSDemonWarp 
     result_folder = os.path.dirname(movingIm)
@@ -307,7 +307,7 @@ def DemonsReg(fixedIm,movingIm,outputIm, outputDVF,EXECUTE = False):
         tempFile.close()
     return cmd
 
-EXE_BRAINSFit ='/home/xiaoxiao/work/bin/BRAINSTools/bin/BRAINSFit'
+EXE_BRAINSFit ='/Users/xiaoxiaoliu/work/bin/BRAINSTools/bin/BRAINSFit'
 def BSplineReg_BRAINSFit(fixedIm,movingIm,outputIm, outputTransform,gridSize =[5,5,5] ,maxDisp = 5.0 , EXECUTE = False):
     result_folder = os.path.dirname(movingIm)
     string_gridSize = ','.join([str(gridSize[0]),str(gridSize[1]),str(gridSize[2])])
@@ -330,7 +330,7 @@ def BSplineReg_BRAINSFit(fixedIm,movingIm,outputIm, outputTransform,gridSize =[5
     return cmd
 
 
-EXE_BSplineDeformableRegistration = '/home/xiaoxiao/work/bin/Slicer/Slicer-build/lib/Slicer-4.3/cli-modules/BSplineDeformableRegistration'
+EXE_BSplineDeformableRegistration = '/Users/xiaoxiaoliu/work/bin/Slicer/Slicer-build/lib/Slicer-4.3/cli-modules/BSplineDeformableRegistration'
 def BSplineReg_Legacy(fixedIm,movingIm,outputIm, outputDVF, gridSize=5, iterationNum=20, EXECUTE = False):
     result_folder = os.path.dirname(movingIm)
     executable = EXE_BSplineDeformableRegistration
@@ -350,7 +350,7 @@ def BSplineReg_Legacy(fixedIm,movingIm,outputIm, outputDVF, gridSize=5, iteratio
         tempFile.close()
     return cmd
 
-EXE_BSplineToDeformationField = '/home/xiaoxiao/work/bin/Slicer/Slicer-build/lib/Slicer-4.3/cli-modules/BSplineToDeformationField'
+EXE_BSplineToDeformationField = '/Users/xiaoxiaoliu/work/bin/Slicer/Slicer-build/lib/Slicer-4.3/cli-modules/BSplineToDeformationField'
 def ConvertTransform(fixedIm, outputTransform,outputDVF,EXECUTE = False):
     result_folder = os.path.dirname(outputDVF)
     cmd = EXE_BSplineToDeformationField \
@@ -364,7 +364,7 @@ def ConvertTransform(fixedIm, outputTransform,outputDVF,EXECUTE = False):
         tempFile.close()
     return cmd
 
-EXE_WarpImageMultiTransform = '/home/xiaoxiao/work/bin/BRAINSTools/bin/WarpImageMultiTransform'
+EXE_WarpImageMultiTransform = '/Users/xiaoxiaoliu/work/bin/BRAINSTools/bin/WarpImageMultiTransform'
 def WarpImageMultiDVF(movingImage, refImage,DVFImageList, outputImage,EXECUTE = False):
     result_folder = os.path.dirname(outputImage)
     string_DVFImageList = ' '.join(DVFImageList)
@@ -383,7 +383,7 @@ def WarpImageMultiDVF(movingImage, refImage,DVFImageList, outputImage,EXECUTE = 
         tempFile.close()
     return cmd
 
-EXE_ComposeMultiTransform = '/home/xiaoxiao/work/bin/BRAINSTools/bin/ComposeMultiTransform'
+EXE_ComposeMultiTransform = '/Users/xiaoxiaoliu/work/bin/BRAINSTools/bin/ComposeMultiTransform'
 def composeMultipleDVFs(refImage,DVFImageList, outputDVFImage,EXECUTE = False):
     result_folder = os.path.dirname(outputDVFImage)
     # T3(T2(T1(I))) = T3*T2*T1(I), need to reverse the sequence of the DVFs
@@ -402,7 +402,7 @@ def composeMultipleDVFs(refImage,DVFImageList, outputDVFImage,EXECUTE = False):
         tempFile.close()
     return cmd
 
-EXE_BRAINSResample = '/home/xiaoxiao/work/bin/BRAINSTools/bin/BRAINSResample'
+EXE_BRAINSResample = '/Users/xiaoxiaoliu/work/bin/BRAINSTools/bin/BRAINSResample'
 def applyLinearTransform(inputImage,refImage,transform, newInputImage,EXECUTE = False):
     result_folder = os.path.dirname(newInputImage)
     cmd = EXE_BRAINSResample \
@@ -452,7 +452,7 @@ def updateInputImageWithTFM(inputImage,refImage, transform, newInputImage,EXECUT
         tempFile.close()
     return cmd
 
-EXE_AverageImages ='/home/xiaoxiao/work/bin/BRAINSTools/bin/AverageImages'
+EXE_AverageImages ='/Users/xiaoxiaoliu/work/bin/BRAINSTools/bin/AverageImages'
 def AverageImages(listOfImages,outputIm):
     arguments = ' 3 ' + outputIm +'  0  ' +  ' '.join(listOfImages)
     cmd = EXE_AverageImages + ' ' + arguments
@@ -460,7 +460,7 @@ def AverageImages(listOfImages,outputIm):
     process.wait()
     return
 
-EXE_InvertDeformationField = '/home/xiaoxiao/work/bin/ITKUtils/bin/InvertDeformationField '
+EXE_InvertDeformationField = '/Users/xiaoxiaoliu/work/bin/ITKUtils/bin/InvertDeformationField '
 def genInverseDVF(DVFImage, InverseDVFImage, EXECUTE = False):
     result_folder = os.path.dirname(InverseDVFImage)
     cmd = EXE_InvertDeformationField \

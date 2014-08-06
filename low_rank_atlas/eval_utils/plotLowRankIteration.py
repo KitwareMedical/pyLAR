@@ -5,11 +5,11 @@ from low_rank_atlas_iter import *
 
 lamda=0.9
 selection = range(8)
-result_folder = '/home/xiaoxiao/work/data/BRATS/BRATS-2/Synthetic_Data/Flair_w'+str(lamda)
+result_folder = '/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Synthetic_Data/Flair_w'+str(lamda)
 
 
 
-reference_im_name = '/home/xiaoxiao/work/data/SRI24/T1_Crop.nii.gz'
+reference_im_name = '/Users/xiaoxiaoliu/work/data/SRI24/T1_Crop.nii.gz'
 im_ref = sitk.ReadImage(reference_im_name) # image in SITK format
 im_ref_array = sitk.GetArrayFromImage(im_ref) # get numpy array
 z_dim, x_dim, y_dim = im_ref_array.shape # get 3D volume shape

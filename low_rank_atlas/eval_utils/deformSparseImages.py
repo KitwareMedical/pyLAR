@@ -2,12 +2,12 @@ import sys
 sys.path.insert(0, '../')
 from low_rank_atlas_iter import *
 
-data_folder= '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data'
+data_folder= '/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Image_Data'
 sparse_result_folder = data_folder +'/sparse_InvDef_8inputs'
 
 os.system('mkdir '+ sparse_result_folder)
 
-reference_im_name = '/home/xiaoxiao/work/data/SRI24/T1_Crop.nii.gz'
+reference_im_name = '/Users/xiaoxiaoliu/work/data/SRI24/T1_Crop.nii.gz'
 
 result_folder = data_folder +'/Flair_w0.8'
 

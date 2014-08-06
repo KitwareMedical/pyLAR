@@ -47,7 +47,7 @@ size = 64
 smallSphereRadius = size/8
 largeSphereRadius = size*3/8
 midSphereRaidus = (smallSphereRadius + largeSphereRadius )/2
-result_dir = '/home/xiaoxiao/work/data/BullEyeSimulation/3D'
+result_dir = '/Users/xiaoxiaoliu/work/data/BullEyeSimulation/3D'
 os.system('mkdir '+result_dir)
 imArray = simuGen([smallSphereRadius,midSphereRaidus,largeSphereRadius],10.0, result_dir + '/fMeanSimu.nrrd')
 plt.figure()

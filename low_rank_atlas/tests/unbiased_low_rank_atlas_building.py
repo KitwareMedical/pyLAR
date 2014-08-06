@@ -114,13 +114,13 @@ def affineRegistrationStep():
 
 
 #######################################  main ##################################
-reference_im_name = '/home/xiaoxiao/work/data/SRI24/T1_Crop.nii.gz'
+reference_im_name = '/Users/xiaoxiaoliu/work/data/SRI24/T1_Crop.nii.gz'
 
-data_folder= '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data'
+data_folder= '/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Image_Data'
 im_names = readTxtIntoList(data_folder +'/Flair_FN.txt')
 
 lamda = 0.7
-result_folder = '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/Unbiased_Atlas_Flair_w'+str(lamda)
+result_folder = '/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Image_Data/Unbiased_Atlas_Flair_w'+str(lamda)
 selection = [0,1,3,4,6,7,9,10]
 
 print 'Results will be stored in:',result_folder

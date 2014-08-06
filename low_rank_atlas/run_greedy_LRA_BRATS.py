@@ -98,14 +98,14 @@ def affineRegistrationStep():
 
 
 ################### global paths and parameters ################
-reference_im_fn = '/home/xiaoxiao/work/data/SRI24/T1_Crop.nii.gz'
-data_dir = '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data'
+reference_im_fn = '$HOME/work/data/SRI24/T1_Crop.nii.gz'
+data_dir = '$HOME/work/data/BRATS/BRATS-2/Image_Data'
 im_fns = readTxtIntoList(data_dir +'/Flair_FN.txt')
 
 selection = [0,1,3,4,6,7,9,10]
 lamda = 0.8
 
-result_dir = '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/results/Flair_w'+str(lamda)
+result_dir = '$HOME/work/data/BRATS/BRATS-2/Image_Data/results/Flair_w'+str(lamda)
 print 'Results will be stored in:',result_dir
 if not os.path.exists(result_dir):
 	os.system('mkdir '+ result_dir)

@@ -14,7 +14,7 @@ im_names =[]
 
 def main():
     global result_folder, NUM_OF_ITERATIONS, num_of_data 
-    result_folder = '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/Flair_w0.8'
+    result_folder = '/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Image_Data/Flair_w0.8'
     num_of_data = 8
     NUM_OF_ITERATIONS = 10
 

@@ -9,7 +9,7 @@ import gc
 # In[ ]:
 
 # global settings
-data_folder = '/home/xiaoxiao/work/data/BullEyeSimulation'
+data_folder = '/Users/xiaoxiaoliu/work/data/BullEyeSimulation'
 result_folder = data_folder +'/try1_greedyDVF'
 os.system('mkdir '+result_folder)
 im_names = [  data_folder+'/simu1.nrrd',
@@ -153,7 +153,7 @@ def computeHealthyDeformations():
 def main():
   # main
   #computeHealthyDeformations()
-  os.system('cp /home/xiaoxiao/work/src/TubeTK/Base/Python/pyrpca/examples/Low_Rank_Atlas_Iter_BULLSEYE.py  '+result_folder)
+  os.system('cp /Users/xiaoxiaoliu/work/src/TubeTK/Base/Python/pyrpca/examples/Low_Rank_Atlas_Iter_BULLSEYE.py  '+result_folder)
 
   NUM_OF_ITERATIONS = 10
   lamda = 1.0

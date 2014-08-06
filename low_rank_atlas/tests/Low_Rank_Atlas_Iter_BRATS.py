@@ -4,7 +4,7 @@
 # <codecell>
 
 import sys
-sys.path.append('/home/xiaoxiao/work/src/TubeTK/Base/Python/pyrpca/examples')
+sys.path.append('/Users/xiaoxiaoliu/work/src/TubeTK/Base/Python/pyrpca/examples')
 from low_rank_atlas_iter import *
 
 
@@ -12,33 +12,33 @@ def useData_BRATS2_FLAIR():
     global data_folder,result_folder,im_names,selection,reference_im_name
 
     im_names = [ \
-'/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/HG/0001/VSD.Brain.XX.O.MR_Flair/VSD.Brain.XX.O.MR_Flair.684.mha',
-'/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/HG/0002/VSD.Brain.XX.O.MR_Flair/VSD.Brain.XX.O.MR_Flair.691.mha',
-'/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/HG/0003/VSD.Brain.XX.O.MR_Flair/VSD.Brain.XX.O.MR_Flair.697.mha',
-'/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/HG/0004/VSD.Brain.XX.O.MR_Flair/VSD.Brain.XX.O.MR_Flair.703.mha',
-'/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/HG/0005/VSD.Brain.XX.O.MR_Flair/VSD.Brain.XX.O.MR_Flair.709.mha',
-'/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/HG/0006/VSD.Brain.XX.O.MR_Flair/VSD.Brain.XX.O.MR_Flair.715.mha',
-'/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/HG/0007/VSD.Brain.XX.O.MR_Flair/VSD.Brain.XX.O.MR_Flair.721.mha',
-'/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/HG/0008/VSD.Brain.XX.O.MR_Flair/VSD.Brain.XX.O.MR_Flair.727.mha',
-'/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/HG/0009/VSD.Brain.XX.O.MR_Flair/VSD.Brain.XX.O.MR_Flair.733.mha',
-'/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/HG/0010/VSD.Brain.XX.O.MR_Flair/VSD.Brain.XX.O.MR_Flair.739.mha',
-'/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/HG/0011/VSD.Brain.XX.O.MR_Flair/VSD.Brain.XX.O.MR_Flair.745.mha',
-'/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/HG/0012/VSD.Brain.XX.O.MR_Flair/VSD.Brain.XX.O.MR_Flair.751.mha',
-'/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/HG/0013/VSD.Brain.XX.O.MR_Flair/VSD.Brain.XX.O.MR_Flair.757.mha',
-'/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/HG/0014/VSD.Brain.XX.O.MR_Flair/VSD.Brain.XX.O.MR_Flair.763.mha',
-'/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/HG/0015/VSD.Brain.XX.O.MR_Flair/VSD.Brain.XX.O.MR_Flair.769.mha',
-'/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/HG/0022/VSD.Brain.XX.O.MR_Flair/VSD.Brain.XX.O.MR_Flair.775.mha',
-'/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/HG/0024/VSD.Brain.XX.O.MR_Flair/VSD.Brain.XX.O.MR_Flair.781.mha',
-'/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/HG/0025/VSD.Brain.XX.O.MR_Flair/VSD.Brain.XX.O.MR_Flair.787.mha',
-'/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/HG/0026/VSD.Brain.XX.O.MR_Flair/VSD.Brain.XX.O.MR_Flair.793.mha',
-'/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/HG/0027/VSD.Brain.XX.O.MR_Flair/VSD.Brain.XX.O.MR_Flair.799.mha'
+'/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Image_Data/HG/0001/VSD.Brain.XX.O.MR_Flair/VSD.Brain.XX.O.MR_Flair.684.mha',
+'/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Image_Data/HG/0002/VSD.Brain.XX.O.MR_Flair/VSD.Brain.XX.O.MR_Flair.691.mha',
+'/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Image_Data/HG/0003/VSD.Brain.XX.O.MR_Flair/VSD.Brain.XX.O.MR_Flair.697.mha',
+'/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Image_Data/HG/0004/VSD.Brain.XX.O.MR_Flair/VSD.Brain.XX.O.MR_Flair.703.mha',
+'/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Image_Data/HG/0005/VSD.Brain.XX.O.MR_Flair/VSD.Brain.XX.O.MR_Flair.709.mha',
+'/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Image_Data/HG/0006/VSD.Brain.XX.O.MR_Flair/VSD.Brain.XX.O.MR_Flair.715.mha',
+'/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Image_Data/HG/0007/VSD.Brain.XX.O.MR_Flair/VSD.Brain.XX.O.MR_Flair.721.mha',
+'/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Image_Data/HG/0008/VSD.Brain.XX.O.MR_Flair/VSD.Brain.XX.O.MR_Flair.727.mha',
+'/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Image_Data/HG/0009/VSD.Brain.XX.O.MR_Flair/VSD.Brain.XX.O.MR_Flair.733.mha',
+'/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Image_Data/HG/0010/VSD.Brain.XX.O.MR_Flair/VSD.Brain.XX.O.MR_Flair.739.mha',
+'/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Image_Data/HG/0011/VSD.Brain.XX.O.MR_Flair/VSD.Brain.XX.O.MR_Flair.745.mha',
+'/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Image_Data/HG/0012/VSD.Brain.XX.O.MR_Flair/VSD.Brain.XX.O.MR_Flair.751.mha',
+'/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Image_Data/HG/0013/VSD.Brain.XX.O.MR_Flair/VSD.Brain.XX.O.MR_Flair.757.mha',
+'/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Image_Data/HG/0014/VSD.Brain.XX.O.MR_Flair/VSD.Brain.XX.O.MR_Flair.763.mha',
+'/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Image_Data/HG/0015/VSD.Brain.XX.O.MR_Flair/VSD.Brain.XX.O.MR_Flair.769.mha',
+'/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Image_Data/HG/0022/VSD.Brain.XX.O.MR_Flair/VSD.Brain.XX.O.MR_Flair.775.mha',
+'/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Image_Data/HG/0024/VSD.Brain.XX.O.MR_Flair/VSD.Brain.XX.O.MR_Flair.781.mha',
+'/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Image_Data/HG/0025/VSD.Brain.XX.O.MR_Flair/VSD.Brain.XX.O.MR_Flair.787.mha',
+'/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Image_Data/HG/0026/VSD.Brain.XX.O.MR_Flair/VSD.Brain.XX.O.MR_Flair.793.mha',
+'/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Image_Data/HG/0027/VSD.Brain.XX.O.MR_Flair/VSD.Brain.XX.O.MR_Flair.799.mha'
     ]
     return
 
 # Data info
 def useData_BRATS2_Synthetic():
     global data_folder,result_folder,im_names,selection,reference_im_name
-    data_folder = '/home/xiaoxiao/work/data/BRATS/BRATS-2/Synthetic_Data/HG'
+    data_folder = '/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Synthetic_Data/HG'
     im_names = [ \
     data_folder +'/0001/VSD.Brain.XX.O.MR_T1/VSD.Brain.XX.O.MR_T1.866.mha',
     data_folder +'/0002/VSD.Brain.XX.O.MR_T1/VSD.Brain.XX.O.MR_T1.872.mha',
@@ -74,7 +74,7 @@ def useData_BRATS2_Synthetic():
 
 def useData_BRATS2():
     global data_folder,im_names,reference_im_name
-    data_folder = '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data'
+    data_folder = '/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Image_Data'
 
     im_names = [ \
     data_folder+'/HG/0001/VSD.Brain.XX.O.MR_T1/VSD.Brain.XX.O.MR_T1.685.mha',
@@ -200,19 +200,19 @@ def affineRegistrationStep():
 #######################################  manual setting  ##################################
 # global variables
 im_names =[]
-reference_im_name = '/home/xiaoxiao/work/data/SRI24/T1_Crop.nii.gz'
+reference_im_name = '/Users/xiaoxiaoliu/work/data/SRI24/T1_Crop.nii.gz'
 ######  set data folders
 
 lamda = 0.9
 
 useData_BRATS2()
 selection = range(8)
-result_folder = '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data/RegulateBspline_w'+str(lamda)
+result_folder = '/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Image_Data/RegulateBspline_w'+str(lamda)
 
 
 
 #useData_BRATS2_Synthetic()
-#result_folder = '/home/xiaoxiao/work/data/BRATS/BRATS-2/Synthetic_Data/RegulateBSpline_w'+str(lamda)
+#result_folder = '/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Synthetic_Data/RegulateBSpline_w'+str(lamda)
 #selection = range(8)
 
 #os.system('mkdir '+ result_folder)
@@ -226,7 +226,7 @@ def main():
 
     s = time.clock()
     # save script to the result folder for paramter checkups
-    os.system('cp /home/xiaoxiao/work/src/TubeTK/Base/Python/pyrpca/examples/Low_Rank_Atlas_Iter_BRATS.py   ' +result_folder)
+    os.system('cp /Users/xiaoxiaoliu/work/src/TubeTK/Base/Python/pyrpca/examples/Low_Rank_Atlas_Iter_BRATS.py   ' +result_folder)
 
     #showReferenceImage(reference_im_name)
     affineRegistrationStep()

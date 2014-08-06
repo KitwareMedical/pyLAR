@@ -113,4 +113,6 @@ Next, launch the IPython notebook:
 ```bash
 ~/tutorial-env/bin/ipython notebook --pylab=inline
 ```
+To run the low-rank atlas-to-image registration application code, you need to
+install the [IPL package] (http://www.pythonware.com/products/pil/)
 

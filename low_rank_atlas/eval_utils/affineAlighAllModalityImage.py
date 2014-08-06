@@ -1,9 +1,9 @@
 import sys
-sys.path.append('/home/xiaoxiao/work/src/TubeTK/Base/Python/pyrpca/examples')
+sys.path.append('/Users/xiaoxiaoliu/work/src/TubeTK/Base/Python/pyrpca/examples')
 
 from low_rank_atlas_iter import *
 
-data_folder= '/home/xiaoxiao/work/data/BRATS/BRATS-2/Image_Data'
+data_folder= '/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Image_Data'
 
 
 
@@ -14,7 +14,7 @@ tumor_im_names = readTxtIntoList(data_folder +'/Tumor_FN.txt')
 
 
 selection = [0,1,3,4,6,7,9,10]
-reference_im_name = '/home/xiaoxiao/work/data/SRI24/T1_Crop.nii.gz'
+reference_im_name = '/Users/xiaoxiaoliu/work/data/SRI24/T1_Crop.nii.gz'
 
 t1_result_folder = data_folder +'/T1_affineRegistered8Inputs'
 t2_result_folder = data_folder +'/T2_affineRegistered8Inputs'
