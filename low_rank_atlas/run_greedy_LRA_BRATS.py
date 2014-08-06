@@ -118,7 +118,7 @@ def main():
     #from guppy import hpy
     global lamda
 
-    s = time.clock()
+    s = time.time()
     # save script to the result dir for paramter checkups
     currentPyFile = os.path.realpath(__file__)
     os.system('cp   ' + currentPyFile+' ' +result_dir)
@@ -169,11 +169,11 @@ def main():
 
         #h = hpy()
         #print h.heap()
-        b = time.clock()
+        b = time.time()
         c = b-a
         print 'Iteration took  %f mins'%(c/60.0)
 
-    e = time.clock()
+    e = time.time()
     l = e - s
     print 'Total running time:  %f mins'%(l/60.0)
 

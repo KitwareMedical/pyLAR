@@ -330,7 +330,7 @@ def BSplineReg_BRAINSFit(fixedIm,movingIm,outputIm, outputTransform,gridSize =[5
     return cmd
 
 
-EXE_BSplineDeformableRegistration = '/Users/xiaoxiaoliu/work/bin/Slicer/Slicer-build/lib/Slicer-4.3/cli-modules/BSplineDeformableRegistration'
+EXE_BSplineDeformableRegistration = '/Applications/Slicer.app/Contents/lib/Slicer-4.3/cli-modules/BSplineDeformableRegistration'
 def BSplineReg_Legacy(fixedIm,movingIm,outputIm, outputDVF, gridSize=5, iterationNum=20, EXECUTE = False):
     result_folder = os.path.dirname(movingIm)
     executable = EXE_BSplineDeformableRegistration
@@ -350,7 +350,8 @@ def BSplineReg_Legacy(fixedIm,movingIm,outputIm, outputDVF, gridSize=5, iteratio
         tempFile.close()
     return cmd
 
-EXE_BSplineToDeformationField = '/Users/xiaoxiaoliu/work/bin/Slicer/Slicer-build/lib/Slicer-4.3/cli-modules/BSplineToDeformationField'
+EXE_BSplineToDeformationField = '/Applications/Slicer.app/Contents/lib/Slicer-4.3/cli-modules/BSplineToDeformationField'
+#'/Users/xiaoxiaoliu/work/bin/Slicer/Slicer-build/lib/Slicer-4.3/cli-modules/BSplineToDeformationField'
 def ConvertTransform(fixedIm, outputTransform,outputDVF,EXECUTE = False):
     result_folder = os.path.dirname(outputDVF)
     cmd = EXE_BSplineToDeformationField \
