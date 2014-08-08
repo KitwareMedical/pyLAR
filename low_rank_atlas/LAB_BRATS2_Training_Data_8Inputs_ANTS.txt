@@ -1,6 +1,7 @@
 USE_HEALTHY_ATLAS = False
 
 data_dir = '/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Image_Data'
+reference_im_fn = '/Users/xiaoxiaoliu/work/data/SRI24/T1_Crop.nii.gz'
 fileListFN ='Flair_FN.txt'
 modality ='Flair'
 lamda = 1.0

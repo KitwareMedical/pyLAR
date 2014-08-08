@@ -55,7 +55,7 @@ def runIteration(vector_length,level,currentIter,lamda,sigma, gridSize,maxDisp):
     num_of_data = len(selection)
     Y = np.zeros((vector_length,num_of_data))
     for i in range(num_of_data) :
-          im_file =  result_dir+ '/L' + str(level) + '_Iter' + str(currentIter-1) + '_Flair_' + str(i)  + '.nrrd'
+          im_file =  result_dir+ '/L' + str(level) + '_Iter' + str(currentIter-1) + '_' + str(i)  + '.nrrd'
           inIm = sitk.ReadImage(im_file)
           tmp = sitk.GetArrayFromImage(inIm)
           if sigma > 0: # blurring
@@ -86,22 +86,22 @@ def runIteration(vector_length,level,currentIter,lamda,sigma, gridSize,maxDisp):
     # Unbiased low-rank atlas building (ULAB)
     if not USE_HEALTHY_ATLAS:
         # average the low-rank images to produce the Atlas
-        reference_im_fn = result_dir+ '/L' + str(level) + '_Iter' + str(currentIter) + '_atlas.nrrd'
-        listOfImages = []
+        atlasIm = result_dir+ '/L' + str(level) + '_Iter' + str(currentIter) + '_atlas.nrrd'
+        listOfImages = [ ]
         num_of_data = len(selection)
         for i in range(num_of_data):
             lrIm = result_dir+ '/L' + str(level) + '_Iter' + str(currentIter) + '_LowRank_' + str(i)  + '.nrrd'
             listOfImages.append(lrIm)
+        AverageImages(listOfImages,atlasIm)
 
-        AverageImages(listOfImages,reference_im_fn)
-
-        im = sitk.ReadImage(reference_im_fn)
+        im = sitk.ReadImage(atlasIm)
         im_array = sitk.GetArrayFromImage(im)
         z_dim, x_dim, y_dim = im_array.shape
         plt.figure()
         implot = plt.imshow(im_array[z_dim/2,:,:],plt.cm.gray)
         plt.title('L' + str(level) + '_Iter' + str(currentIter) + ' atlas')
         plt.savefig(result_dir+ '/atlas_L' + str(level) + '_Iter' + str(currentIter) + '.png')
+        reference_im_fn = atlasIm
 
 
     ps = [] # to use multiple processors
@@ -124,8 +124,8 @@ def runIteration(vector_length,level,currentIter,lamda,sigma, gridSize,maxDisp):
               genInverseDVF(previousIterDVF,inverseDVF, True)
               updateInputImageWithDVF( lowRankIm, reference_im_fn, inverseDVF, invWarpedlowRankIm,True)
             if REGISTRATION_TYPE == 'ANTS':
-              outputTransformPrefix = result_dir+ '/L' + str(level) + '_Iter' + str(currentIter-1) + '_' + str(i) + '_'
-              ANTSWarpImage(lowRankIm,invWarpedlowRankIm, reference_im_fn,outputTransformPrefix,True, True)
+              previousIterTransformPrefix = result_dir+ '/L' + str(level) + '_Iter' + str(currentIter-1) + '_' + str(i) + '_'
+              ANTSWarpImage(lowRankIm,invWarpedlowRankIm, reference_im_fn, previousIterTransformPrefix,True, True)
 
         # register each inversely-warped low-rank image to the Atlas image
         outputIm = result_dir+ '/L' + str(level) + '_Iter' + str(currentIter) + '_Deformed_LowRank' + str(i)  + '.nrrd'
@@ -135,9 +135,10 @@ def runIteration(vector_length,level,currentIter,lamda,sigma, gridSize,maxDisp):
 
         movingIm = invWarpedlowRankIm
         fixedIm =  reference_im_fn
+        print '\n\n\n\nANTS: fixed =%s ;moving = %s\n\n\n\n' %(fixedIm, movingIm)
 
-        initialInputImage= result_dir+ '/L' + str(level) + '_Iter0_Flair_' + str(i) +  '.nrrd'
-        newInputImage = result_dir+ '/L' + str(level) + '_Iter' + str(currentIter) + '_Flair_' + str(i) +  '.nrrd'
+        initialInputImage= result_dir+ '/L' + str(level) + '_Iter0_' + str(i) +  '.nrrd'
+        newInputImage = result_dir+ '/L' + str(level) + '_Iter' + str(currentIter) + '_' + str(i) +  '.nrrd'
 
         if REGISTRATION_TYPE == 'BSpline':
           cmd += BSplineReg_BRAINSFit(fixedIm,movingIm,outputIm,outputTransform,gridSize, maxDisp)
@@ -152,13 +153,9 @@ def runIteration(vector_length,level,currentIter,lamda,sigma, gridSize,maxDisp):
           # if currentIter > 1:
            # initialTransform = result_dir+ '/L' + str(level) + '_Iter' + str(currentIter-1) + '_' + str(i) + '_0Warp.nii.gz'
           # else:
-          initialTransform = None
-          antsParams['Metric'] = antsParams['Metric'].replace('fixedIm', fixedIm)
-          antsParams['Metric'] = antsParams['Metric'].replace('movingIm', movingIm)
-          cmd += ANTS(fixedIm,movingIm,outputTransformPrefix,antsParams, initialTransform)
+          cmd += ANTS(fixedIm,movingIm,outputTransformPrefix,antsParams)
           # generate the warped input image with the specified file name
           cmd += ";" + ANTSWarpImage(initialInputImage, newInputImage, reference_im_fn, outputTransformPrefix)
-          # print cmd
         else:
           print "unrecognized registration type:", REGISTRATION_TYPE
 
@@ -193,7 +190,7 @@ def showReferenceImage(reference_im_fn):
 def affineRegistrationStep():
     num_of_data = len(selection)
     for i in range(num_of_data):
-        outputIm =  result_dir+ '/L0_Iter0_Flair_' + str(i)  + '.nrrd'
+        outputIm =  result_dir+ '/L0_Iter0_' + str(i)  + '.nrrd'
         AffineReg(reference_im_fn,im_fns[selection[i]],outputIm)
     return
 
@@ -246,7 +243,7 @@ def main():
         if NUM_OF_LEVELS > 1:
             print 'WARNING: No need for multiple levels! TO BE REMOVED!'
             for i in range(num_of_data):
-                newLevelInitIm = result_dir + '/L' + str(level+1) + '_Iter0_Flair_' + str(i) + '.nrrd'
+                newLevelInitIm = result_dir + '/L' + str(level+1) + '_Iter0_' + str(i) + '.nrrd'
 
             if gridSize[0] < 10:
                  gridSize = np.add( gridSize,[1,2,1])
