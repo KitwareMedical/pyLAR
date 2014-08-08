@@ -4,11 +4,11 @@ data_dir = '/Users/xiaoxiaoliu/work/data/BullEyeSimulation/3D'
 reference_im_fn = '/Users/xiaoxiaoliu/work/data/BullEyeSimulation/3D/fMeanSimu.nrrd'
 fileListFN ='Simu_FN.txt'
 modality ='Simu'
-lamda = 1.2
-result_dir = data_dir+'/results/LAB_ANTS_Test_Simu'
-selection = [0,1,2,3,4,5,6,7]
+lamda = 2.0
+result_dir = data_dir + '/results/LAB_Simu_ANTS'
+selection = range(0,8)
 
-NUM_OF_ITERATIONS_PER_LEVEL = 3
+NUM_OF_ITERATIONS_PER_LEVEL = 5
 NUM_OF_LEVELS = 1
 sigma = 0
 
@@ -17,6 +17,6 @@ antsParams = {'Convergence' : '[50x25,1e-6,10]',\
           'Dimension': 3,\
           'ShrinkFactors' : '2x1',\
           'SmoothingSigmas' : '1x0vox',\
-          'Transform' :'SyN[0.2]',\
+          'Transform' :'SyN[0.25,3,0]',\
           'Metric': 'CC[fixedIm,movingIm,1,5]'}
 

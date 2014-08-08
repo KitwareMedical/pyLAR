@@ -135,7 +135,6 @@ def runIteration(vector_length,level,currentIter,lamda,sigma, gridSize,maxDisp):
 
         movingIm = invWarpedlowRankIm
         fixedIm =  reference_im_fn
-        print '\n\n\n\nANTS: fixed =%s ;moving = %s\n\n\n\n' %(fixedIm, movingIm)
 
         initialInputImage= result_dir+ '/L' + str(level) + '_Iter0_' + str(i) +  '.nrrd'
         newInputImage = result_dir+ '/L' + str(level) + '_Iter' + str(currentIter) + '_' + str(i) +  '.nrrd'

@@ -230,8 +230,8 @@ def ANTS(fixedIm,movingIm,outputTransformPrefix,params,initialTransform=None, EX
                 +' -m '+ METRIC \
                 +' --convergence '+ CONVERGENCE \
                 +' --shrink-factors '+ SHRINKFACTORS \
-                +' --smoothing-sigmas '+SMOOTHINGSIGMAS\
-                +' --use-histogram-match'
+                +' --smoothing-sigmas '+SMOOTHINGSIGMAS
+    #            +' --use-histogram-match'
     if initialTransform:
          arguments += ' --initial-moving-transform  %s' %(initialTransform)
 
