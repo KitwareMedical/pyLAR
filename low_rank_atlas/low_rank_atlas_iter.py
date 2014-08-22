@@ -281,6 +281,19 @@ def ANTSWarp2DImage(inputIm, outputIm, referenceIm, transformPrefix,inverse = Fa
     return cmd
 
 
+EXE_CreateJacobianDeterminantImage = '/Users/xiaoxiaoliu/work/bin/ANTs/bin/CreateJacobianDeterminantImage'
+def createJacobianDeterminantImage(imageDimension, dvfImage,outputIm,EXECUTE = False):
+    executable = EXE_CreateJacobianDeterminantImage
+    result_folder = os.path.dirname(outputIm)
+    arguments = str(imageDimension) +' %s  %s '%(dvfImage, outputIm)
+    cmd = executable + ' ' + arguments
+    if (EXECUTE):
+        tempFile = open(result_folder+'/CreateJacobianDeterminantImage.log', 'w')
+        process = subprocess.Popen(cmd, stdout=tempFile, shell=True)
+        process.wait()
+        tempFile.close()
+    return cmd
+
 EXE_BRAINSDemonWarp ='/Users/xiaoxiaoliu/work/bin/BRAINSTools/bin/BRAINSDemonWarp'
 def DemonsReg(fixedIm,movingIm,outputIm, outputDVF,EXECUTE = False):
     executable = EXE_BRAINSDemonWarp 
@@ -306,6 +319,9 @@ def DemonsReg(fixedIm,movingIm,outputIm, outputDVF,EXECUTE = False):
         process.wait()
         tempFile.close()
     return cmd
+
+
+
 
 EXE_BRAINSFit ='/Users/xiaoxiaoliu/work/bin/BRAINSTools/bin/BRAINSFit'
 def BSplineReg_BRAINSFit(fixedIm,movingIm,outputIm, outputTransform,gridSize =[5,5,5] ,maxDisp = 5.0 , EXECUTE = False):
