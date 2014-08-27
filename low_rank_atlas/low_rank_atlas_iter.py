@@ -237,12 +237,23 @@ def ANTS(fixedIm,movingIm,outputTransformPrefix,params,initialTransform=None, EX
 
     cmd = executable + ' ' + arguments
     if (EXECUTE):
-        tempFile = open(result_folder+'/ANTS.log', 'w')
+        tempFile = open(outputTransformPrefix+'ANTS.log', 'w')
         process = subprocess.Popen(cmd, stdout=tempFile, shell=True)
         process.wait()
         tempFile.close()
     return cmd
 
+
+# Utility function to extract the integrated velocity field norm from the ANTS log file
+def getANTSOutputVelocityNorm(logFile):
+  #spatio-temporal velocity field norm : 2.8212e-02
+  STRING ="    spatio-temporal velocity field norm : "
+  vn = 0.0
+  f = open(logFile, 'r')
+  for line in f:
+    if (line.find(STRING) > -1 ):
+        vn = float(line.split(STRING)[1].split()[0][0:-1])
+  return vn
 
 
 EXE_WarpImageMultiTransform = '/Users/xiaoxiaoliu/work/bin/ANTS/bin/WarpImageMultiTransform'
