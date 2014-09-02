@@ -187,7 +187,7 @@ def AffineReg(fixedIm,movingIm,outputIm, outputTransform = None):
                +' --movingVolume ' + movingIm \
                +' --outputVolume ' + outputIm \
                +' --linearTransform ' + outputTransform \
-               +' --initializeTransformMode  useMomentsAlign --useAffine --numberOfSamples 100000   \
+               +' --initializeTransformMode  useMomentsAlign --useAffine --samplingPercentage 0.1   \
                   --numberOfIterations 1500 --maskProcessingMode NOMASK --outputVolumePixelType float \
                   --backgroundFillValue 0 --maskInferiorCutOffFromCenter 1000 --interpolationMode Linear \
                   --minimumStepLength 0.005 --translationScale 1000 --reproportionScale 1 --skewScale 1 \
@@ -344,7 +344,7 @@ def BSplineReg_BRAINSFit(fixedIm,movingIm,outputIm, outputTransform,gridSize =[5
                +' --outputVolume ' + outputIm \
                +' --outputTransform ' + outputTransform \
                +' --initializeTransformMode Off --useBSpline \
-                  --numberOfSamples 50000 --splineGridSize ' + string_gridSize \
+                  --samplingPercentage 0.1  --splineGridSize ' + string_gridSize \
                +' --maxBSplineDisplacement  ' +str(maxDisp)\
                +' --numberOfHistogramBins 50  --numberOfIterations 500 --maskProcessingMode NOMASK --outputVolumePixelType float --backgroundFillValue 0   --numberOfThreads -1 --costMetric MMI'
 

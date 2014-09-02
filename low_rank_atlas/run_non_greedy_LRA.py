@@ -104,6 +104,8 @@ def runIteration(vector_length,level,currentIter,lamda,sigma, gridSize,maxDisp):
         reference_im_fn = atlasIm
 
 
+
+
     ps = [] # to use multiple processors
     for i in range(num_of_data):
         logFile = open(result_dir+ '/L' + str(level) + '_Iter' + str(currentIter) + '_RUN_' + str(i) + '.log', 'w')
@@ -193,6 +195,14 @@ def affineRegistrationStep():
         AffineReg(reference_im_fn,im_fns[selection[i]],outputIm)
     return
 
+# histogram matching preprocessing
+def  histogramMatching():
+    num_of_data = len(selection)
+    for i in range(num_of_data):
+        inIm =  result_dir+ '/L0_Affine_' + str(i)  + '.nrrd'
+        outputIm =  result_dir+ '/L0_Iter0_' + str(i)  + '.nrrd'
+        HistogramMatching(reference_im_fn,im_fns[selection[i]],outputIm)
+    return
 
 #######################################  main ##################################
 #@profile

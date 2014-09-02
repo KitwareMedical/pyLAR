@@ -59,6 +59,7 @@ def runIteration(Y,cIter,lamda,gridSize,maxDisp):
 
         cmd += ";" + updateInputImageWithDVF(initialInputImage,reference_im_fn, \
                                        outputComposedDVFIm,newInputImage)
+        print cmd
         process = subprocess.Popen(cmd, stdout=logFile, shell = True)
         ps.append(process)
 
@@ -98,14 +99,14 @@ def affineRegistrationStep():
 
 
 ################### global paths and parameters ################
-reference_im_fn = '$HOME/work/data/SRI24/T1_Crop.nii.gz'
-data_dir = '$HOME/work/data/BRATS/BRATS-2/Image_Data'
+reference_im_fn = '/Users/xiaoxiaoliu/work/data/SRI24/T1_Crop.nii.gz'
+data_dir = '/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Image_Data'
 im_fns = readTxtIntoList(data_dir +'/Flair_FN.txt')
 
 selection = [0,1,3,4,6,7,9,10]
 lamda = 0.8
 
-result_dir = '$HOME/work/data/BRATS/BRATS-2/Image_Data/results/Flair_w'+str(lamda)
+result_dir = '/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Image_Data/results/Greedy_Flair_w'+str(lamda)
 print 'Results will be stored in:',result_dir
 if not os.path.exists(result_dir):
 	os.system('mkdir '+ result_dir)
@@ -135,7 +136,7 @@ def main():
 
     num_of_data = len(selection)
 
-    NUM_OF_ITERATIONS = 12
+    NUM_OF_ITERATIONS = 8
     sparsity = np.zeros(NUM_OF_ITERATIONS)
     sum_sparse = np.zeros(NUM_OF_ITERATIONS)
 
