@@ -2,16 +2,14 @@ USE_HEALTHY_ATLAS = False
 
 # data directory setting
 reference_im_fn = '/Users/xiaoxiaoliu/work/data/SRI24/T1_Crop.nii.gz'
-data_dir = '/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Synthetic_Data'
-result_dir = '/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Synthetic_Data/results/Flair/LAB_Flair_8Inputs_MI'
+data_dir = '/Users/xiaoxiaoliu/work/data/BrainWeb-T1'
+result_dir = '/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Synthetic_Data/results/T1/MI/BrainWeb_UAB_MI'
 
-lamda = 0.8
-sigma = 0
-fileListFN = 'Flair_FN.txt'
-modality = 'Flair'
-selection = [0,2,5,7,12,17,19,23]
+fileListFN = 'T1_FN.txt'
+modality = 'T1'
+selection = [0,1,2,3,4]
 
-NUM_OF_ITERATIONS_PER_LEVEL = 5
+NUM_OF_ITERATIONS_PER_LEVEL = 7
 NUM_OF_LEVELS = 1
 
 REGISTRATION_TYPE = 'ANTS'
@@ -21,5 +19,6 @@ antsParams = {'Convergence' : '[100x50x25,1e-6,10]',\
           'SmoothingSigmas' : '2x1x0vox',\
           'Transform' :'SyN[0.1,1,0]',\
          # 'Transform' :'TimeVaryingVelocityField[0.5,4,3,0,0,0]',\
-         # 'Metric': 'MeanSquares[fixedIm,movingIm,1,0]'}
+         #  'Metric': 'CC[fixedIm,movingIm,1,8]'}
+         #  'Metric': 'MeanSquares[fixedIm,movingIm,1,0]'}
           'Metric': 'Mattes[fixedIm,movingIm,1,50,Regular,0.90]'}

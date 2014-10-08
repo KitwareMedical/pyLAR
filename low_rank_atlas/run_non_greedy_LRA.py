@@ -76,7 +76,7 @@ def runIteration(vector_length,level,currentIter,lamda,sigma, gridSize,maxDisp):
     fig = plt.figure(figsize=(15,5))
     showSlice(Y,'L' + str(level) + '_' + str(currentIter) + ' Input',plt.cm.gray,0,reference_im_fn)
     showSlice(low_rank,'L' + str(level) + '_' + str(currentIter) + ' low rank',plt.cm.gray,1, reference_im_fn)
-    showSlice(sparse,'L' + str(level) + '_' + str(currentIter) + ' sparse',plt.cm.gray,2, reference_im_fn)
+    showSlice(np.abs(sparse),'L' + str(level) + '_' + str(currentIter) + ' sparse',plt.cm.gray,2, reference_im_fn)
     plt.savefig(result_dir+ '/' + 'L' + str(level) + '_Iter' + str(currentIter) + '.png')
     fig.clf()
     plt.close(fig)
@@ -98,7 +98,7 @@ def runIteration(vector_length,level,currentIter,lamda,sigma, gridSize,maxDisp):
         im_array = sitk.GetArrayFromImage(im)
         z_dim, x_dim, y_dim = im_array.shape
         plt.figure()
-        implot = plt.imshow(im_array[z_dim/2,:,:],plt.cm.gray)
+        implot = plt.imshow(np.flipud(im_array[z_dim/2,:,:]),plt.cm.gray)
         plt.title('L' + str(level) + '_Iter' + str(currentIter) + ' atlas')
         plt.savefig(result_dir+ '/atlas_L' + str(level) + '_Iter' + str(currentIter) + '.png')
         reference_im_fn = atlasIm
@@ -196,13 +196,22 @@ def affineRegistrationStep():
     return
 
 # histogram matching preprocessing
-def  histogramMatching():
+def  histogramMatchingStep():
     num_of_data = len(selection)
-    for i in range(num_of_data):
-        inIm =  result_dir+ '/L0_Affine_' + str(i)  + '.nrrd'
-        outputIm =  result_dir+ '/L0_Iter0_' + str(i)  + '.nrrd'
-        HistogramMatching(reference_im_fn,im_fns[selection[i]],outputIm)
+    for i in range(1,num_of_data):
+        inIm =  result_dir+ '/L0_Iter0_' + str(i)  + '.nrrd'
+        refIm =  result_dir+ '/L0_Iter0_' + str(0)  + '.nrrd'
+        outIm =  result_dir+ '/L0_Iter0_' + str(i)  + '.nrrd'
+        inputIm =  sitk.ReadImage(inIm)
+        referenceIm =  sitk.ReadImage(refIm)
+        histMatchingFilter = sitk.HistogramMatchingImageFilter()
+        histMatchingFilter.SetNumberOfHistogramLevels( 1024 );
+        histMatchingFilter.SetNumberOfMatchPoints( 7 );
+        histMatchingFilter.ThresholdAtMeanIntensityOff();
+        outputIm = histMatchingFilter.Execute(inputIm, referenceIm)
+        sitk.WriteImage(outputIm, outIm)
     return
+
 
 #######################################  main ##################################
 #@profile
@@ -215,6 +224,7 @@ def main():
 
     #showReferenceImage(reference_im_fn)
     affineRegistrationStep()
+    #histogramMatchingStep()
 
     sys.stdout = open(result_dir+ '/RUN.log', "w")
     im_ref = sitk.ReadImage(reference_im_fn)

@@ -1,0 +1,24 @@
+USE_HEALTHY_ATLAS = False
+
+# data directory setting
+reference_im_fn = '/Users/xiaoxiaoliu/work/data/SRI24/T1_Crop.nii.gz'
+data_dir = '/Users/xiaoxiaoliu/work/data/BrainWeb-T1'
+result_dir = '/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Synthetic_Data/results/BrainWeb_LAB_w1.2'
+
+lamda = 1.2
+sigma = 0
+fileListFN = 'T1_FN.txt'
+modality = 'T1'
+selection = [0,1,2,3,4]
+
+NUM_OF_ITERATIONS_PER_LEVEL = 5
+NUM_OF_LEVELS = 1
+
+REGISTRATION_TYPE = 'ANTS'
+antsParams = {'Convergence' : '[100x50x25,1e-6,10]',\
+          'Dimension': 3,\
+          'ShrinkFactors' : '4x2x1',\
+          'SmoothingSigmas' : '2x1x0vox',\
+          'Transform' :'SyN[0.1,1,0]',\
+          #'Transform' :'TimeVaryingVelocityField[0.5,4,3,0,0,0]',\
+          'Metric': 'MeanSquares[fixedIm,movingIm,1,0]'}

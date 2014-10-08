@@ -3,10 +3,8 @@ USE_HEALTHY_ATLAS = False
 # data directory setting
 reference_im_fn = '/Users/xiaoxiaoliu/work/data/SRI24/T1_Crop.nii.gz'
 data_dir = '/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Synthetic_Data'
-result_dir = '/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Synthetic_Data/results/Flair/LAB_Flair_8Inputs_MI'
+result_dir = '/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Synthetic_Data/results/Flair/UAB_Flair_8Inputs_MI'
 
-lamda = 0.8
-sigma = 0
 fileListFN = 'Flair_FN.txt'
 modality = 'Flair'
 selection = [0,2,5,7,12,17,19,23]

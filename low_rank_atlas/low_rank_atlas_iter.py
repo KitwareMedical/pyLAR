@@ -256,6 +256,34 @@ def getANTSOutputVelocityNorm(logFile):
   return vn
 
 
+def geodesicDistance3D(inputImage, referenceImage, outputTransformPrefix):
+  geodesicDis = -1
+  affineParams =  {
+      'Dimension': 3,\
+          'Convergence' : '[200,1e-6,10]',\
+          'ShrinkFactors' : '1',\
+          'SmoothingSigmas' : '0vox',\
+          'Transform' :'affine[0.1]',\
+          'Metric': 'Mattes[fixedIm,movingIm,1,50,Regular,0.95]'
+          }
+  antsParams =  {
+      'Dimension': 3,\
+          'Convergence' : '[200x100x50,1e-6,10]',\
+          'ShrinkFactors' : '4x2x1',\
+          'SmoothingSigmas' : '2x1x0vox',\
+          'Transform' :'TimeVaryingVelocityField[1.0,4,8,0,0,0]',\
+          'Metric': 'Mattes[fixedIm,movingIm,1,50,Regular,0.95]'
+          }
+  ANTS(referenceImage,inputImage,outputTransformPrefix+'_affine',affineParams, None, True)
+  outputIm =  outputTransformPrefix+'_affineWarped.nrrd'
+  if os.path.isfile(outputIm):
+    ANTS(referenceImage,inputImage, outputTransformPrefix,antsParams, None, True)
+    logFile = outputTransformPrefix+'ANTS.log'
+    geodesicDis = getANTSOutputVelocityNorm(logFile)
+  else:
+    print "affine registraion failed: no affine results are generated"
+  return geodesicDis
+
 EXE_WarpImageMultiTransform = '/Users/xiaoxiaoliu/work/bin/ANTS/bin/WarpImageMultiTransform'
 def ANTSWarpImage(inputIm, outputIm, referenceIm, transformPrefix,inverse = False, EXECUTE = False):
     dim = 3
