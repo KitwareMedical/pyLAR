@@ -2,8 +2,19 @@
 import numpy as np  # Numpy for general purpose processing
 import SimpleITK as sitk  # SimpleITK to load images
 import os
+import sys
 import matplotlib.pyplot as plt
+import argparse
 
+parser = argparse.ArgumentParser(
+        prog=sys.argv[0],
+        description=" This script generates 3D simulation data",
+)
+parser.add_argument('result_dir', nargs=1, type=str, help='Directory to store the output images')
+args = parser.parse_args()
+result_dir = args.result_dir[0]
+if not os.path.exists(result_dir):
+    os.makedirs(result_dir)
 
 def sphereImage(radius, x_dim, y_dim, z_dim, label):
     sData = np.zeros((x_dim, y_dim, z_dim))
@@ -51,8 +62,6 @@ size = 64
 smallSphereRadius = size / 8
 largeSphereRadius = size * 3 / 8
 midSphereRadius = (smallSphereRadius + largeSphereRadius) / 2
-result_dir = '/home/fbudin/Data/BullEyeSimulation/3D'
-os.system('mkdir ' + result_dir)
 imArray = simuGen([smallSphereRadius, midSphereRadius, largeSphereRadius], 10.0, result_dir + '/fMeanSimu.nrrd')
 plt.figure()
 plt.imshow(imArray[size / 2, :, :], plt.cm.gray)
