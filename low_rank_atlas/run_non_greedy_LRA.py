@@ -209,7 +209,7 @@ def  histogramMatchingStep():
         histMatchingFilter.SetNumberOfMatchPoints( 7 );
         histMatchingFilter.ThresholdAtMeanIntensityOff();
         outputIm = histMatchingFilter.Execute(inputIm, referenceIm)
-        sitk.WriteImage(outputIm, outIm)
+        sitk.WriteImage(outputIm, outIm,True)
     return
 
 

@@ -55,13 +55,13 @@ def main(argv=None):
 
     # write outlier image
     J = sitk.GetImageFromArray(X)
-    sitk.WriteImage(J, sys.argv[3])
+    sitk.WriteImage(J, sys.argv[3], True)
 
     # decompose X into L+S
     L, S, _ = ialm.recover(X)
 
     C = sitk.GetImageFromArray(np.asarray(L, dtype=np.uint8))
-    sitk.WriteImage(C, sys.argv[4])
+    sitk.WriteImage(C, sys.argv[4], True)
 
     # compute mean-square error and Frobenius norm
     print "MSE: %.4g" % np.sqrt(np.asmatrix((L-sitk.GetArrayFromImage(I))**2).sum())

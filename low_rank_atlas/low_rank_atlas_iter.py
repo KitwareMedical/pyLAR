@@ -66,7 +66,7 @@ def CropImage(inIm_name, outputIm_name, lowerCropSize, upperCropSize):
     outIm = crop.Execute(inIm)
     outIm.SetOrigin(inIm.GetOrigin())
     outIm.SetDirection(inIm.GetDirection())
-    sitk.WriteImage(outIm, outputIm_name)
+    sitk.WriteImage(outIm, outputIm_name, True)
     return
 
 
@@ -76,7 +76,7 @@ def GaussianBlur(inputIm, outputIm, sigma):
     srg.SetSigma(sigma)
     outIm = srg.Execute(inIm)
 
-    sitk.WriteImage(outIm, outputIm)
+    sitk.WriteImage(outIm, outputIm, True)
 
 
 ####################################################
@@ -129,7 +129,7 @@ def saveImagesFromDM(dataMatrix, outputPrefix, referenceImName):
         img.SetSpacing(im_ref.GetSpacing())
         img.SetDirection(im_ref.GetDirection())
         fn = outputPrefix + str(i) + '.nrrd'
-        sitk.WriteImage(img, fn)
+        sitk.WriteImage(img, fn, True)
     del im_ref, im_ref_array
     return
 

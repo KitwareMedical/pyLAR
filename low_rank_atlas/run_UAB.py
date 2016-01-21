@@ -126,7 +126,7 @@ def  histogramMatchingStep():
         histMatchingFilter.SetNumberOfMatchPoints( 7 );
         histMatchingFilter.ThresholdAtMeanIntensityOff();
         outputIm = histMatchingFilter.Execute(inputIm, referenceIm)
-        sitk.WriteImage(outputIm, outIm)
+        sitk.WriteImage(outputIm, outIm, True)
     return
 
 def  normalizeIntensityStep():
@@ -137,7 +137,7 @@ def  normalizeIntensityStep():
         normalizeFilter = sitk.NormalizeImageFilter()
         inputIm =  sitk.ReadImage(inIm)
         outputIm = normalizeFilter.Execute(inputIm)
-        sitk.WriteImage(outputIm, outIm)
+        sitk.WriteImage(outputIm, outIm, True)
     return
 #######################################  main ##################################
 #@profile

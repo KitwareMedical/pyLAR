@@ -54,7 +54,7 @@ def simuGen(radii, baseIntensity, outputImageFileName, l_objectLocation=[0, 0, 0
     gaussian.SetSigma(gaussianSigma)
     img_blur = gaussian.Execute(img)
     s_final = sitk.GetArrayFromImage(img_blur)
-    sitk.WriteImage(img_blur, outputImageFileName)
+    sitk.WriteImage(img_blur, outputImageFileName, True)
     return s_final
 
 
