@@ -1,7 +1,7 @@
 pyLAR
 =================
 
-pyLAR features Python implmentations of a low-rank atlas-to-image
+pyLAR features Python implementations of a low-rank atlas-to-image
 registration(LAR) framework and its applications in medical image analysis
 and computer vision. The core machine learning technique is Robust PCA.
 
@@ -98,6 +98,20 @@ e.g., using ```apt-get install python-virtualenv```. Basically, we
 create a virtual environment, install all the required packages
 and eventually run the IPython notebook.
 
+To vizualize the matplolib plots without using IPython Notebook, you 
+need to make sure that matplotlib is built with a backend that allows 
+plotting. By default, it is usually set to use 'Agg' as a backend, 
+which only allows to save the plot, not to visualize it.
+
+On Ubuntu 15.10, To build matplotlib with 'tkAgg', which allows 
+interactive plotting, you need to install the following packages:
+
+```bash
+sudo apt-get install tcl-dev tk-dev python-tk python3-tk
+```
+
+Install matplotlib with pip only after installing these packages.
+
 ```bash
 cd ~
 mkdir tutorial-env
@@ -113,6 +127,16 @@ Next, launch the IPython notebook:
 ```bash
 ~/tutorial-env/bin/ipython notebook --pylab=inline
 ```
-To run the low-rank atlas-to-image registration application code, you need to
-install the [IPL package] (http://www.pythonware.com/products/pil/)
 
+If you get the following error message, just follow the instructions and 
+write `%pylab inline` at the top of your notebook.
+
+```bash
+[E 15:41:01.741 NotebookApp] Support for specifying --pylab on the command line has been removed.
+[E 15:41:01.741 NotebookApp] Please use `%pylab inline` or `%matplotlib inline` in the notebook itself.
+```
+
+License
+=======
+
+pyLAR is distributed under the Apache License Version 2.0 (see LICENSE.md)
