@@ -48,8 +48,8 @@ except ImportError:
     sys.exit(-1)
 
 # make sure ialm is found and import
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)),'..'))
-import core.ialm as ialm
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
+import pyLAR.alm.ialm as ialm
 
 
 def main(argv=None):
@@ -79,7 +79,7 @@ def main(argv=None):
     sitk.WriteImage(J, sys.argv[3], True)
 
     # decompose X into L+S
-    L, S, _ = ialm.recover(X)
+    L, S, _, _, _, _ = ialm.recover(X)
 
     C = sitk.GetImageFromArray(np.asarray(L, dtype=np.uint8))
     sitk.WriteImage(C, sys.argv[4], True)

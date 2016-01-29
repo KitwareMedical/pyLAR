@@ -1,0 +1,12 @@
+EXE_ANTS = '/home/fbudin/Tools/ANTs.2.1.0.Debian-Ubuntu_X64/antsRegistration'
+EXE_WarpImageMultiTransform = '/home/fbudin/Tools/ANTs.2.1.0.Debian-Ubuntu_X64/WarpImageMultiTransform'
+EXE_CreateJacobianDeterminantImage = '/home/fbudin/Tools/ANTs.2.1.0.Debian-Ubuntu_X64/CreateJacobianDeterminantImage'
+EXE_BRAINSDemonWarp = '/home/fbudin/Tools/Slicer-4.5.0-1-linux-amd64/Slicer --launch /home/fbudin/Tools/Slicer-4.5.0-1-linux-amd64/lib/Slicer-4.5/cli-modules/BRAINSDemonWarp'
+EXE_ComposeMultiTransform = '/home/fbudin/Tools/ANTs.2.1.0.Debian-Ubuntu_X64/ComposeMultiTransform'
+EXE_BRAINSResample = '/home/fbudin/Tools/Slicer-4.5.0-1-linux-amd64/Slicer --launch /home/fbudin/Tools/Slicer-4.5.0-1-linux-amd64/lib/Slicer-4.5/cli-modules/BRAINSResample'
+EXE_InvertDeformationField = '/home/fbudin/Tools/ITKUtils-build/InvertDeformationField '
+EXE_AverageImages = '/home/fbudin/Tools/ANTs.2.1.0.Debian-Ubuntu_X64/AverageImages'
+EXE_BRAINSFit = '/home/fbudin/Tools/Slicer-4.5.0-1-linux-amd64/Slicer --launch /home/fbudin/Tools/Slicer-4.5.0-1-linux-amd64/lib/Slicer-4.5/cli-modules/BRAINSFit'
+EXE_BSplineToDeformationField = '/home/fbudin/Tools/Slicer-4.5.0-1-linux-amd64/Slicer --launch /home/fbudin/Tools/Slicer-4.5.0-1-linux-amd64/lib/Slicer-4.5/cli-modules/BSplineToDeformationField'
+EXE_BSplineDeformableRegistration = '/Applications/Slicer.app/Contents/lib/Slicer-4.3/cli-modules/BSplineDeformableRegistration'
+
