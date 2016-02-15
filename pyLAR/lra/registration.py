@@ -17,11 +17,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Image Registration Related Functions.
+""" pyLAR Image Registration Related Functions.
 
-Requires to build the following libraries first:
-    BRAINSTools: http://brainsia.github.io/BRAINSTools/
-    ANTS: http://stnava.github.io/ANTs/
+Requires to build the following toolkits first:
+    BRAINSTools: http://brainsia.github.io/BRAINSTools
+    ANTS: http://stnava.github.io/ANTs
+    ITKUtils: https://github.com/XiaoxiaoLiu/ITKUtils
+
+    List of the binaries used in this module:
+    * BRAINSFit (BRAINSTools package)
+    * ANTS (ANTS package)
+    * WarpImageMultiTransform (ANTS package)
+    * CreateJacobianDeterminantImage (ANTS package)
+    * BRAINSDemonWarp (BRAINSTools package)
+    * ComposeMultiTransform (ANTS package)
+    * BSplineDeformableRegistration (Slicer module)
+    * BRAINSResample (BRAINSTools package)
+    * AverageImages (ANTS package)
+    * InvertDeformationField [1]
+
+    [1] https://github.com/XiaoxiaoLiu/ITKUtils
 """
 
 import subprocess
@@ -40,6 +55,22 @@ def _execute(cmd, verbose, log_file, EXECUTE=True):
         tempFile.close()
 
 def AffineReg(EXE_BRAINSFit, fixedIm, movingIm, outputIm, outputTransform=None, verbose=False):
+    """ Computes an affine registration using BRAINSFit
+
+    Parameters
+    ----------
+    EXE_BRAINSFit: Path to BRAINSFit executable.
+    fixedIm: fixed image file name used for the registration.
+    movingIm: moving image file name used for the registration.
+    outputIm: output image file name.
+    outputTransform: output transform file name.
+    verbose: displays additional information.
+
+    Returns
+    -------
+    cmd: returns the command line that has been executed.
+
+    """
     executable = EXE_BRAINSFit
     if not outputTransform:
         outputTransform = outputIm + '.tfm'
@@ -64,6 +95,22 @@ def AffineReg(EXE_BRAINSFit, fixedIm, movingIm, outputIm, outputTransform=None, 
 
 
 def RigidReg(EXE_BRAINSFit, fixedIm, movingIm, outputIm, outputTransform=None, verbose=False):
+    """ Computes a rigid registration using BRAINSFit
+
+    Parameters
+    ----------
+    EXE_BRAINSFit: Path to BRAINSFit executable.
+    fixedIm: fixed image file name used for the registration.
+    movingIm: moving image file name used for the registration.
+    outputIm: output image file name.
+    outputTransform: output transform file name.
+    verbose: displays additional information.
+
+    Returns
+    -------
+    cmd: returns the command line that has been executed.
+
+    """
     executable = EXE_BRAINSFit
     if not outputTransform:
         outputTransform = outputIm + '.tfm'
@@ -87,7 +134,31 @@ def RigidReg(EXE_BRAINSFit, fixedIm, movingIm, outputIm, outputTransform=None, v
     return cmd
 
 
-def ANTS(EXE_ANTS, fixedIm, movingIm, outputTransformPrefix, params, initialTransform=None, EXECUTE=False, verbose=False):
+def ANTS(EXE_ANTS, fixedIm, movingIm, outputTransformPrefix, params, initialTransform=None, EXECUTE=False,
+         verbose=False):
+    """ Computes a registration using ANTS.
+
+    Parameters
+    ----------
+    EXE_ANTS: Path to ANTS executable.
+    fixedIm: fixed image file name used for the registration.
+    movingIm: moving image file name used for the registration.
+    outputTransformPrefix: output prefix used to name output image and output transform files.
+    params: registration parameters. It should contain:
+        * 'Dimension', i.e. 3
+        * 'Convergence', i.e. "[100x70x50x20,1e-6,10]"
+        * 'ShrinkFactors', i.e. "8x4x2x1"
+        * 'SmoothingSigmas', i.e. "3x2x1x0vox"
+        * 'Transform', i.e. "SyN[0.25]"
+        * 'Metric', i.e. "MeanSquares[fixedIm,movingIm,1,0]"
+    initialTransform: initial transform file to use to initialize the registration.
+    verbose: display additional information.
+
+    Returns
+    -------
+    cmd: returns the command line that has been executed.
+
+    """
     executable = EXE_ANTS
 
     dim = params['Dimension']
@@ -122,7 +193,17 @@ def ANTS(EXE_ANTS, fixedIm, movingIm, outputTransformPrefix, params, initialTran
 
 
 def getANTSOutputVelocityNorm(logFile):
-    """Utility function to extract the integrated velocity field norm from the ANTS log file."""
+    """ Utility function to extract the integrated velocity field norm from the ANTS log file.
+
+    Parameters
+    ----------
+    logFile: file to extract the velocity norm from.
+
+    Returns
+    -------
+    vn: velocity norm.
+
+    """
     # spatio-temporal velocity field norm : 2.8212e-02
     STRING = "    spatio-temporal velocity field norm : "
     vn = 0.0
@@ -134,6 +215,20 @@ def getANTSOutputVelocityNorm(logFile):
 
 
 def geodesicDistance3D(EXE_ANTS, inputImage, referenceImage, outputTransformPrefix, verbose):
+    """ Computes geodesic distance between input image and reference image.
+
+    Parameters
+    ----------
+    EXE_ANTS: Path to ANTS executable.
+    inputImage: Input image file name.
+    referenceImage: Reference image file name.
+    outputTransformPrefix: output prefix used for output transform files and output image files.
+    verbose: Displays additional information.
+
+    Returns
+    -------
+    geodesicDis: geodesic distance between input image and reference image.
+    """
     geodesicDis = -1
     affineParams = {
         'Dimension': 3,
@@ -165,6 +260,23 @@ def geodesicDistance3D(EXE_ANTS, inputImage, referenceImage, outputTransformPref
 def ANTSWarpImage(EXE_WarpImageMultiTransform, inputIm, outputIm, referenceIm,
                   transformPrefix, inverse=False, EXECUTE=False, verbose=False
                   ):
+    """ Transforms input image using given transform and reference space.
+
+    Parameters
+    ----------
+    EXE_WarpImageMultiTransform: Path to WarpImageMultiTransform executable.
+    inputIm
+    outputIm
+    referenceIm
+    transformPrefix
+    inverse
+    EXECUTE
+    verbose
+
+    Returns
+    -------
+
+    """
     dim = 3
     executable = EXE_WarpImageMultiTransform
     result_folder = os.path.dirname(outputIm)

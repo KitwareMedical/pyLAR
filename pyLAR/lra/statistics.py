@@ -17,18 +17,39 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+""" Module containing pyLAR statistics functions
+"""
+
 import SimpleITK as sitk
 
 
-def computeLabelStatistics(inputIm, labelmapIm, tumorMaskImage=None):
+def computeLabelStatistics(inputIm, labelmapIm, maskImage=None):
+    """ Computes regional statistics of the given input image for each region in the given label map.
+    A mask can be applied to the image beforehand.
+
+    Parameters
+    ----------
+    inputIm: Grayscale image on which the statistics are computed
+    labelmapIm: label map (=segmentation) used to compute regional statistics
+    maskImage: mask image
+
+    Returns
+    -------
+    stats: numpy array containing the following statistics for each region of the label map:
+    [regionIndex, 0]: mean
+    [regionIndex, 1]: computed standard deviation
+    [regionIndex, 2]: computed variance
+    [regionIndex, 3]: minimum
+    [regionIndex, 4]: maximum
+    """
     inIm = sitk.ReadImage(inputIm)
     labelIm = sitk.ReadImage(labelmapIm)
     labelIm.SetOrigin(inIm.GetOrigin())
     labelIm.SetDirection(inIm.GetDirection())
     maskedLabelIm = labelIm
 
-    if tumorMaskImage:
-        maskImage = sitk.ReadImage(tumorMaskImage)
+    if maskImage:
+        maskImage = sitk.ReadImage(maskImage)
         mask = sitk.MaskNegatedImageFilter()
         maskImage.SetOrigin(labelIm.GetOrigin())
         maskImage.SetDirection(labelIm.GetDirection())

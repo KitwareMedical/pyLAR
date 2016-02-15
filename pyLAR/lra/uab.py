@@ -19,12 +19,6 @@
 
 """ Unbiased atlas creation from a selection of images
 
-Command line arguments (See command line help: -h):
----------------------------------------------------
-    Required:
-        --configFN (string): Parameter configuration file.
-        --configSoftware (string): Software configuration file.
-
 Configuration file must contain:
 --------------------------------
     fileListFN (string): File containing path to input images.
@@ -48,7 +42,7 @@ Optional for 'set_and_run'/required for 'run_low_rank':
 
 Configuration Software file must contain:
 -----------------------------------------
-    EXE_BRAINSFit (string): Path to BRAINSFit executable (BRAINSFit package)
+    EXE_BRAINSFit (string): Path to BRAINSFit executable (BRAINSTools package)
     EXE_AverageImages (string): Path to AverageImages executable (ANTS package)
     EXE_ANTS (string): Path to ANTS executable (ANTS package)
     EXE_WarpImageMultiTransform (string): path to WarpImageMultiTransform (ANTS package)

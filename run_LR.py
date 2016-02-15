@@ -47,7 +47,7 @@ Optional for 'set_and_run'/required for 'run_low_rank':
 
 Configuration Software file must contain:
 -----------------------------------------
-    EXE_BRAINSFit (string): Path to BRAINSFit executable (BRAINSFit package)
+    EXE_BRAINSFit (string): Path to BRAINSFit executable (BRAINSTools package)
 """
 
 import sys

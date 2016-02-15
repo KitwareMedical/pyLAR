@@ -56,18 +56,18 @@ Optional for 'set_and_run'/required for 'run_low_rank':
 Configuration Software file must contain:
 -----------------------------------------
     Required:
-        EXE_BRAINSFit (string): Path to BRAINSFit executable (BRAINSFit package)
+        EXE_BRAINSFit (string): Path to BRAINSFit executable (BRAINSTools package)
 
     If USE_HEALTHY_ATLAS is set to True:
         EXE_AverageImages (string): Path to AverageImages executable (ANTS package)
 
     If REGISTRATION_TYPE is set to 'BSpline':
         EXE_InvertDeformationField (string): Path to InvertDeformationField executable [1]
-        EXE_BRAINSResample (string): Path to BRAINSResample executable (BRAINSFit package)
+        EXE_BRAINSResample (string): Path to BRAINSResample executable (BRAINSTools package)
         EXE_BSplineToDeformationField (string): Path to BSplineDeformationField (Slicer module)
     Else if REGISTRATION_TYPE is set to 'Demons':
-        EXE_BRAINSDemonWarp (string): Path to BRAINSDemonWarp executable (BRAINSFit package)
-        EXE_BRAINSResample (string): Path to BRAINSResample executable (BRAINSFit package)
+        EXE_BRAINSDemonWarp (string): Path to BRAINSDemonWarp executable (BRAINSTools package)
+        EXE_BRAINSResample (string): Path to BRAINSResample executable (BRAINSTools package)
         EXE_InvertDeformationField (string): Path to InvertDeformationField executable [1]
     Else if REGISTRATION_TYPE is set to 'ANTS':
         EXE_ANTS (string): Path to ANTS executable (ANTS package)

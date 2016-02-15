@@ -19,14 +19,6 @@
 
 """Low rank decomposition of a set of images
 
-Command line arguments (See command line help: -h):
----------------------------------------------------
-    Required:
-        --configFN (string): Parameter configuration file.
-        --configSoftware (string): Software configuration file.
-    Optional:
-        --HistogramMatching (boolean) that overwrites configuration file histogram matching parameter.
-
 Configuration file must contain:
 --------------------------------
     lamda (float): the tuning parameter that weights between the low-rank component and the sparse component.
@@ -38,14 +30,14 @@ Configuration file must contain:
     reference_im_fn (string): reference image used for the registration.
     registration (string): 'affine' or 'rigid'
 
-Optional for 'set_and_run'/required for 'run_low_rank':
+Optional for 'check_requirements'/required for 'run':
 ----------------------------------------------------
     HistogramMatching (boolean): If not specified or set to False, no histogram matching performed.
     verbose (boolean): If not specified or set to False, outputs are written in a log file.
 
 Configuration Software file must contain:
 -----------------------------------------
-    EXE_BRAINSFit (string): Path to BRAINSFit executable (BRAINSFit package)
+    EXE_BRAINSFit (string): Path to BRAINSFit executable (BRAINSTools package)
 """
 
 import pyLAR
