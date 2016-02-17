@@ -34,10 +34,6 @@ Configuration file must contain:
                   'Transform' :'SyN[0.5]',\
                   'Metric': 'Mattes[fixedIm,movingIm,1,50,Regular,0.95]'}
 
-Optional for 'set_and_run'/required for 'run_low_rank':
-----------------------------------------------------
-    verbose (boolean): If not specified or set to False, outputs are written in a log file.
-
 Configuration Software file must contain:
 -----------------------------------------
     EXE_BRAINSFit (string): Path to BRAINSFit executable (BRAINSTools package)
@@ -52,11 +48,11 @@ import os
 import gc
 import subprocess
 import time
+import logging
 
-
-def _runIteration(level, currentIter, ants_params, result_dir, selection, software, verbose):
+def _runIteration(level, currentIter, ants_params, result_dir, selection, software):
     """Iterative Atlas-to-image registration"""
-
+    log = logging.getLogger(__name__)
     EXE_AverageImages = software.EXE_AverageImages
     EXE_ANTS = software.EXE_ANTS
     EXE_WarpImageMultiTransform = software.EXE_WarpImageMultiTransform
@@ -72,7 +68,7 @@ def _runIteration(level, currentIter, ants_params, result_dir, selection, softwa
     for i in range(num_of_data):
         lrIm = prev_iter_path + '_' + str(i) + '.nrrd'
         listOfImages.append(lrIm)
-    pyLAR.AverageImages(EXE_AverageImages, listOfImages, atlasIm, verbose=verbose)
+    pyLAR.AverageImages(EXE_AverageImages, listOfImages, atlasIm)
 
     try:
         import matplotlib.pyplot as plt
@@ -99,21 +95,26 @@ def _runIteration(level, currentIter, ants_params, result_dir, selection, softwa
         outputTransformPrefix = current_prefix_path + '_' + str(i) + '_'
         fixedIm = atlasIm
         movingIm = initialInputImage
-        cmd += pyLAR.ANTS(EXE_ANTS, fixedIm, movingIm, outputTransformPrefix, ants_params, verbose=verbose)
+        cmd += pyLAR.ANTS(EXE_ANTS, fixedIm, movingIm, outputTransformPrefix, ants_params)
         cmd += ";" + pyLAR.ANTSWarpImage(EXE_WarpImageMultiTransform, initialInputImage,\
-                                         newInputImage, reference_im_fn, outputTransformPrefix, verbose=verbose)
-        print cmd
+                                         newInputImage, reference_im_fn, outputTransformPrefix)
+        log.info("Running: " + cmd)
         process = subprocess.Popen(cmd, stdout=logFile, shell=True)
         ps.append(process)
     for p in ps:
         p.wait()
+    for i in range(num_of_data):
+        logFile = current_prefix_path + '_RUN_' + str(i) + '.log'
+        with open(logFile, 'r') as f:
+            log.info(f.read())
     return
 
 
-def run(config, software, im_fns, check=True, verbose=True):
+def run(config, software, im_fns, check=True):
     """Unbiased atlas building - Atlas-to-image registration"""
+    log = logging.getLogger(__name__)
     if check:
-        check_requirements(config, software, verbose=verbose)
+        check_requirements(config, software)
     reference_im_fn = config.reference_im_fn
     selection = config.selection
     result_dir = config.result_dir
@@ -122,7 +123,7 @@ def run(config, software, im_fns, check=True, verbose=True):
     num_of_levels = config.num_of_levels  # multiscale bluring (coarse-to-fine)
     s = time.time()
 
-    pyLAR.affineRegistrationStep(software.EXE_BRAINSFit, im_fns, result_dir, selection, reference_im_fn, verbose)
+    pyLAR.affineRegistrationStep(software.EXE_BRAINSFit, im_fns, result_dir, selection, reference_im_fn)
     #cnormalizeIntensityStep()
     #histogramMatchingStep()
 
@@ -130,14 +131,14 @@ def run(config, software, im_fns, check=True, verbose=True):
     iterCount = 0
     for level in range(0, num_of_levels):
         for iterCount in range(1, num_of_iterations_per_level+1):
-            print 'Level: ', level
-            print 'Iteration ' + str(iterCount)
-            _runIteration(level, iterCount, ants_params, result_dir, selection, software, verbose)
+            log.info('Level: ' + str(level))
+            log.info('Iteration ' + str(iterCount))
+            _runIteration(level, iterCount, ants_params, result_dir, selection, software)
             gc.collect()  # garbage collection
         # We need to check if num_of_iterations_per_level is set to 0, which leads
         # to computing an average on the affine registration.
         if level != num_of_levels - 1:
-            print 'WARNING: No need for multiple levels! TO BE REMOVED!'
+            log.warning('No need for multiple levels! TO BE REMOVED!')
             for i in range(num_of_data):
                 current_file_name = 'L' + str(level) + '_Iter' + str(iterCount) + '_' + str(i) + '.nrrd'
                 current_file_path = os.path.join(result_dir, current_file_name)
@@ -157,7 +158,7 @@ def run(config, software, im_fns, check=True, verbose=True):
     for i in range(num_of_data):
         lrIm = current_path + '_' + str(i) + '.nrrd'
         listOfImages.append(lrIm)
-    pyLAR.AverageImages(software.EXE_AverageImages, listOfImages, atlasIm, verbose)
+    pyLAR.AverageImages(software.EXE_AverageImages, listOfImages, atlasIm)
     try:
         import matplotlib.pyplot as plt
         import SimpleITK as sitk
@@ -174,31 +175,24 @@ def run(config, software, im_fns, check=True, verbose=True):
 
     e = time.time()
     l = e - s
-    print 'Total running time:  %f mins' % (l/60.0)
+    log.info('Total running time:  %f mins' % (l/60.0))
 
-def check_requirements(config, software, configFileName=None, softwareFileName=None, verbose=True):
+def check_requirements(config, software, configFileName=None, softwareFileName=None):
     """Verifying that all options and software paths are set."""
+    log = logging.getLogger(__name__)
     result_dir = config.result_dir
     required_field = ['reference_im_fn', 'result_dir', 'selection',
                       'num_of_iterations_per_level', 'num_of_levels', 'ants_params']
-    if not pyLAR.containsRequirements(config, required_field, configFileName):
-        raise Exception('Error in configuration file')
+    pyLAR.containsRequirements(config, required_field, configFileName)
     required_software = ['EXE_BRAINSFit', 'EXE_AverageImages', 'EXE_ANTS', 'EXE_WarpImageMultiTransform']
-    if not pyLAR.containsRequirements(software, required_software, softwareFileName):
-        raise Exception('Error in configuration file')
+    pyLAR.containsRequirements(software, required_software, softwareFileName)
+
     if not config.num_of_iterations_per_level >= 0:
-        if verbose:
-            print '\'num_of_iterations_per_level\' must be a positive integer (>=0).'
-        raise Exception('Error in configuration file')
+        raise Exception("'num_of_iterations_per_level' must be a positive integer (>=0).")
     if not config.num_of_levels >= 1:
-        if verbose:
-            print '\'num_of_levels\' must be a strictly positive integer (>=1).'
-        raise Exception('Error in configuration file')
+        raise Exception("''num_of_levels' must be a strictly positive integer (>=1).")
     if len(config.selection) < 2:
-        if verbose:
-            print '\'selection\' must contain at least two values.'
-        raise Exception('Error in configuration file')
-    if verbose:
-        print 'Results will be stored in:', result_dir
+        raise Exception("'selection' must contain at least two values.")
+    log.info('Results will be stored in:' + result_dir)
     if not os.path.exists(result_dir):
         os.makedirs(result_dir)

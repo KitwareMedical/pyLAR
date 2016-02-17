@@ -43,7 +43,7 @@ Configuration file must contain:
 Optional for 'set_and_run'/required for 'run_low_rank':
 ----------------------------------------------------
     histogram_matching (boolean): If not specified or set to False, no histogram matching performed.
-    verbose (boolean): If not specified or set to False, outputs are written in a log file.
+    verbose (boolean): If not specified or set to False, outputs are only written in a log file.
 
 Configuration Software file must contain:
 -----------------------------------------
@@ -55,6 +55,7 @@ import os
 import shutil
 import pyLAR
 import argparse
+import logging
 
 
 def setup_and_run(config, software, im_fns, configFN="", configSoftware="", file_list_file_name=""):
@@ -64,8 +65,25 @@ def setup_and_run(config, software, im_fns, configFN="", configSoftware="", file
     -Verifying that all options and software paths are set.
     -Saving parameters in output folders for reproducibility.
     """
-    pyLAR.lr.check_requirements(config, software, configFN, configSoftware, True)
+    # configure logger
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+    if hasattr(config, "verbose") and config.verbose:
+        ch.setLevel(logging.INFO)
+    else:
+        ch.setLevel(logging.ERROR)
+    pyLAR.lr.check_requirements(config, software, configFN, configSoftware)
     result_dir = config.result_dir
+    # Set log file
+    log_file = os.path.join(result_dir, 'RUN.log')
+    hdlr = logging.FileHandler(log_file, mode='w')
+    hdlr.setLevel(logging.INFO)
+    hdlr.setFormatter(formatter)
+    logger.addHandler(hdlr)
     # For reproducibility: save all parameters into the result dir
     savedFileName = lambda name, default: os.path.basename(name) if name else default
     configFN = savedFileName(configFN, 'Config.txt')
@@ -77,9 +95,10 @@ def setup_and_run(config, software, im_fns, configFN="", configSoftware="", file
     currentPyFile = os.path.realpath(__file__)
     shutil.copy(currentPyFile, result_dir)
     # Start processing
-    if not(hasattr(config, "verbose") and config.verbose):
-        sys.stdout = open(os.path.join(result_dir, 'RUN.log'), "w")
-    pyLAR.lr.run(config, software, im_fns, False, True)
+    try:
+        pyLAR.lr.run(config, software, im_fns, False)
+    except Exception, e:
+        logger.exception('Error while processing', exc_info=True)
 
 
 def main(argv=None):
@@ -95,6 +114,7 @@ def main(argv=None):
     parser.add_argument('-m', "--histogramMatching", action='store_true',
                         help="overwrites configuration file histogram matching parameter")
     args = parser.parse_args(argv[1:])
+
     # Assign parameters from the input config txt file
     configFN = args.configFN
     config = pyLAR.loadConfiguration(configFN, 'config')
@@ -105,8 +125,7 @@ def main(argv=None):
     if args.histogramMatching:
         config.histogram_matching = True
 
-    if not pyLAR.containsRequirements(config, ['data_dir', 'file_list_file_name'], configFN):
-        return 1
+    pyLAR.containsRequirements(config, ['data_dir', 'file_list_file_name'], configFN)
     data_dir = config.data_dir
     file_list_file_name = config.file_list_file_name
     im_fns = pyLAR.readTxtIntoList(os.path.join(data_dir, file_list_file_name))

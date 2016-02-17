@@ -23,17 +23,21 @@ Utility functions load files (configuration or text files), and verify their con
 """
 
 import imp
-
+import logging
 
 def loadConfiguration(filename, type):
+    log = logging.getLogger(__name__)
+    log.info('Loading configuration file ' + filename)
     with open(filename) as f:
         config = imp.load_source(type, '', f)
-        print type + ': ' + filename
+        log.info(type + ': ' + filename)
     return config
 
 
 def saveConfiguration(filename, config):
     with open(filename, 'w') as f:
+        log = logging.getLogger(__name__)
+        log.info('Saving configuration file in ' + filename)
         for i in [i for i in dir(config) if not i.startswith('__')]:
             f.write(str(i) + " = ")
             if isinstance(getattr(config, i), str):
@@ -43,24 +47,31 @@ def saveConfiguration(filename, config):
 
 
 def readTxtIntoList(filename):
+    log = logging.getLogger(__name__)
+    log.info('Reading text file into list: ' + filename)
     with open(filename) as f:
         flist = f.read().splitlines()
     return flist
 
 
 def writeTxtIntoList(filename, content):
+    log = logging.getLogger(__name__)
+    log.info('Writing text file into list: ' + filename)
     with open(filename,'w') as f:
         for i in content:
             f.write(i + '\n')
 
 
 def containsRequirements(config, requirements, configFileName=None):
+    log = logging.getLogger(__name__)
+    log.info('Checking requirements')
+    log.info('Requirements are: ' + str(requirements))
     if configFileName:
-         configFileName = " in " + configFileName
+        log.info('Configuration file was: ' + configFileName)
+        configFileName = " in " + configFileName
     else:
         configFileName = ""
     for i in requirements:
         if not hasattr(config, i):
-            print "Requires "+i+" to be set"+configFileName
-            return False
-    return True
+            error_message = "Requires "+i+" to be set"+configFileName
+            raise Exception(error_message)

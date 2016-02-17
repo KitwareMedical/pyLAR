@@ -21,10 +21,11 @@ from ..alm import ialm
 import gc
 import time
 import numpy as np
-
+import logging
 
 def rpca(Y, lamda):
     """Run Robust PCA via ialm implementation in alm."""
+    log = logging.getLogger(__name__)
     t_begin = time.clock()
 
     gamma = lamda * np.sqrt(float(Y.shape[1]) / Y.shape[0])
@@ -33,6 +34,6 @@ def rpca(Y, lamda):
 
     t_end = time.clock()
     t_elapsed = t_end - t_begin
-    print 'RPCA takes:%f seconds' % t_elapsed
+    log.info('RPCA takes:%f seconds' % t_elapsed)
 
     return low_rank, sparse, n_iter, rank, sparsity, sum_sparse

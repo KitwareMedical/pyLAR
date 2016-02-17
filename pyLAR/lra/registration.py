@@ -41,20 +41,34 @@ Requires to build the following toolkits first:
 
 import subprocess
 import os
+import logging
 
 __status__ = "Development"
 
 
-def _execute(cmd, verbose, log_file, EXECUTE=True):
-    if verbose:
-        print cmd
+def _execute(cmd, log_file=None, EXECUTE=True):
+    log = logging.getLogger(__name__)
+    log.info(cmd)
     if EXECUTE:
-        tempFile = open(log_file, 'w')
-        process = subprocess.Popen(cmd, stdout=tempFile, shell=True)
-        process.wait()
-        tempFile.close()
+        if log_file:
+            tempFile = open(log_file, 'w')
+            process = subprocess.Popen(cmd, stdout=tempFile, stderr=tempFile, shell=True)
+            process.wait()
+            tempFile.close()
+        else:
+            process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+            stdout, stderr = process.communicate()
+        if log_file:
+            with open(log_file, 'r') as f:
+                log.info(f.read())
+        else:
+            if stdout:
+                log.info(stdout)
+            if stderr:
+                log.error(stderr)
 
-def AffineReg(EXE_BRAINSFit, fixedIm, movingIm, outputIm, outputTransform=None, verbose=False):
+
+def AffineReg(EXE_BRAINSFit, fixedIm, movingIm, outputIm, outputTransform=None):
     """ Computes an affine registration using BRAINSFit
 
     Parameters
@@ -64,7 +78,6 @@ def AffineReg(EXE_BRAINSFit, fixedIm, movingIm, outputIm, outputTransform=None, 
     movingIm: moving image file name used for the registration.
     outputIm: output image file name.
     outputTransform: output transform file name.
-    verbose: displays additional information.
 
     Returns
     -------
@@ -90,11 +103,11 @@ def AffineReg(EXE_BRAINSFit, fixedIm, movingIm, outputIm, outputTransform=None, 
                   --failureExitCode -1 --numberOfThreads -1 --debugLevel 0 --costFunctionConvergenceFactor 1e+09 \
                   --projectedGradientTolerance 1e-05 --costMetric MMI'
     cmd = executable + ' ' + arguments
-    _execute(cmd, verbose, os.path.join(result_folder, 'bspline.log'))
+    _execute(cmd)
     return cmd
 
 
-def RigidReg(EXE_BRAINSFit, fixedIm, movingIm, outputIm, outputTransform=None, verbose=False):
+def RigidReg(EXE_BRAINSFit, fixedIm, movingIm, outputIm, outputTransform=None):
     """ Computes a rigid registration using BRAINSFit
 
     Parameters
@@ -104,7 +117,6 @@ def RigidReg(EXE_BRAINSFit, fixedIm, movingIm, outputIm, outputTransform=None, v
     movingIm: moving image file name used for the registration.
     outputIm: output image file name.
     outputTransform: output transform file name.
-    verbose: displays additional information.
 
     Returns
     -------
@@ -130,12 +142,11 @@ def RigidReg(EXE_BRAINSFit, fixedIm, movingIm, outputIm, outputTransform=None, v
                   --failureExitCode -1 --numberOfThreads -1 --debugLevel 0 --costFunctionConvergenceFactor 1e+09 \
                   --projectedGradientTolerance 1e-05 --costMetric MMI'
     cmd = executable + ' ' + arguments
-    _execute(cmd, verbose, os.path.join(result_folder, 'affine_reg.log'))
+    _execute(cmd)
     return cmd
 
 
-def ANTS(EXE_ANTS, fixedIm, movingIm, outputTransformPrefix, params, initialTransform=None, EXECUTE=False,
-         verbose=False):
+def ANTS(EXE_ANTS, fixedIm, movingIm, outputTransformPrefix, params, initialTransform=None, EXECUTE=False):
     """ Computes a registration using ANTS.
 
     Parameters
@@ -152,7 +163,6 @@ def ANTS(EXE_ANTS, fixedIm, movingIm, outputTransformPrefix, params, initialTran
         * 'Transform', i.e. "SyN[0.25]"
         * 'Metric', i.e. "MeanSquares[fixedIm,movingIm,1,0]"
     initialTransform: initial transform file to use to initialize the registration.
-    verbose: display additional information.
 
     Returns
     -------
@@ -188,7 +198,7 @@ def ANTS(EXE_ANTS, fixedIm, movingIm, outputTransformPrefix, params, initialTran
     if initialTransform:
         arguments += ' --initial-moving-transform  %s' % (initialTransform)
     cmd = executable + ' ' + arguments
-    _execute(cmd, verbose, outputTransformPrefix + 'ANTS.log', EXECUTE)
+    _execute(cmd, outputTransformPrefix + 'ANTS.log', EXECUTE=EXECUTE)
     return cmd
 
 
@@ -214,7 +224,7 @@ def getANTSOutputVelocityNorm(logFile):
     return vn
 
 
-def geodesicDistance3D(EXE_ANTS, inputImage, referenceImage, outputTransformPrefix, verbose):
+def geodesicDistance3D(EXE_ANTS, inputImage, referenceImage, outputTransformPrefix):
     """ Computes geodesic distance between input image and reference image.
 
     Parameters
@@ -223,7 +233,6 @@ def geodesicDistance3D(EXE_ANTS, inputImage, referenceImage, outputTransformPref
     inputImage: Input image file name.
     referenceImage: Reference image file name.
     outputTransformPrefix: output prefix used for output transform files and output image files.
-    verbose: Displays additional information.
 
     Returns
     -------
@@ -258,8 +267,7 @@ def geodesicDistance3D(EXE_ANTS, inputImage, referenceImage, outputTransformPref
 
 
 def ANTSWarpImage(EXE_WarpImageMultiTransform, inputIm, outputIm, referenceIm,
-                  transformPrefix, inverse=False, EXECUTE=False, verbose=False
-                  ):
+                  transformPrefix, inverse=False, EXECUTE=False):
     """ Transforms input image using given transform and reference space.
 
     Parameters
@@ -271,7 +279,6 @@ def ANTSWarpImage(EXE_WarpImageMultiTransform, inputIm, outputIm, referenceIm,
     transformPrefix
     inverse
     EXECUTE
-    verbose
 
     Returns
     -------
@@ -286,13 +293,12 @@ def ANTSWarpImage(EXE_WarpImageMultiTransform, inputIm, outputIm, referenceIm,
         t = transformPrefix + '0InverseWarp.nii.gz'
     arguments = str(dim) + ' %s  %s  -R %s %s ' % (inputIm, outputIm, referenceIm, t)
     cmd = executable + ' ' + arguments
-    _execute(cmd, verbose, os.path.join(result_folder, 'ANTSWarpImage.log'), EXECUTE)
+    _execute(cmd, os.path.join(result_folder, 'ANTSWarpImage.log'), EXECUTE=EXECUTE)
     return cmd
 
 
 def ANTSWarp2DImage(EXE_WarpImageMultiTransform, inputIm, outputIm, referenceIm,
-                    transformPrefix, inverse=False, EXECUTE=False, verbose=False
-                    ):
+                    transformPrefix, inverse=False, EXECUTE=False):
     dim = 2
     executable = EXE_WarpImageMultiTransform
     result_folder = os.path.dirname(outputIm)
@@ -302,21 +308,21 @@ def ANTSWarp2DImage(EXE_WarpImageMultiTransform, inputIm, outputIm, referenceIm,
         t = transformPrefix + '0InverseWarp.nii.gz'
     arguments = str(dim) + ' %s  %s  -R %s %s ' % (inputIm, outputIm, referenceIm, t)
     cmd = executable + ' ' + arguments
-    _execute(cmd, verbose, os.path.join(result_folder, 'ANTSWarpImage.log'), EXECUTE)
+    _execute(cmd, os.path.join(result_folder, 'ANTSWarpImage.log'), EXECUTE=EXECUTE)
     return cmd
 
 
 def createJacobianDeterminantImage(EXE_CreateJacobianDeterminantImage, imageDimension, dvfImage,
-                                   outputIm, EXECUTE=False, verbose=False):
+                                   outputIm, EXECUTE=False):
     executable = EXE_CreateJacobianDeterminantImage
     result_folder = os.path.dirname(outputIm)
     arguments = str(imageDimension) + ' %s  %s ' % (dvfImage, outputIm)
     cmd = executable + ' ' + arguments
-    _execute(cmd, verbose, os.path.join(result_folder, 'CreateJacobianDeterminantImage.log'), EXECUTE)
+    _execute(cmd, os.path.join(result_folder, 'CreateJacobianDeterminantImage.log'), EXECUTE=EXECUTE)
     return cmd
 
 
-def DemonsReg(EXE_BRAINSDemonWarp, fixedIm, movingIm, outputIm, outputDVF, EXECUTE=False, verbose=False):
+def DemonsReg(EXE_BRAINSDemonWarp, fixedIm, movingIm, outputIm, outputDVF, EXECUTE=False):
     executable = EXE_BRAINSDemonWarp
     result_folder = os.path.dirname(movingIm)
     arguments = '--movingVolume ' + movingIm \
@@ -334,13 +340,12 @@ def DemonsReg(EXE_BRAINSDemonWarp, fixedIm, movingIm, outputIm, outputDVF, EXECU
 --neighborhoodForBOBF 1,1,1 --outputDisplacementFieldPrefix none --checkerboardPatternSubdivisions 4,4,4 \
 --gradient_type 0 --upFieldSmoothing 0 --max_step_length 2 --numberOfBCHApproximationTerms 2 --numberOfThreads -1'
     cmd = executable + ' ' + arguments
-    _execute(cmd, verbose, os.path.join(result_folder, 'demons.log'), EXECUTE)
+    _execute(cmd, EXECUTE=EXECUTE)
     return cmd
 
 
 def BSplineReg_BRAINSFit(EXE_BRAINSFit, fixedIm, movingIm, outputIm, outputTransform,
-                         gridSize=[5, 5, 5], maxDisp=5.0, EXECUTE=False, verbose=False
-                         ):
+                         gridSize=[5, 5, 5], maxDisp=5.0, EXECUTE=False):
     result_folder = os.path.dirname(movingIm)
     string_gridSize = ','.join([str(gridSize[0]), str(gridSize[1]), str(gridSize[2])])
     executable = EXE_BRAINSFit
@@ -355,12 +360,12 @@ def BSplineReg_BRAINSFit(EXE_BRAINSFit, fixedIm, movingIm, outputIm, outputTrans
                  --outputVolumePixelType float --backgroundFillValue 0   --numberOfThreads -1 --costMetric MMI'
 
     cmd = executable + ' ' + arguments
-    _execute(cmd, verbose, os.path.join(result_folder, 'bspline.log'), EXECUTE)
+    _execute(cmd, EXECUTE=EXECUTE)
     return cmd
 
 
 def BSplineReg_Legacy(EXE_BSplineDeformableRegistration, fixedIm, movingIm, outputIm, outputDVF, gridSize=5,
-                      iterationNum=20, EXECUTE=False, verbose=False):
+                      iterationNum=20, EXECUTE=False):
     result_folder = os.path.dirname(movingIm)
     executable = EXE_BSplineDeformableRegistration
     arguments = '  --iterations ' + str(iterationNum) \
@@ -372,22 +377,22 @@ def BSplineReg_Legacy(EXE_BSplineDeformableRegistration, fixedIm, movingIm, outp
                 + ' ' + movingIm
 
     cmd = executable + ' ' + arguments
-    _execute(cmd, verbose, os.path.join(result_folder, 'bspline.log'), EXECUTE)
+    _execute(cmd, EXECUTE=EXECUTE)
     return cmd
 
 
-def ConvertTransform(EXE_BSplineToDeformationField, fixedIm, outputTransform, outputDVF, EXECUTE=False, verbose=False):
+def ConvertTransform(EXE_BSplineToDeformationField, fixedIm, outputTransform, outputDVF, EXECUTE=False):
     result_folder = os.path.dirname(outputDVF)
     cmd = EXE_BSplineToDeformationField \
           + ' --tfm ' + outputTransform \
           + ' --refImage ' + fixedIm \
           + ' --defImage ' + outputDVF
-    _execute(cmd, verbose, os.path.join(result_folder, 'convertTransform.log'), EXECUTE)
+    _execute(cmd, EXECUTE=EXECUTE)
     return cmd
 
 
 def WarpImageMultiDVF(EXE_WarpImageMultiTransform, movingImage, refImage,
-                      DVFImageList, outputImage, EXECUTE=False, verbose=False):
+                      DVFImageList, outputImage, EXECUTE=False):
     result_folder = os.path.dirname(outputImage)
     string_DVFImageList = ' '.join(DVFImageList)
 
@@ -397,12 +402,12 @@ def WarpImageMultiDVF(EXE_WarpImageMultiTransform, movingImage, refImage,
           + '  ' + outputImage \
           + ' -R  ' + refImage \
           + '  ' + string_DVFImageList
-    _execute(cmd, verbose, os.path.join(result_folder, 'warpImageMultiDVF.log'), EXECUTE)
+    _execute(cmd, EXECUTE=EXECUTE)
     return cmd
 
 
 def composeMultipleDVFs(EXE_ComposeMultiTransform, refImage, DVFImageList,
-                        outputDVFImage, EXECUTE=False, verbose=False):
+                        outputDVFImage, EXECUTE=False):
     result_folder = os.path.dirname(outputDVFImage)
     # T3(T2(T1(I))) = T3*T2*T1(I), need to reverse the sequence of the DVFs
     string_DVFImageList = ' '.join(DVFImageList[::-1])
@@ -412,12 +417,12 @@ def composeMultipleDVFs(EXE_ComposeMultiTransform, refImage, DVFImageList,
           + '  ' + outputDVFImage \
           + ' -R  ' + refImage \
           + '  ' + string_DVFImageList
-    _execute(cmd, verbose, os.path.join(result_folder, 'composeDVF.log'), EXECUTE)
+    _execute(cmd, EXECUTE=EXECUTE)
     return cmd
 
 
 def applyLinearTransform(EXE_BRAINSResample, inputImage, refImage, transform,
-                         newInputImage, EXECUTE=False, verbose=False):
+                         newInputImage, EXECUTE=False):
     result_folder = os.path.dirname(newInputImage)
     cmd = EXE_BRAINSResample \
           + ' --inputVolume ' + inputImage \
@@ -426,12 +431,12 @@ def applyLinearTransform(EXE_BRAINSResample, inputImage, refImage, transform,
           + ' --pixelType float ' \
           + ' --warpTransform ' + transform \
           + ' --defaultValue 0 --numberOfThreads -1 '
-    _execute(cmd, verbose, os.path.join(result_folder, 'applyLinearTransform.log'), EXECUTE)
+    _execute(cmd, EXECUTE=EXECUTE)
     return cmd
 
 
 def updateInputImageWithDVF(EXE_BRAINSResample, inputImage, refImage, DVFImage,
-                            newInputImage, EXECUTE=False, verbose=False):
+                            newInputImage, EXECUTE=False):
     result_folder = os.path.dirname(newInputImage)
     cmd = EXE_BRAINSResample \
           + ' --inputVolume ' + inputImage \
@@ -440,13 +445,13 @@ def updateInputImageWithDVF(EXE_BRAINSResample, inputImage, refImage, DVFImage,
           + ' --pixelType float ' \
           + ' --deformationVolume ' + DVFImage \
           + ' --defaultValue 0 --numberOfThreads -1 '
-    _execute(cmd, verbose, os.path.join(result_folder, 'applyDVF.log'), EXECUTE)
+    _execute(cmd, EXECUTE=EXECUTE)
     return cmd
 
 
 def updateInputImageWithTFM(EXE_BRAINSResample, inputImage, refImage, transform,
-                            newInputImage, EXECUTE=False, verbose=False):
-    result_folder = os.path.dirname(movingIm)
+                            newInputImage, EXECUTE=False):
+    result_folder = os.path.dirname(newInputImage)
     cmd = EXE_BRAINSResample \
           + ' --inputVolume ' + inputImage \
           + ' --referenceVolume ' + refImage \
@@ -454,23 +459,23 @@ def updateInputImageWithTFM(EXE_BRAINSResample, inputImage, refImage, transform,
           + ' --pixelType float ' \
           + ' --warpTransform ' + transform \
           + ' --defaultValue 0 --numberOfThreads -1 '
-    _execute(cmd, verbose, os.path.join(result_folder, 'applyTransform.log'), EXECUTE)
+    _execute(cmd, EXECUTE=EXECUTE)
     return cmd
 
 
-def AverageImages(EXE_AverageImages, listOfImages, outputIm, verbose=False):
+def AverageImages(EXE_AverageImages, listOfImages, outputIm):
     result_folder = os.path.dirname(outputIm)
     arguments = ' 3 ' + outputIm + '  0  ' + ' '.join(listOfImages)
     cmd = EXE_AverageImages + ' ' + arguments
-    _execute(cmd, verbose, os.path.join(result_folder, 'average.log'))
+    _execute(cmd)
     return cmd
 
 
-def genInverseDVF(EXE_InvertDeformationField, DVFImage, InverseDVFImage, EXECUTE=False, verbose=False):
+def genInverseDVF(EXE_InvertDeformationField, DVFImage, InverseDVFImage, EXECUTE=False):
     result_folder = os.path.dirname(InverseDVFImage)
     cmd = EXE_InvertDeformationField \
           + DVFImage \
           + ' ' \
           + InverseDVFImage
-    _execute(cmd, verbose, os.path.join(result_folder, 'InverseDVF.log'))
+    _execute(cmd)
     return cmd

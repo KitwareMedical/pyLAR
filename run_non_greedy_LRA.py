@@ -121,8 +121,7 @@ def main(argv=None):
     # Load software paths from file
     configSoftware = args.configSoftware
     software = pyLAR.loadConfiguration(configSoftware, 'software')
-    if not pyLAR.containsRequirements(config, ['data_dir', 'file_list_file_name'], configFN):
-        return 1
+    pyLAR.containsRequirements(config, ['data_dir', 'file_list_file_name'], configFN)
     data_dir = config.data_dir
     file_list_file_name = config.file_list_file_name
     im_fns = pyLAR.readTxtIntoList(os.path.join(data_dir, file_list_file_name))

@@ -46,7 +46,7 @@ Configuration file must contain:
 
 Optional for 'set_and_run'/required for 'run_low_rank':
 ----------------------------------------------------
-    verbose (boolean): If not specified or set to False, outputs are written in a log file.
+    verbose (boolean): If not specified or set to False, outputs are only written in a log file.
 
 Configuration Software file must contain:
 -----------------------------------------
@@ -61,6 +61,7 @@ import pyLAR
 import shutil
 import os
 import argparse
+import logging
 
 
 def setup_and_run(config, software, im_fns, configFN=None, configSoftware=None, file_list_file_name=None):
@@ -69,8 +70,25 @@ def setup_and_run(config, software, im_fns, configFN=None, configSoftware=None, 
     -Verifying that all options and software paths are set.
     -Saving parameters in output folders for reproducibility.
     """
+    # configure logger
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+    if hasattr(config, "verbose") and config.verbose:
+        ch.setLevel(logging.INFO)
+    else:
+        ch.setLevel(logging.ERROR)
+    pyLAR.uab.check_requirements(config, software, configFN, configSoftware)
     result_dir = config.result_dir
-    pyLAR.uab.check_requirements(config, software, configFN, configSoftware, True)
+    # Set log file
+    log_file = os.path.join(result_dir, 'RUN.log')
+    hdlr = logging.FileHandler(log_file, mode='w')
+    hdlr.setLevel(logging.INFO)
+    hdlr.setFormatter(formatter)
+    logger.addHandler(hdlr)
     # For reproducibility: save all parameters into the result dir
     savedFileName = lambda name, default: os.path.basename(name) if name else default
     configFN = savedFileName(configFN, 'Config.txt')
@@ -81,9 +99,11 @@ def setup_and_run(config, software, im_fns, configFN=None, configSoftware=None, 
     pyLAR.writeTxtIntoList(os.path.join(result_dir, file_list_file_name), im_fns)
     currentPyFile = os.path.realpath(__file__)
     shutil.copy(currentPyFile, result_dir)
-    if not(hasattr(config, "verbose") and config.verbose):
-        sys.stdout = open(os.path.join(result_dir, 'RUN.log'), "w")
-    pyLAR.uab.run(config, software, im_fns, False, True)
+    # Start processing
+    try:
+        pyLAR.uab.run(config, software, im_fns, False)
+    except:
+        logger.exception('Error while processing', exc_info=True)
 
 
 def main(argv=None):
@@ -103,8 +123,7 @@ def main(argv=None):
     # Load software paths from file
     configSoftware = args.configSoftware
     software = pyLAR.loadConfiguration(configSoftware, 'software')
-    if not pyLAR.containsRequirements(config, ['data_dir', 'file_list_file_name'], configFN):
-        return 1
+    pyLAR.containsRequirements(config, ['data_dir', 'file_list_file_name'], configFN)
     data_dir = config.data_dir
     file_list_file_name = config.file_list_file_name
     im_fns = pyLAR.readTxtIntoList(os.path.join(data_dir, file_list_file_name))

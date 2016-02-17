@@ -50,12 +50,11 @@ import time
 import numpy as np
 import argparse
 import warnings
-
+import logging
 
 def main(argv=None):
     """ Functionality to test the module from the commane line.
     """
-
     if argv is None:
         argv = sys.argv
 
@@ -69,13 +68,15 @@ def main(argv=None):
 
     options = parser.parse_args(argv[1:])
 
+    log = logging.getLogger(__name__)
+
     t0 = time.clock()
     X = np.genfromtxt(options.dat)
     t1 = time.clock()
-    print "data loading took %.2g [sec]" % (t1-t0)
+    log.info("data loading took %.2g [sec]" % (t1-t0))
 
     m, n = X.shape
-    print "data (%d x %d) loaded in %.2g [sec]" % (m, n, (t1-t0))
+    log.info("data (%d x %d) loaded in %.2g [sec]" % (m, n, (t1-t0)))
     low_rank, sparse, n_iter, _, _, _ = recover(X, options.gam)
 
     if not options.sav is None:
@@ -109,6 +110,7 @@ def recover(D, gamma=None, tol=1e-07):
     n_iter : int
         Number of iterations until convergence.
     """
+    log = logging.getLogger(__name__)
 
     m, n = D.shape
     Y=D
@@ -183,14 +185,16 @@ def recover(D, gamma=None, tol=1e-07):
         if k % 10 == 0:
             rank_est = np.linalg.matrix_rank(A_hat)
             non_zero = len(np.where(np.asarray(np.abs(E_hat)).ravel()>0)[0])
-            abs_sum_sparse =np.sum(np.abs(E_hat)) 
-            print ("[iter: %.4d]: rank(P) = %.4d, |C|_0 = %.4d, crit=%.10f, total sparse =%.4d" %
+            abs_sum_sparse =np.sum(np.abs(E_hat))
+            message = ("[iter: %.4d]: rank(P) = %.4d, |C|_0 = %.4d, crit=%.10f, total sparse =%.4d" %
                     (k, rank_est, non_zero, conv_crit, abs_sum_sparse))
+            log.info(message)
 
         # handle non-convergence
         k = k+1
         if not converged and k>max_iter:
-            warnings.warn("terminate after max. iter.", UserWarning)
+            warning_message = "terminate after max. iter.", UserWarning
+            log.warning(warning_message)
             converged = True
 
     return A_hat, E_hat, k, rank_est, non_zero, abs_sum_sparse
