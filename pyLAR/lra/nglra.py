@@ -23,18 +23,16 @@ Configuration file must contain:
 --------------------------------
     lamda (float): the tuning parameter that weights between the low-rank component and the sparse component.
     sigma (float): blurring kernel size.
-    fileListFN (string): File containing path to input images.
-    data_dir (string): Folder containing the "fileListFN" file.
     result_dir (string): output directory where outputs will be saved.
     selection (list): select images that are processed in given list [must contain at least 2 values].
     reference_im_fn (string): reference image used for the registration.
-    USE_HEALTHY_ATLAS (boolean): use a specified healthy atlas as reference image or compute a reference image from
+    use_healthy_atlas (boolean): use a specified healthy atlas as reference image or compute a reference image from
                                  the average of all the low-ranked images computed from the selected input images.
-    NUM_OF_ITERATIONS_PER_LEVEL (int): Number of iteration per level for the registration [>=0]
-    NUM_OF_LEVELS (int): Number of levels (starting the registration at a down-sampled level) for the registration [>=1]
-    REGISTRATION_TYPE (string): Type of registration performed, selected among [BSpline,ANTS,Demons]
-    antsParams (see example and ANTS documentation): Only necessary if REGISTRATION_TYPE is set to ANTS.
-            antsParams = {'Convergence' : '[100x50x25,1e-6,10]',\
+    num_of_iterations_per_level (int): Number of iteration per level for the registration [>=0]
+    num_of_levels (int): Number of levels (starting the registration at a down-sampled level) for the registration [>=1]
+    registration_type (string): Type of registration performed, selected among [BSpline,ANTS,Demons]
+    ants_params (see example and ANTS documentation): Only necessary if registration_type is set to ANTS.
+            ants_params = {'Convergence' : '[100x50x25,1e-6,10]',\
                   'Dimension': 3,\
                   'ShrinkFactors' : '4x2x1',\
                   'SmoothingSigmas' : '2x1x0vox',\
@@ -50,18 +48,18 @@ Configuration Software file must contain:
     Required:
         EXE_BRAINSFit (string): Path to BRAINSFit executable (BRAINSTools package)
 
-    If USE_HEALTHY_ATLAS is set to True:
+    If use_healthy_atlas is set to True:
         EXE_AverageImages (string): Path to AverageImages executable (ANTS package)
 
-    If REGISTRATION_TYPE is set to 'BSpline':
+    If registration_type is set to 'BSpline':
         EXE_InvertDeformationField (string): Path to InvertDeformationField executable [1]
         EXE_BRAINSResample (string): Path to BRAINSResample executable (BRAINSTools package)
         EXE_BSplineToDeformationField (string): Path to BSplineDeformationField (Slicer module)
-    Else if REGISTRATION_TYPE is set to 'Demons':
+    Else if registration_type is set to 'Demons':
         EXE_BRAINSDemonWarp (string): Path to BRAINSDemonWarp executable (BRAINSTools package)
         EXE_BRAINSResample (string): Path to BRAINSResample executable (BRAINSTools package)
         EXE_InvertDeformationField (string): Path to InvertDeformationField executable [1]
-    Else if REGISTRATION_TYPE is set to 'ANTS':
+    Else if registration_type is set to 'ANTS':
         EXE_ANTS (string): Path to ANTS executable (ANTS package)
         EXE_WarpImageMultiTransform (string): path to WarpImageMultiTransform (ANTS package)
 
@@ -84,21 +82,21 @@ def _runIteration(vector_length, level, currentIter, config, im_fns, sigma, grid
     result_dir = config.result_dir
     selection = config.selection
     reference_im_fn = config.reference_im_fn
-    USE_HEALTHY_ATLAS = config.USE_HEALTHY_ATLAS
-    REGISTRATION_TYPE = config.REGISTRATION_TYPE
+    use_healthy_atlas = config.use_healthy_atlas
+    registration_type = config.registration_type
     lamda = config.lamda
-    if REGISTRATION_TYPE == 'BSpline' or REGISTRATION_TYPE == 'Demons':
+    if registration_type == 'BSpline' or registration_type == 'Demons':
         EXE_BRAINSResample = software.EXE_BRAINSResample
         EXE_InvertDeformationField = software.EXE_InvertDeformationField
-        if REGISTRATION_TYPE == 'BSpline':
+        if registration_type == 'BSpline':
             EXE_BRAINSFit = software.EXE_BRAINSFit
             EXE_BSplineToDeformationField = software.EXE_BSplineToDeformationField
-        elif REGISTRATION_TYPE == 'Demons':
+        elif registration_type == 'Demons':
             EXE_BRAINSDemonWarp = software.EXE_BRAINSDemonWarp
-    elif REGISTRATION_TYPE == 'ANTS':
+    elif registration_type == 'ANTS':
         EXE_ANTS = software.EXE_ANTS
         EXE_WarpImageMultiTransform = software.EXE_WarpImageMultiTransform
-        antsParams = config.antsParams
+        ants_params = config.ants_params
     # Prepares data matrix for low-rank decomposition
     num_of_data = len(selection)
     Y = np.zeros((vector_length, num_of_data))
@@ -140,7 +138,7 @@ def _runIteration(vector_length, level, currentIter, config, im_fns, sigma, grid
     del low_rank, sparse, Y
 
     # Unbiased low-rank atlas building (ULAB)
-    if not USE_HEALTHY_ATLAS:
+    if not use_healthy_atlas:
         EXE_AverageImages = software.EXE_AverageImages
         # Average the low-rank images to produce the Atlas
         atlasIm = current_path_iter + '_atlas.nrrd'
@@ -176,13 +174,13 @@ def _runIteration(vector_length, level, currentIter, config, im_fns, sigma, grid
         else:
             lowRankIm = current_path_iter + '_LowRank_' + str(i) + '.nrrd'
             invWarpedlowRankIm = current_path_iter + '_InvWarped_LowRank_' + str(i) + '.nrrd'
-            if REGISTRATION_TYPE == 'BSpline' or REGISTRATION_TYPE == 'Demons':
+            if registration_type == 'BSpline' or registration_type == 'Demons':
                 previousIterDVF = prev_path_iter + '_DVF_' + str(i) + '.nrrd'
                 inverseDVF = prev_path_iter + '_INV_DVF_' + str(i) + '.nrrd'
                 pyLAR.genInverseDVF(EXE_InvertDeformationField, previousIterDVF, inverseDVF, True, verbose=verbose)
                 pyLAR.updateInputImageWithDVF(EXE_BRAINSResample, lowRankIm, reference_im_fn,
                                               inverseDVF, invWarpedlowRankIm, True, verbose=verbose)
-            if REGISTRATION_TYPE == 'ANTS':
+            if registration_type == 'ANTS':
                 previousIterTransformPrefix = prev_path_iter + '_' + str(i) + '_'
                 pyLAR.ANTSWarpImage(EXE_WarpImageMultiTransform, lowRankIm, invWarpedlowRankIm, reference_im_fn,
                                     previousIterTransformPrefix, True, True, verbose=verbose)
@@ -200,29 +198,29 @@ def _runIteration(vector_length, level, currentIter, config, im_fns, sigma, grid
         initialInputImage = os.path.join(result_dir, initial_prefix + str(i) + '.nrrd')
         newInputImage = current_path_iter + '_' + str(i) + '.nrrd'
 
-        if REGISTRATION_TYPE == 'BSpline':
+        if registration_type == 'BSpline':
             cmd += pyLAR.BSplineReg_BRAINSFit(EXE_BRAINSFit, fixedIm, movingIm, outputIm, outputTransform,
                                               gridSize, maxDisp, verbose=verbose)
             cmd += ';' + pyLAR.ConvertTransform(EXE_BSplineToDeformationField, reference_im_fn,
                                                 outputTransform, outputDVF, verbose=verbose)
             cmd += ";" + pyLAR.updateInputImageWithDVF(EXE_BRAINSResample, initialInputImage, reference_im_fn,
                                                        outputDVF, newInputImage, verbose=verbose)
-        elif REGISTRATION_TYPE == 'Demons':
+        elif registration_type == 'Demons':
             cmd += pyLAR.DemonsReg(EXE_BRAINSDemonWarp, fixedIm, movingIm, outputIm, outputDVF, verbose=verbose)
             cmd += ";" + pyLAR.updateInputImageWithDVF(EXE_BRAINSResample, initialInputImage, reference_im_fn,
                                                        outputDVF, newInputImage, verbose=verbose)
-        elif REGISTRATION_TYPE == 'ANTS':
+        elif registration_type == 'ANTS':
             # Generates a warp(DVF) file and an affine file
             outputTransformPrefix = current_path_iter + '_' + str(i) + '_'
             # if currentIter > 1:
             # initialTransform = os.path.join(result_dir, iter_prefix + str(currentIter-1) + '_' + str(i) + '_0Warp.nii.gz')
             # else:
-            cmd += pyLAR.ANTS(EXE_ANTS, fixedIm, movingIm, outputTransformPrefix, antsParams, verbose=verbose)
+            cmd += pyLAR.ANTS(EXE_ANTS, fixedIm, movingIm, outputTransformPrefix, ants_params, verbose=verbose)
             # Generates the warped input image with the specified file name
             cmd += ";" + pyLAR.ANTSWarpImage(EXE_WarpImageMultiTransform, initialInputImage, newInputImage,
                                              reference_im_fn, outputTransformPrefix, verbose=verbose)
         else:
-            raise('Unrecognized registration type:', REGISTRATION_TYPE)
+            raise('Unrecognized registration type:', registration_type)
 
         process = subprocess.Popen(cmd, stdout=logFile, shell=True)
         ps.append(process)
@@ -242,11 +240,11 @@ def run(config, software, im_fns, check=True, verbose=True):
     lamda = config.lamda
     sigma = config.sigma
 
-    NUM_OF_ITERATIONS_PER_LEVEL = config.NUM_OF_ITERATIONS_PER_LEVEL
-    NUM_OF_LEVELS = config.NUM_OF_LEVELS  # Multi-scale blurring (coarse-to-fine)
-    REGISTRATION_TYPE = config.REGISTRATION_TYPE
+    num_of_iterations_per_level = config.num_of_iterations_per_level
+    num_of_levels = config.num_of_levels  # Multi-scale blurring (coarse-to-fine)
+    registration_type = config.registration_type
     gridSize = [0, 0, 0]
-    if REGISTRATION_TYPE == 'BSpline':
+    if registration_type == 'BSpline':
         gridSize = config.gridSize
 
     s = time.time()
@@ -264,21 +262,21 @@ def run(config, software, im_fns, check=True, verbose=True):
     num_of_data = len(selection)
     factor = 0.5  # BSpline max displacement constrain, 0.5 refers to half of the grid size
     iterCount = 0
-    for level in range(0, NUM_OF_LEVELS):
-        for iterCount in range(1, NUM_OF_ITERATIONS_PER_LEVEL + 1):
+    for level in range(0, num_of_levels):
+        for iterCount in range(1, num_of_iterations_per_level + 1):
             maxDisp = -1
             print 'Level: ', level
             print 'Iteration ' + str(iterCount) + ' lamda = %f' % lamda
             print 'Blurring Sigma: ', sigma
 
-            if REGISTRATION_TYPE == 'BSpline':
+            if registration_type == 'BSpline':
                 print 'Grid size: ', gridSize
                 maxDisp = z_dim / gridSize[2] * factor
 
             _runIteration(vector_length, level, iterCount, config, im_fns, sigma, gridSize, maxDisp, software, verbose)
 
             # Adjust grid size for finner BSpline Registration
-            if REGISTRATION_TYPE == 'BSpline' and gridSize[0] < 10:
+            if registration_type == 'BSpline' and gridSize[0] < 10:
                 gridSize = np.add(gridSize, [1, 2, 1])
 
             # Reduce the amount of  blurring sizes gradually
@@ -287,7 +285,7 @@ def run(config, software, im_fns, check=True, verbose=True):
 
             gc.collect()  # Garbage collection
 
-        if level != NUM_OF_LEVELS - 1:
+        if level != num_of_levels - 1:
             print 'WARNING: No need for multiple levels! TO BE REMOVED!'
             for i in range(num_of_data):
                 current_file_name = 'L' + str(level) + '_Iter' + str(iterCount) + '_' + str(i) + '.nrrd'
@@ -315,34 +313,33 @@ def run(config, software, im_fns, check=True, verbose=True):
 def check_requirements(config, software, configFileName=None, softwareFileName=None, verbose=True):
     """Verifying that all options and software paths are set."""
 
-    required_field = ['USE_HEALTHY_ATLAS', 'reference_im_fn', 'data_dir',
-                      'result_dir', 'fileListFN', 'selection', 'lamda', 'sigma',
-                      'NUM_OF_ITERATIONS_PER_LEVEL', 'NUM_OF_LEVELS', 'REGISTRATION_TYPE']
+    required_field = ['use_healthy_atlas', 'reference_im_fn', 'result_dir', 'selection', 'lamda', 'sigma',
+                      'num_of_iterations_per_level', 'num_of_levels', 'registration_type']
     if not pyLAR.containsRequirements(config, required_field, configFileName):
         raise Exception('Error in configuration file')
     result_dir = config.result_dir
-    REGISTRATION_TYPE = config.REGISTRATION_TYPE
+    registration_type = config.registration_type
 
     required_software = ['EXE_BRAINSFit']
-    if not config.USE_HEALTHY_ATLAS:
+    if not config.use_healthy_atlas:
         required_software.append('EXE_AverageImages')
-    if REGISTRATION_TYPE == 'BSpline':
+    if registration_type == 'BSpline':
         required_software.extend(['EXE_InvertDeformationField', 'EXE_BRAINSResample', 'EXE_BSplineToDeformationField'])
         if not pyLAR.containsRequirements(config, ['gridSize'], configFileName):
             raise Exception('Error in configuration file')
-    elif REGISTRATION_TYPE == 'Demons':
+    elif registration_type == 'Demons':
         required_software.extend(['EXE_BRAINSDemonWarp', 'EXE_BRAINSResample','EXE_InvertDeformationField'])
-    elif REGISTRATION_TYPE == 'ANTS':
+    elif registration_type == 'ANTS':
         required_software.extend(['EXE_ANTS', 'EXE_WarpImageMultiTransform'])
-        if not pyLAR.containsRequirements(config, ['antsParams'], configFileName):
+        if not pyLAR.containsRequirements(config, ['ants_params'], configFileName):
             raise Exception('Error in configuration file')
-    if not config.NUM_OF_ITERATIONS_PER_LEVEL >= 0:
+    if not config.num_of_iterations_per_level >= 0:
         if verbose:
-            print '\'NUM_OF_ITERATIONS_PER_LEVEL\' must be a positive integer (>=0).'
+            print '\'num_of_iterations_per_level\' must be a positive integer (>=0).'
         raise Exception('Error in configuration file')
-    if not config.NUM_OF_LEVELS >= 1:
+    if not config.num_of_levels >= 1:
         if verbose:
-            print '\'NUM_OF_LEVELS\' must be a strictly positive integer (>=1).'
+            print '\'num_of_levels\' must be a strictly positive integer (>=1).'
         raise Exception('Error in configuration file')
     if not pyLAR.containsRequirements(software, required_software, softwareFileName):
         raise Exception('Error in configuration file')

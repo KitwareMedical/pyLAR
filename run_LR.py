@@ -27,14 +27,14 @@ Command line arguments (See command line help: -h):
         --configFN (string): Parameter configuration file.
         --configSoftware (string): Software configuration file.
     Optional:
-        --HistogramMatching (boolean) that overwrites configuration file histogram matching parameter.
+        --histogramMatching (boolean) that overwrites configuration file histogram matching parameter.
 
 Configuration file must contain:
 --------------------------------
     lamda (float): the tuning parameter that weights between the low-rank component and the sparse component.
     sigma (float): blurring kernel size.
-    fileListFN (string): File containing path to input images.
-    data_dir (string): Folder containing the "fileListFN" file.
+    file_list_file_name (string): File containing path to input images.
+    data_dir (string): Folder containing the "file_list_file_name" file.
     result_dir (string): output directory where outputs will be saved.
     selection (list): select images that are processed in given list [must contain at least 1 value].
     reference_im_fn (string): reference image used for the registration.
@@ -42,7 +42,7 @@ Configuration file must contain:
 
 Optional for 'set_and_run'/required for 'run_low_rank':
 ----------------------------------------------------
-    HistogramMatching (boolean): If not specified or set to False, no histogram matching performed.
+    histogram_matching (boolean): If not specified or set to False, no histogram matching performed.
     verbose (boolean): If not specified or set to False, outputs are written in a log file.
 
 Configuration Software file must contain:
@@ -57,7 +57,7 @@ import pyLAR
 import argparse
 
 
-def setup_and_run(config, software, im_fns, configFN="", configSoftware="", fileListFN=""):
+def setup_and_run(config, software, im_fns, configFN="", configSoftware="", file_list_file_name=""):
     """Setting up processing:
 
     -Setting up options.
@@ -65,7 +65,6 @@ def setup_and_run(config, software, im_fns, configFN="", configSoftware="", file
     -Saving parameters in output folders for reproducibility.
     """
     pyLAR.lr.check_requirements(config, software, configFN, configSoftware, True)
-    print config.HistogramMatching
     result_dir = config.result_dir
     # For reproducibility: save all parameters into the result dir
     savedFileName = lambda name, default: os.path.basename(name) if name else default
@@ -73,8 +72,8 @@ def setup_and_run(config, software, im_fns, configFN="", configSoftware="", file
     pyLAR.saveConfiguration(os.path.join(result_dir, configFN), config)
     configSoftware = savedFileName(configSoftware, 'Software.txt')
     pyLAR.saveConfiguration(os.path.join(result_dir, configSoftware), software)
-    fileListFN = savedFileName(fileListFN, 'listFiles.txt')
-    pyLAR.writeTxtIntoList(os.path.join(result_dir, fileListFN), im_fns)
+    file_list_file_name = savedFileName(file_list_file_name, 'listFiles.txt')
+    pyLAR.writeTxtIntoList(os.path.join(result_dir, file_list_file_name), im_fns)
     currentPyFile = os.path.realpath(__file__)
     shutil.copy(currentPyFile, result_dir)
     # Start processing
@@ -93,7 +92,7 @@ def main(argv=None):
     )
     parser.add_argument('-c', "--configFN", required=True, help="Parameter configuration file")
     parser.add_argument('-s', "--configSoftware", required=True, help="Software configuration file")
-    parser.add_argument('-m', "--HistogramMatching", action='store_true',
+    parser.add_argument('-m', "--histogramMatching", action='store_true',
                         help="overwrites configuration file histogram matching parameter")
     args = parser.parse_args(argv[1:])
     # Assign parameters from the input config txt file
@@ -103,16 +102,16 @@ def main(argv=None):
     # Load software paths from file
     configSoftware = args.configSoftware
     software = pyLAR.loadConfiguration(configSoftware, 'software')
-    if args.HistogramMatching:
-        config.HistogramMatching = True
+    if args.histogramMatching:
+        config.histogram_matching = True
 
-    if not pyLAR.containsRequirements(config, ['data_dir', 'fileListFN'], configFN):
+    if not pyLAR.containsRequirements(config, ['data_dir', 'file_list_file_name'], configFN):
         return 1
     data_dir = config.data_dir
-    fileListFN = config.fileListFN
-    im_fns = pyLAR.readTxtIntoList(os.path.join(data_dir, fileListFN))
+    file_list_file_name = config.file_list_file_name
+    im_fns = pyLAR.readTxtIntoList(os.path.join(data_dir, file_list_file_name))
 
-    setup_and_run(config, software, im_fns, configFN, configSoftware, fileListFN)
+    setup_and_run(config, software, im_fns, configFN, configSoftware, file_list_file_name)
     return 0
 
 

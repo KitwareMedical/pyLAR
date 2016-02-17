@@ -31,18 +31,18 @@ Configuration file must contain:
 --------------------------------
     lamda (float): the tuning parameter that weights between the low-rank component and the sparse component.
     sigma (float): blurring kernel size.
-    fileListFN (string): File containing path to input images.
-    data_dir (string): Folder containing the "fileListFN" file.
+    file_list_file_name (string): File containing path to input images.
+    data_dir (string): Folder containing the "file_list_file_name" file.
     result_dir (string): output directory where outputs will be saved.
     selection (list): select images that are processed in given list [must contain at least 2 values].
     reference_im_fn (string): reference image used for the registration.
-    USE_HEALTHY_ATLAS (boolean): use a specified healthy atlas as reference image or compute a reference image from
+    use_healthy_atlas (boolean): use a specified healthy atlas as reference image or compute a reference image from
                                  the average of all the low-ranked images computed from the selected input images.
-    NUM_OF_ITERATIONS_PER_LEVEL (int): Number of iteration per level for the registration [>=0]
-    NUM_OF_LEVELS (int): Number of levels (starting the registration at a down-sampled level) for the registration [>=1]
-    REGISTRATION_TYPE (string): Type of registration performed, selected among [BSpline,ANTS,Demons]
-    antsParams (see example and ANTS documentation): Only necessary if REGISTRATION_TYPE is set to ANTS.
-            antsParams = {'Convergence' : '[100x50x25,1e-6,10]',\
+    num_of_iterations_per_level (int): Number of iteration per level for the registration [>=0]
+    num_of_levels (int): Number of levels (starting the registration at a down-sampled level) for the registration [>=1]
+    registration_type (string): Type of registration performed, selected among [BSpline,ANTS,Demons]
+    ants_params (see example and ANTS documentation): Only necessary if registration_type is set to ANTS.
+            ants_params = {'Convergence' : '[100x50x25,1e-6,10]',\
                   'Dimension': 3,\
                   'ShrinkFactors' : '4x2x1',\
                   'SmoothingSigmas' : '2x1x0vox',\
@@ -58,18 +58,18 @@ Configuration Software file must contain:
     Required:
         EXE_BRAINSFit (string): Path to BRAINSFit executable (BRAINSTools package)
 
-    If USE_HEALTHY_ATLAS is set to True:
+    If use_healthy_atlas is set to True:
         EXE_AverageImages (string): Path to AverageImages executable (ANTS package)
 
-    If REGISTRATION_TYPE is set to 'BSpline':
+    If registration_type is set to 'BSpline':
         EXE_InvertDeformationField (string): Path to InvertDeformationField executable [1]
         EXE_BRAINSResample (string): Path to BRAINSResample executable (BRAINSTools package)
         EXE_BSplineToDeformationField (string): Path to BSplineDeformationField (Slicer module)
-    Else if REGISTRATION_TYPE is set to 'Demons':
+    Else if registration_type is set to 'Demons':
         EXE_BRAINSDemonWarp (string): Path to BRAINSDemonWarp executable (BRAINSTools package)
         EXE_BRAINSResample (string): Path to BRAINSResample executable (BRAINSTools package)
         EXE_InvertDeformationField (string): Path to InvertDeformationField executable [1]
-    Else if REGISTRATION_TYPE is set to 'ANTS':
+    Else if registration_type is set to 'ANTS':
         EXE_ANTS (string): Path to ANTS executable (ANTS package)
         EXE_WarpImageMultiTransform (string): path to WarpImageMultiTransform (ANTS package)
 
@@ -83,7 +83,7 @@ import os
 import argparse
 
 
-def setup_and_run(config, software, im_fns, configFN=None, configSoftware=None, fileListFN=None):
+def setup_and_run(config, software, im_fns, configFN=None, configSoftware=None, file_list_file_name=None):
     """Setting up processing:
 
     -Verifying that all options and software paths are set.
@@ -96,7 +96,7 @@ def setup_and_run(config, software, im_fns, configFN=None, configSoftware=None, 
     pyLAR.saveConfiguration(os.path.join(result_dir, savedFileName(configFN, 'Config.txt')), config)
     pyLAR.saveConfiguration(os.path.join(result_dir, savedFileName(configSoftware, 'Software.txt')),
                             software)
-    pyLAR.writeTxtIntoList(os.path.join(result_dir, savedFileName(fileListFN, 'listFiles.txt')), im_fns)
+    pyLAR.writeTxtIntoList(os.path.join(result_dir, savedFileName(file_list_file_name, 'listFiles.txt')), im_fns)
     currentPyFile = os.path.realpath(__file__)
     shutil.copy(currentPyFile, result_dir)
     if not(hasattr(config, "verbose") and config.verbose):
@@ -121,12 +121,12 @@ def main(argv=None):
     # Load software paths from file
     configSoftware = args.configSoftware
     software = pyLAR.loadConfiguration(configSoftware, 'software')
-    if not pyLAR.containsRequirements(config, ['data_dir', 'fileListFN'], configFN):
+    if not pyLAR.containsRequirements(config, ['data_dir', 'file_list_file_name'], configFN):
         return 1
     data_dir = config.data_dir
-    fileListFN = config.fileListFN
-    im_fns = pyLAR.readTxtIntoList(os.path.join(data_dir, fileListFN))
-    setup_and_run(config, software, im_fns, configFN, configSoftware, fileListFN)
+    file_list_file_name = config.file_list_file_name
+    im_fns = pyLAR.readTxtIntoList(os.path.join(data_dir, file_list_file_name))
+    setup_and_run(config, software, im_fns, configFN, configSoftware, file_list_file_name)
     return 0
 
 

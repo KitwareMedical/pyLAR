@@ -1,4 +1,4 @@
-USE_HEALTHY_ATLAS = False
+use_healthy_atlas = False
 
 # data directory setting
 reference_im_fn = '/Users/xiaoxiaoliu/work/data/SRI24/T1_Crop.nii.gz'
@@ -7,15 +7,15 @@ result_dir = '/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Synthetic_Data/results/
 
 lamda = 0.8
 sigma = 0
-fileListFN = 'Flair_FN.txt'
+file_list_file_name = 'Flair_FN.txt'
 modality = 'Flair'
 selection = [0,2,5,7,12,17,19,23]
 
-NUM_OF_ITERATIONS_PER_LEVEL = 5
-NUM_OF_LEVELS = 1
+num_of_iterations_per_level = 5
+num_of_levels = 1
 
-REGISTRATION_TYPE = 'ANTS'
-antsParams = {'Convergence' : '[100x50x25,1e-6,10]',\
+registration_type = 'ANTS'
+ants_params = {'Convergence' : '[100x50x25,1e-6,10]',\
           'Dimension': 3,\
           'ShrinkFactors' : '4x2x1',\
           'SmoothingSigmas' : '2x1x0vox',\

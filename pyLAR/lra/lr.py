@@ -23,8 +23,6 @@ Configuration file must contain:
 --------------------------------
     lamda (float): the tuning parameter that weights between the low-rank component and the sparse component.
     sigma (float): blurring kernel size.
-    fileListFN (string): File containing path to input images.
-    data_dir (string): Folder containing the "fileListFN" file.
     result_dir (string): output directory where outputs will be saved.
     selection (list): select images that are processed in given list [must contain at least 1 value].
     reference_im_fn (string): reference image used for the registration.
@@ -32,7 +30,7 @@ Configuration file must contain:
 
 Optional for 'check_requirements'/required for 'run':
 ----------------------------------------------------
-    HistogramMatching (boolean): If not specified or set to False, no histogram matching performed.
+    histogram_matching (boolean): If not specified or set to False, no histogram matching performed.
     verbose (boolean): If not specified or set to False, outputs are written in a log file.
 
 Configuration Software file must contain:
@@ -70,7 +68,7 @@ def run(config, software, im_fns, check=True, verbose=True):
         pyLAR.rigidRegistrationStep(software.EXE_BRAINSFit, im_fns, result_dir, selection, reference_im_fn, verbose)
     else:
         raise Exception('Unknown registration')
-    if config.HistogramMatching:
+    if config.histogram_matching:
         pyLAR.histogramMatchingStep(selection, result_dir)
 
     e = time.time()
@@ -120,9 +118,9 @@ def check_requirements(config, software, configFileName=None, softwareFileName=N
     if not pyLAR.containsRequirements(config, required_field, configFileName):
         raise Exception('Error in configuration file')
     result_dir = config.result_dir
-    if not hasattr(config, "HistogramMatching"):
-        config.HistogramMatching = False
-    if config.HistogramMatching and verbose:
+    if not hasattr(config, "histogram_matching"):
+        config.histogram_matching = False
+    if config.histogram_matching and verbose:
         print "Script will perform histogram matching."
     if len(config.selection) < 1:
         if verbose:

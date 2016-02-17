@@ -1,19 +1,19 @@
-USE_HEALTHY_ATLAS = False
+use_healthy_atlas = False
 
 data_dir = '/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Image_Data'
 reference_im_fn = '/Users/xiaoxiaoliu/work/data/SRI24/T1_Crop.nii.gz'
-fileListFN ='T1c_FN.txt'
+file_list_file_name ='T1c_FN.txt'
 modality ='T1c'
 lamda = 0.7
 result_dir = '/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Image_Data/results/LAB_8Inputs_SSD_'+ modality
 selection = [0,1,3,4,6,7,9,10]
 
-NUM_OF_ITERATIONS_PER_LEVEL = 5
-NUM_OF_LEVELS = 1
+num_of_iterations_per_level = 5
+num_of_levels = 1
 sigma = 0
 
-REGISTRATION_TYPE = 'ANTS'
-antsParams = {'Convergence' : '[100x50x25,1e-6,10]',\
+registration_type = 'ANTS'
+ants_params = {'Convergence' : '[100x50x25,1e-6,10]',\
           'Dimension': 3,\
           'ShrinkFactors' : '4x2x1',\
           'SmoothingSigmas' : '2x1x0vox',\

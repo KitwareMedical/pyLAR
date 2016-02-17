@@ -21,15 +21,13 @@
 
 Configuration file must contain:
 --------------------------------
-    fileListFN (string): File containing path to input images.
-    data_dir (string): Folder containing the "fileListFN" file.
     result_dir (string): output directory where outputs will be saved.
     selection (list): select images that are processed in given list [must contain at least 2 values].
     reference_im_fn (string): reference image used for the registration.
-    NUM_OF_ITERATIONS_PER_LEVEL (int): Number of iteration per level for the registration [>=0]
-    NUM_OF_LEVELS (int): Number of levels (starting the registration at a down-sampled level) for the registration [>=1]
-    antsParams (see example and ANTS documentation):
-            antsParams = {'Convergence' : '[100x50x25,1e-6,10]',\
+    num_of_iterations_per_level (int): Number of iteration per level for the registration [>=0]
+    num_of_levels (int): Number of levels (starting the registration at a down-sampled level) for the registration [>=1]
+    ants_params (see example and ANTS documentation):
+            ants_params = {'Convergence' : '[100x50x25,1e-6,10]',\
                   'Dimension': 3,\
                   'ShrinkFactors' : '4x2x1',\
                   'SmoothingSigmas' : '2x1x0vox',\
@@ -56,7 +54,7 @@ import subprocess
 import time
 
 
-def _runIteration(level, currentIter, antsParams, result_dir, selection, software, verbose):
+def _runIteration(level, currentIter, ants_params, result_dir, selection, software, verbose):
     """Iterative Atlas-to-image registration"""
 
     EXE_AverageImages = software.EXE_AverageImages
@@ -101,7 +99,7 @@ def _runIteration(level, currentIter, antsParams, result_dir, selection, softwar
         outputTransformPrefix = current_prefix_path + '_' + str(i) + '_'
         fixedIm = atlasIm
         movingIm = initialInputImage
-        cmd += pyLAR.ANTS(EXE_ANTS, fixedIm, movingIm, outputTransformPrefix, antsParams, verbose=verbose)
+        cmd += pyLAR.ANTS(EXE_ANTS, fixedIm, movingIm, outputTransformPrefix, ants_params, verbose=verbose)
         cmd += ";" + pyLAR.ANTSWarpImage(EXE_WarpImageMultiTransform, initialInputImage,\
                                          newInputImage, reference_im_fn, outputTransformPrefix, verbose=verbose)
         print cmd
@@ -119,9 +117,9 @@ def run(config, software, im_fns, check=True, verbose=True):
     reference_im_fn = config.reference_im_fn
     selection = config.selection
     result_dir = config.result_dir
-    antsParams = config.antsParams
-    NUM_OF_ITERATIONS_PER_LEVEL = config.NUM_OF_ITERATIONS_PER_LEVEL
-    NUM_OF_LEVELS = config.NUM_OF_LEVELS  # multiscale bluring (coarse-to-fine)
+    ants_params = config.ants_params
+    num_of_iterations_per_level = config.num_of_iterations_per_level
+    num_of_levels = config.num_of_levels  # multiscale bluring (coarse-to-fine)
     s = time.time()
 
     pyLAR.affineRegistrationStep(software.EXE_BRAINSFit, im_fns, result_dir, selection, reference_im_fn, verbose)
@@ -130,28 +128,28 @@ def run(config, software, im_fns, check=True, verbose=True):
 
     num_of_data = len(selection)
     iterCount = 0
-    for level in range(0, NUM_OF_LEVELS):
-        for iterCount in range(1, NUM_OF_ITERATIONS_PER_LEVEL+1):
+    for level in range(0, num_of_levels):
+        for iterCount in range(1, num_of_iterations_per_level+1):
             print 'Level: ', level
             print 'Iteration ' + str(iterCount)
-            _runIteration(level, iterCount, antsParams, result_dir, selection, software, verbose)
+            _runIteration(level, iterCount, ants_params, result_dir, selection, software, verbose)
             gc.collect()  # garbage collection
-        # We need to check if NUM_OF_ITERATIONS_PER_LEVEL is set to 0, which leads
+        # We need to check if num_of_iterations_per_level is set to 0, which leads
         # to computing an average on the affine registration.
-        if level != NUM_OF_LEVELS - 1:
+        if level != num_of_levels - 1:
             print 'WARNING: No need for multiple levels! TO BE REMOVED!'
             for i in range(num_of_data):
                 current_file_name = 'L' + str(level) + '_Iter' + str(iterCount) + '_' + str(i) + '.nrrd'
                 current_file_path = os.path.join(result_dir, current_file_name)
                 nextLevelInitIm = os.path.join(result_dir, 'L'+str(level+1)+'_Iter0_' + str(i) + '.nrrd')
                 shutil.copyfile(current_file_path, nextLevelInitIm)
-        # if NUM_OF_LEVELS > 1:
+        # if num_of_levels > 1:
         #     print 'WARNING: No need for multiple levels! TO BE REMOVED!'
         #     for i in range(num_of_data):
         #         next_prefix = 'L' + str(level+1) + '_Iter0_'
         #         next_path = os.path.join(result_dir, next_prefix)
         #         newLevelInitIm = next_path + str(i) + '.nrrd'
-    current_prefix = 'L' + str(NUM_OF_LEVELS-1) + '_Iter' + str(NUM_OF_ITERATIONS_PER_LEVEL)
+    current_prefix = 'L' + str(num_of_levels-1) + '_Iter' + str(num_of_iterations_per_level)
     current_path = os.path.join(result_dir, current_prefix)
     atlasIm = current_path + '_atlas.nrrd'
     listOfImages = []
@@ -181,21 +179,20 @@ def run(config, software, im_fns, check=True, verbose=True):
 def check_requirements(config, software, configFileName=None, softwareFileName=None, verbose=True):
     """Verifying that all options and software paths are set."""
     result_dir = config.result_dir
-    required_field = ['reference_im_fn', 'data_dir',
-                      'result_dir', 'fileListFN', 'selection',
-                      'NUM_OF_ITERATIONS_PER_LEVEL', 'NUM_OF_LEVELS', 'antsParams']
+    required_field = ['reference_im_fn', 'result_dir', 'selection',
+                      'num_of_iterations_per_level', 'num_of_levels', 'ants_params']
     if not pyLAR.containsRequirements(config, required_field, configFileName):
         raise Exception('Error in configuration file')
     required_software = ['EXE_BRAINSFit', 'EXE_AverageImages', 'EXE_ANTS', 'EXE_WarpImageMultiTransform']
     if not pyLAR.containsRequirements(software, required_software, softwareFileName):
         raise Exception('Error in configuration file')
-    if not config.NUM_OF_ITERATIONS_PER_LEVEL >= 0:
+    if not config.num_of_iterations_per_level >= 0:
         if verbose:
-            print '\'NUM_OF_ITERATIONS_PER_LEVEL\' must be a positive integer (>=0).'
+            print '\'num_of_iterations_per_level\' must be a positive integer (>=0).'
         raise Exception('Error in configuration file')
-    if not config.NUM_OF_LEVELS >= 1:
+    if not config.num_of_levels >= 1:
         if verbose:
-            print '\'NUM_OF_LEVELS\' must be a strictly positive integer (>=1).'
+            print '\'num_of_levels\' must be a strictly positive integer (>=1).'
         raise Exception('Error in configuration file')
     if len(config.selection) < 2:
         if verbose:

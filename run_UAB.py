@@ -29,15 +29,15 @@ Command line arguments (See command line help: -h):
 
 Configuration file must contain:
 --------------------------------
-    fileListFN (string): File containing path to input images.
-    data_dir (string): Folder containing the "fileListFN" file.
+    file_list_file_name (string): File containing path to input images.
+    data_dir (string): Folder containing the "file_list_file_name" file.
     result_dir (string): output directory where outputs will be saved.
     selection (list): select images that are processed in given list [must contain at least 2 values].
     reference_im_fn (string): reference image used for the registration.
-    NUM_OF_ITERATIONS_PER_LEVEL (int): Number of iteration per level for the registration [>=0]
-    NUM_OF_LEVELS (int): Number of levels (starting the registration at a down-sampled level) for the registration [>=1]
-    antsParams (see example and ANTS documentation):
-            antsParams = {'Convergence' : '[100x50x25,1e-6,10]',\
+    num_of_iterations_per_level (int): Number of iteration per level for the registration [>=0]
+    num_of_levels (int): Number of levels (starting the registration at a down-sampled level) for the registration [>=1]
+    ants_params (see example and ANTS documentation):
+            ants_params = {'Convergence' : '[100x50x25,1e-6,10]',\
                   'Dimension': 3,\
                   'ShrinkFactors' : '4x2x1',\
                   'SmoothingSigmas' : '2x1x0vox',\
@@ -63,7 +63,7 @@ import os
 import argparse
 
 
-def setup_and_run(config, software, im_fns, configFN=None, configSoftware=None, fileListFN=None):
+def setup_and_run(config, software, im_fns, configFN=None, configSoftware=None, file_list_file_name=None):
     """Setting up processing:
 
     -Verifying that all options and software paths are set.
@@ -77,8 +77,8 @@ def setup_and_run(config, software, im_fns, configFN=None, configSoftware=None, 
     pyLAR.saveConfiguration(os.path.join(result_dir, configFN), config)
     configSoftware = savedFileName(configSoftware, 'Software.txt')
     pyLAR.saveConfiguration(os.path.join(result_dir, configSoftware), software)
-    fileListFN = savedFileName(fileListFN, 'listFiles.txt')
-    pyLAR.writeTxtIntoList(os.path.join(result_dir, fileListFN), im_fns)
+    file_list_file_name = savedFileName(file_list_file_name, 'listFiles.txt')
+    pyLAR.writeTxtIntoList(os.path.join(result_dir, file_list_file_name), im_fns)
     currentPyFile = os.path.realpath(__file__)
     shutil.copy(currentPyFile, result_dir)
     if not(hasattr(config, "verbose") and config.verbose):
@@ -103,12 +103,12 @@ def main(argv=None):
     # Load software paths from file
     configSoftware = args.configSoftware
     software = pyLAR.loadConfiguration(configSoftware, 'software')
-    if not pyLAR.containsRequirements(config, ['data_dir', 'fileListFN'], configFN):
+    if not pyLAR.containsRequirements(config, ['data_dir', 'file_list_file_name'], configFN):
         return 1
     data_dir = config.data_dir
-    fileListFN = config.fileListFN
-    im_fns = pyLAR.readTxtIntoList(os.path.join(data_dir, fileListFN))
-    setup_and_run(config, software, im_fns, configFN, configSoftware, fileListFN)
+    file_list_file_name = config.file_list_file_name
+    im_fns = pyLAR.readTxtIntoList(os.path.join(data_dir, file_list_file_name))
+    setup_and_run(config, software, im_fns, configFN, configSoftware, file_list_file_name)
     return 0
 
 
