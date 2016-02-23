@@ -39,6 +39,12 @@ Configuration file must contain:
                   'Transform' :'SyN[0.5]',\
                   'Metric': 'Mattes[fixedIm,movingIm,1,50,Regular,0.95]'}
 
+Optional:
+--------
+    number_of_cpu (integer): Number of diffeomorphic registration run in parallel. In not specified,
+                             it will run as many processes as there are CPU available. Beware, the processes might
+                             already be multithreaded.
+
 Configuration Software file must contain:
 -----------------------------------------
     Required:
@@ -71,9 +77,10 @@ import SimpleITK as sitk
 import subprocess
 import shutil
 import gc
+import multiprocessing
 import logging
 
-def _runIteration(vector_length, level, currentIter, config, im_fns, sigma, gridSize, maxDisp, software):
+def _runIteration(vector_length, level, currentIter, config, im_fns, sigma, gridSize, maxDisp, software, number_of_cpu):
     """Iterative unbiased low-rank atlas creation from a selection of images"""
     log = logging.getLogger(__name__)
     result_dir = config.result_dir
@@ -158,9 +165,8 @@ def _runIteration(vector_length, level, currentIter, config, im_fns, sigma, grid
             pass
         reference_im_fn = atlasIm
 
-    ps = []  # to use multiple processors
+    cmd_list = [] # to use multiple processors
     for i in range(num_of_data):
-        logFile = open(current_path_iter + '_RUN_' + str(i) + '.log', 'w')
         # Pipes command lines sequencially
         cmd = ''
         # Warps the low-rank image back to the initial state (the non-greedy way)
@@ -217,16 +223,27 @@ def _runIteration(vector_length, level, currentIter, config, im_fns, sigma, grid
                                              reference_im_fn, outputTransformPrefix)
         else:
             raise('Unrecognized registration type:', registration_type)
+        cmd_list.append(cmd)
+    ps = []  # to use multiple processors
+    while len(cmd_list) > 0 and len(ps) < number_of_cpu:
+        run_command(cmd_list, log, ps)
+    while len(ps) > 0:
+        stdout, stderr = ps.pop(0).communicate()
+        if stdout:
+            log.info(stdout)
+        if stderr:
+            log.error(stderr)
+        if len(cmd_list) > 0:
+            run_command(cmd_list, log, ps)
 
-        process = subprocess.Popen(cmd, stdout=logFile, shell=True)
-        ps.append(process)
-    for p in ps:
-        p.wait()
-    for i in range(num_of_data):
-        logFile = current_path_iter + '_RUN_' + str(i) + '.log'
-        with open(logFile, 'r') as f:
-            log.info(f.read())
     return sparsity, sum_sparse
+
+
+def run_command(cmd_list, log, ps):
+    cmd = cmd_list.pop(0)
+    log.info(cmd)
+    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    ps.append(process)
 
 
 def run(config, software, im_fns, check=True):
@@ -240,7 +257,10 @@ def run(config, software, im_fns, check=True):
     selection = config.selection
     lamda = config.lamda
     sigma = config.sigma
-
+    if hasattr(config, 'number_of_cpu'):
+        number_of_cpu = config.number_of_cpu
+    else:
+        number_of_cpu = multiprocessing.cpu_count()
     num_of_iterations_per_level = config.num_of_iterations_per_level
     num_of_levels = config.num_of_levels  # Multi-scale blurring (coarse-to-fine)
     registration_type = config.registration_type
@@ -274,7 +294,8 @@ def run(config, software, im_fns, check=True):
                 log.info('Grid size: ' + str(gridSize))
                 maxDisp = z_dim / gridSize[2] * factor
 
-            _runIteration(vector_length, level, iterCount, config, im_fns, sigma, gridSize, maxDisp, software)
+            _runIteration(vector_length, level, iterCount, config, im_fns,
+                          sigma, gridSize, maxDisp, software, number_of_cpu)
 
             # Adjust grid size for finner BSpline Registration
             if registration_type == 'BSpline' and gridSize[0] < 10:

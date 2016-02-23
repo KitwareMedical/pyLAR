@@ -46,26 +46,25 @@ import logging
 __status__ = "Development"
 
 
-def _execute(cmd, log_file=None, EXECUTE=True):
+def _execute(cmd, log_file=None):
     log = logging.getLogger(__name__)
     log.info(cmd)
-    if EXECUTE:
-        if log_file:
-            tempFile = open(log_file, 'w')
-            process = subprocess.Popen(cmd, stdout=tempFile, stderr=tempFile, shell=True)
-            process.wait()
-            tempFile.close()
-        else:
-            process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-            stdout, stderr = process.communicate()
-        if log_file:
-            with open(log_file, 'r') as f:
-                log.info(f.read())
-        else:
-            if stdout:
-                log.info(stdout)
-            if stderr:
-                log.error(stderr)
+    if log_file:
+        tempFile = open(log_file, 'w')
+        process = subprocess.Popen(cmd, stdout=tempFile, stderr=tempFile, shell=True)
+        process.wait()
+        tempFile.close()
+    else:
+        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        stdout, stderr = process.communicate()
+    if log_file:
+        with open(log_file, 'r') as f:
+            log.info(f.read())
+    else:
+        if stdout:
+            log.info(stdout)
+        if stderr:
+            log.error(stderr)
 
 
 def AffineReg(EXE_BRAINSFit, fixedIm, movingIm, outputIm, outputTransform=None):
@@ -198,7 +197,8 @@ def ANTS(EXE_ANTS, fixedIm, movingIm, outputTransformPrefix, params, initialTran
     if initialTransform:
         arguments += ' --initial-moving-transform  %s' % (initialTransform)
     cmd = executable + ' ' + arguments
-    _execute(cmd, outputTransformPrefix + 'ANTS.log', EXECUTE=EXECUTE)
+    if EXECUTE:
+        _execute(cmd, outputTransformPrefix + 'ANTS.log')
     return cmd
 
 
@@ -255,10 +255,10 @@ def geodesicDistance3D(EXE_ANTS, inputImage, referenceImage, outputTransformPref
         'Transform': 'TimeVaryingVelocityField[1.0,4,8,0,0,0]',
         'Metric': 'Mattes[fixedIm,movingIm,1,50,Regular,0.95]'
     }
-    ANTS(EXE_ANTS, referenceImage, inputImage, outputTransformPrefix + '_affine', affineParams, None, True, verbose)
+    ANTS(EXE_ANTS, referenceImage, inputImage, outputTransformPrefix + '_affine', affineParams, None, True)
     outputIm = outputTransformPrefix + '_affineWarped.nrrd'
     if os.path.isfile(outputIm):
-        ANTS(EXE_ANTS, referenceImage, inputImage, outputTransformPrefix, antsParams, None, True, verbose)
+        ANTS(EXE_ANTS, referenceImage, inputImage, outputTransformPrefix, antsParams, None, True)
         logFile = outputTransformPrefix + 'ANTS.log'
         geodesicDis = getANTSOutputVelocityNorm(logFile)
     else:
@@ -293,7 +293,8 @@ def ANTSWarpImage(EXE_WarpImageMultiTransform, inputIm, outputIm, referenceIm,
         t = transformPrefix + '0InverseWarp.nii.gz'
     arguments = str(dim) + ' %s  %s  -R %s %s ' % (inputIm, outputIm, referenceIm, t)
     cmd = executable + ' ' + arguments
-    _execute(cmd, os.path.join(result_folder, 'ANTSWarpImage.log'), EXECUTE=EXECUTE)
+    if EXECUTE:
+        _execute(cmd, os.path.join(result_folder, 'ANTSWarpImage.log'))
     return cmd
 
 
@@ -308,7 +309,8 @@ def ANTSWarp2DImage(EXE_WarpImageMultiTransform, inputIm, outputIm, referenceIm,
         t = transformPrefix + '0InverseWarp.nii.gz'
     arguments = str(dim) + ' %s  %s  -R %s %s ' % (inputIm, outputIm, referenceIm, t)
     cmd = executable + ' ' + arguments
-    _execute(cmd, os.path.join(result_folder, 'ANTSWarpImage.log'), EXECUTE=EXECUTE)
+    if EXECUTE:
+        _execute(cmd, os.path.join(result_folder, 'ANTSWarpImage.log'))
     return cmd
 
 
@@ -318,7 +320,8 @@ def createJacobianDeterminantImage(EXE_CreateJacobianDeterminantImage, imageDime
     result_folder = os.path.dirname(outputIm)
     arguments = str(imageDimension) + ' %s  %s ' % (dvfImage, outputIm)
     cmd = executable + ' ' + arguments
-    _execute(cmd, os.path.join(result_folder, 'CreateJacobianDeterminantImage.log'), EXECUTE=EXECUTE)
+    if EXECUTE:
+        _execute(cmd, os.path.join(result_folder, 'CreateJacobianDeterminantImage.log'))
     return cmd
 
 
@@ -340,7 +343,8 @@ def DemonsReg(EXE_BRAINSDemonWarp, fixedIm, movingIm, outputIm, outputDVF, EXECU
 --neighborhoodForBOBF 1,1,1 --outputDisplacementFieldPrefix none --checkerboardPatternSubdivisions 4,4,4 \
 --gradient_type 0 --upFieldSmoothing 0 --max_step_length 2 --numberOfBCHApproximationTerms 2 --numberOfThreads -1'
     cmd = executable + ' ' + arguments
-    _execute(cmd, EXECUTE=EXECUTE)
+    if EXECUTE:
+        _execute(cmd)
     return cmd
 
 
@@ -360,7 +364,8 @@ def BSplineReg_BRAINSFit(EXE_BRAINSFit, fixedIm, movingIm, outputIm, outputTrans
                  --outputVolumePixelType float --backgroundFillValue 0   --numberOfThreads -1 --costMetric MMI'
 
     cmd = executable + ' ' + arguments
-    _execute(cmd, EXECUTE=EXECUTE)
+    if EXECUTE:
+        _execute(cmd)
     return cmd
 
 
@@ -377,7 +382,8 @@ def BSplineReg_Legacy(EXE_BSplineDeformableRegistration, fixedIm, movingIm, outp
                 + ' ' + movingIm
 
     cmd = executable + ' ' + arguments
-    _execute(cmd, EXECUTE=EXECUTE)
+    if EXECUTE:
+        _execute(cmd)
     return cmd
 
 
@@ -387,7 +393,8 @@ def ConvertTransform(EXE_BSplineToDeformationField, fixedIm, outputTransform, ou
           + ' --tfm ' + outputTransform \
           + ' --refImage ' + fixedIm \
           + ' --defImage ' + outputDVF
-    _execute(cmd, EXECUTE=EXECUTE)
+    if EXECUTE:
+        _execute(cmd)
     return cmd
 
 
@@ -402,7 +409,8 @@ def WarpImageMultiDVF(EXE_WarpImageMultiTransform, movingImage, refImage,
           + '  ' + outputImage \
           + ' -R  ' + refImage \
           + '  ' + string_DVFImageList
-    _execute(cmd, EXECUTE=EXECUTE)
+    if EXECUTE:
+        _execute(cmd)
     return cmd
 
 
@@ -417,7 +425,8 @@ def composeMultipleDVFs(EXE_ComposeMultiTransform, refImage, DVFImageList,
           + '  ' + outputDVFImage \
           + ' -R  ' + refImage \
           + '  ' + string_DVFImageList
-    _execute(cmd, EXECUTE=EXECUTE)
+    if EXECUTE:
+        _execute(cmd)
     return cmd
 
 
@@ -431,7 +440,8 @@ def applyLinearTransform(EXE_BRAINSResample, inputImage, refImage, transform,
           + ' --pixelType float ' \
           + ' --warpTransform ' + transform \
           + ' --defaultValue 0 --numberOfThreads -1 '
-    _execute(cmd, EXECUTE=EXECUTE)
+    if EXECUTE:
+        _execute(cmd)
     return cmd
 
 
@@ -445,7 +455,8 @@ def updateInputImageWithDVF(EXE_BRAINSResample, inputImage, refImage, DVFImage,
           + ' --pixelType float ' \
           + ' --deformationVolume ' + DVFImage \
           + ' --defaultValue 0 --numberOfThreads -1 '
-    _execute(cmd, EXECUTE=EXECUTE)
+    if EXECUTE:
+        _execute(cmd)
     return cmd
 
 
@@ -459,7 +470,8 @@ def updateInputImageWithTFM(EXE_BRAINSResample, inputImage, refImage, transform,
           + ' --pixelType float ' \
           + ' --warpTransform ' + transform \
           + ' --defaultValue 0 --numberOfThreads -1 '
-    _execute(cmd, EXECUTE=EXECUTE)
+    if EXECUTE:
+        _execute(cmd)
     return cmd
 
 
@@ -477,5 +489,6 @@ def genInverseDVF(EXE_InvertDeformationField, DVFImage, InverseDVFImage, EXECUTE
           + DVFImage \
           + ' ' \
           + InverseDVFImage
-    _execute(cmd)
+    if EXECUTE:
+        _execute(cmd)
     return cmd

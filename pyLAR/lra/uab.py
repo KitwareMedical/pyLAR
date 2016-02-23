@@ -34,6 +34,12 @@ Configuration file must contain:
                   'Transform' :'SyN[0.5]',\
                   'Metric': 'Mattes[fixedIm,movingIm,1,50,Regular,0.95]'}
 
+Optional:
+--------
+    number_of_cpu (integer): Number of diffeomorphic registration run in parallel. In not specified,
+                             it will run as many processes as there are CPU available. Beware, the processes might
+                             already be multithreaded.
+
 Configuration Software file must contain:
 -----------------------------------------
     EXE_BRAINSFit (string): Path to BRAINSFit executable (BRAINSTools package)
@@ -49,8 +55,9 @@ import gc
 import subprocess
 import time
 import logging
+import multiprocessing
 
-def _runIteration(level, currentIter, ants_params, result_dir, selection, software):
+def _runIteration(level, currentIter, ants_params, result_dir, selection, software, number_of_cpu):
     """Iterative Atlas-to-image registration"""
     log = logging.getLogger(__name__)
     EXE_AverageImages = software.EXE_AverageImages
@@ -84,9 +91,8 @@ def _runIteration(level, currentIter, ants_params, result_dir, selection, softwa
         pass
     reference_im_fn = atlasIm
 
-    ps = [] # to use multiple processors
+    cmd_list = [] # to use multiple processors
     for i in range(num_of_data):
-        logFile = open(current_prefix_path + '_RUN_' + str(i) + '.log', 'w')
         cmd = ''
         initialInputImage= os.path.join(result_dir, prefix + '0_' + str(i) + '.nrrd')
         newInputImage = current_prefix_path + '_' + str(i) + '.nrrd'
@@ -99,15 +105,24 @@ def _runIteration(level, currentIter, ants_params, result_dir, selection, softwa
         cmd += ";" + pyLAR.ANTSWarpImage(EXE_WarpImageMultiTransform, initialInputImage,\
                                          newInputImage, reference_im_fn, outputTransformPrefix)
         log.info("Running: " + cmd)
-        process = subprocess.Popen(cmd, stdout=logFile, shell=True)
-        ps.append(process)
-    for p in ps:
-        p.wait()
-    for i in range(num_of_data):
-        logFile = current_prefix_path + '_RUN_' + str(i) + '.log'
-        with open(logFile, 'r') as f:
-            log.info(f.read())
-    return
+        cmd_list.append(cmd)
+    ps = []  # to use multiple processors
+    while len(cmd_list) > 0 and len(ps) < number_of_cpu:
+        run_command(cmd_list, log, ps)
+    while len(ps) > 0:
+        stdout, stderr = ps.pop(0).communicate()
+        if stdout:
+            log.info(stdout)
+        if stderr:
+            log.error(stderr)
+        if len(cmd_list) > 0:
+            run_command(cmd_list, log, ps)
+
+def run_command(cmd_list, log, ps):
+    cmd = cmd_list.pop(0)
+    log.info(cmd)
+    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    ps.append(process)
 
 
 def run(config, software, im_fns, check=True):
@@ -121,6 +136,12 @@ def run(config, software, im_fns, check=True):
     ants_params = config.ants_params
     num_of_iterations_per_level = config.num_of_iterations_per_level
     num_of_levels = config.num_of_levels  # multiscale bluring (coarse-to-fine)
+
+    if hasattr(config, 'number_of_cpu'):
+        number_of_cpu = config.number_of_cpu
+    else:
+        number_of_cpu = multiprocessing.cpu_count()
+
     s = time.time()
 
     pyLAR.affineRegistrationStep(software.EXE_BRAINSFit, im_fns, result_dir, selection, reference_im_fn)
@@ -133,7 +154,7 @@ def run(config, software, im_fns, check=True):
         for iterCount in range(1, num_of_iterations_per_level+1):
             log.info('Level: ' + str(level))
             log.info('Iteration ' + str(iterCount))
-            _runIteration(level, iterCount, ants_params, result_dir, selection, software)
+            _runIteration(level, iterCount, ants_params, result_dir, selection, software, number_of_cpu)
             gc.collect()  # garbage collection
         # We need to check if num_of_iterations_per_level is set to 0, which leads
         # to computing an average on the affine registration.
