@@ -76,14 +76,14 @@ class filesTesting(unittest.TestCase):
             self.assertTrue(var == baseline[i])
 
 
-    def test_writeTxtIntoList(self):
-        """Test writeTxtIntoList
+    def test_writeTxtFromList(self):
+        """Test writeTxtFromList
         """
         baseline=["value1", "value2"]
         data_folder = tempfile.mkdtemp()
-        output_file = os.path.join(data_folder, "list-file-test_writeTxtIntoList.txt")
+        output_file = os.path.join(data_folder, "list-file-test_writeTxtFromList.txt")
         print "Output File: " + output_file
-        files.writeTxtIntoList(output_file, baseline)
+        files.writeTxtFromList(output_file, baseline)
         with open(output_file,'r') as f:
             for i,val in enumerate(f.readlines()):
                 print "Baseline: " + baseline[i]

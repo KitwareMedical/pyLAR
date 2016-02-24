@@ -33,7 +33,7 @@ def run(algorithm, config, software, im_fns, result_dir,
     pyLAR.saveConfiguration(os.path.join(result_dir, savedFileName(configFN, 'Config.txt')), config)
     pyLAR.saveConfiguration(os.path.join(result_dir, savedFileName(configSoftware, 'Software.txt')),
                             software)
-    pyLAR.writeTxtIntoList(os.path.join(result_dir, savedFileName(file_list_file_name, 'listFiles.txt')), im_fns)
+    pyLAR.writeTxtFromList(os.path.join(result_dir, savedFileName(file_list_file_name, 'listFiles.txt')), im_fns)
     # Set maximum number of threads used by ITK filters
     if hasattr(config, "ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS"):
         os.environ["ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS"] = str(config.ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS)

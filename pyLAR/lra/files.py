@@ -54,9 +54,9 @@ def readTxtIntoList(filename):
     return flist
 
 
-def writeTxtIntoList(filename, content):
+def writeTxtFromList(filename, content):
     log = logging.getLogger(__name__)
-    log.info('Writing text file into list: ' + filename)
+    log.info('Writing text file from list: ' + filename)
     with open(filename,'w') as f:
         for i in content:
             f.write(i + '\n')
