@@ -29,6 +29,8 @@ import sys
 
 def run(algorithm, config, software, im_fns, result_dir,
         configFN=None, configSoftware=None, file_list_file_name=None):
+    if not os.path.isdir(result_dir):
+        os.makedirs(result_dir)
     savedFileName = lambda name, default: os.path.basename(name) if name else default
     pyLAR.saveConfiguration(os.path.join(result_dir, savedFileName(configFN, 'Config.txt')), config)
     pyLAR.saveConfiguration(os.path.join(result_dir, savedFileName(configSoftware, 'Software.txt')),
@@ -65,6 +67,8 @@ def _stream_logger(config, logger):
 
 def _file_logger(result_dir, logger):
     # Set log file
+    if not os.path.isdir(result_dir):
+        os.makedirs(result_dir)
     formatter = _get_formatter()
     log_file = os.path.join(result_dir, 'RUN.log')
     hdlr = logging.FileHandler(log_file, mode='w')
