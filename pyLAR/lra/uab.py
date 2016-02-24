@@ -44,7 +44,7 @@ Configuration Software file must contain:
 -----------------------------------------
     EXE_BRAINSFit (string): Path to BRAINSFit executable (BRAINSTools package)
     EXE_AverageImages (string): Path to AverageImages executable (ANTS package)
-    EXE_ANTS (string): Path to ANTS executable (ANTS package)
+    EXE_antsRegistration (string): Path to antsRegistration executable (ANTS package)
     EXE_WarpImageMultiTransform (string): path to WarpImageMultiTransform (ANTS package)
 """
 
@@ -61,7 +61,7 @@ def _runIteration(level, currentIter, ants_params, result_dir, selection, softwa
     """Iterative Atlas-to-image registration"""
     log = logging.getLogger(__name__)
     EXE_AverageImages = software.EXE_AverageImages
-    EXE_ANTS = software.EXE_ANTS
+    EXE_antsRegistration = software.EXE_antsRegistration
     EXE_WarpImageMultiTransform = software.EXE_WarpImageMultiTransform
     # average the images to produce the Atlas
     prefix = 'L' + str(level) + '_Iter'
@@ -101,7 +101,7 @@ def _runIteration(level, currentIter, ants_params, result_dir, selection, softwa
         outputTransformPrefix = current_prefix_path + '_' + str(i) + '_'
         fixedIm = atlasIm
         movingIm = initialInputImage
-        cmd += pyLAR.ANTS(EXE_ANTS, fixedIm, movingIm, outputTransformPrefix, ants_params)
+        cmd += pyLAR.ANTS(EXE_antsRegistration, fixedIm, movingIm, outputTransformPrefix, ants_params)
         cmd += ";" + pyLAR.ANTSWarpImage(EXE_WarpImageMultiTransform, initialInputImage,\
                                          newInputImage, reference_im_fn, outputTransformPrefix)
         log.info("Running: " + cmd)
@@ -205,7 +205,7 @@ def check_requirements(config, software, configFileName=None, softwareFileName=N
     required_field = ['reference_im_fn', 'result_dir', 'selection',
                       'num_of_iterations_per_level', 'num_of_levels', 'ants_params']
     pyLAR.containsRequirements(config, required_field, configFileName)
-    required_software = ['EXE_BRAINSFit', 'EXE_AverageImages', 'EXE_ANTS', 'EXE_WarpImageMultiTransform']
+    required_software = ['EXE_BRAINSFit', 'EXE_AverageImages', 'EXE_antsRegistration', 'EXE_WarpImageMultiTransform']
     pyLAR.containsRequirements(software, required_software, softwareFileName)
 
     if not config.num_of_iterations_per_level >= 0:

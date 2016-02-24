@@ -26,7 +26,7 @@ Requires to build the following toolkits first:
 
     List of the binaries used in this module:
     * BRAINSFit (BRAINSTools package)
-    * ANTS (ANTS package)
+    * antsRegistration (ANTS package)
     * WarpImageMultiTransform (ANTS package)
     * CreateJacobianDeterminantImage (ANTS package)
     * BRAINSDemonWarp (BRAINSTools package)
@@ -145,12 +145,12 @@ def RigidReg(EXE_BRAINSFit, fixedIm, movingIm, outputIm, outputTransform=None):
     return cmd
 
 
-def ANTS(EXE_ANTS, fixedIm, movingIm, outputTransformPrefix, params, initialTransform=None, EXECUTE=False):
-    """ Computes a registration using ANTS.
+def ANTS(EXE_antsRegistration, fixedIm, movingIm, outputTransformPrefix, params, initialTransform=None, EXECUTE=False):
+    """ Computes a registration using antsRegistration.
 
     Parameters
     ----------
-    EXE_ANTS: Path to ANTS executable.
+    EXE_antsRegistration: Path to antsRegistration executable.
     fixedIm: fixed image file name used for the registration.
     movingIm: moving image file name used for the registration.
     outputTransformPrefix: output prefix used to name output image and output transform files.
@@ -168,7 +168,7 @@ def ANTS(EXE_ANTS, fixedIm, movingIm, outputTransformPrefix, params, initialTran
     cmd: returns the command line that has been executed.
 
     """
-    executable = EXE_ANTS
+    executable = EXE_antsRegistration
 
     dim = params['Dimension']
     CONVERGENCE = params['Convergence']  # "[100x70x50x20,1e-6,10]"
@@ -224,12 +224,12 @@ def getANTSOutputVelocityNorm(logFile):
     return vn
 
 
-def geodesicDistance3D(EXE_ANTS, inputImage, referenceImage, outputTransformPrefix):
+def geodesicDistance3D(EXE_antsRegistration, inputImage, referenceImage, outputTransformPrefix):
     """ Computes geodesic distance between input image and reference image.
 
     Parameters
     ----------
-    EXE_ANTS: Path to ANTS executable.
+    EXE_antsRegistration: Path to antsRegistration executable.
     inputImage: Input image file name.
     referenceImage: Reference image file name.
     outputTransformPrefix: output prefix used for output transform files and output image files.
@@ -255,10 +255,10 @@ def geodesicDistance3D(EXE_ANTS, inputImage, referenceImage, outputTransformPref
         'Transform': 'TimeVaryingVelocityField[1.0,4,8,0,0,0]',
         'Metric': 'Mattes[fixedIm,movingIm,1,50,Regular,0.95]'
     }
-    ANTS(EXE_ANTS, referenceImage, inputImage, outputTransformPrefix + '_affine', affineParams, None, True)
+    ANTS(EXE_antsRegistration, referenceImage, inputImage, outputTransformPrefix + '_affine', affineParams, None, True)
     outputIm = outputTransformPrefix + '_affineWarped.nrrd'
     if os.path.isfile(outputIm):
-        ANTS(EXE_ANTS, referenceImage, inputImage, outputTransformPrefix, antsParams, None, True)
+        ANTS(EXE_antsRegistration, referenceImage, inputImage, outputTransformPrefix, antsParams, None, True)
         logFile = outputTransformPrefix + 'ANTS.log'
         geodesicDis = getANTSOutputVelocityNorm(logFile)
     else:

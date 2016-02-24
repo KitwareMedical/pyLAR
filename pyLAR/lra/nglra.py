@@ -62,7 +62,7 @@ Configuration Software file must contain:
         EXE_BRAINSResample (string): Path to BRAINSResample executable (BRAINSTools package)
         EXE_InvertDeformationField (string): Path to InvertDeformationField executable [1]
     Else if registration_type is set to 'ANTS':
-        EXE_ANTS (string): Path to ANTS executable (ANTS package)
+        EXE_antsRegistration (string): Path to antsRegistration executable (ANTS package)
         EXE_WarpImageMultiTransform (string): path to WarpImageMultiTransform (ANTS package)
 
 [1] https://github.com/XiaoxiaoLiu/ITKUtils
@@ -98,7 +98,7 @@ def _runIteration(vector_length, level, currentIter, config, im_fns, sigma, grid
         elif registration_type == 'Demons':
             EXE_BRAINSDemonWarp = software.EXE_BRAINSDemonWarp
     elif registration_type == 'ANTS':
-        EXE_ANTS = software.EXE_ANTS
+        EXE_antsRegistration = software.EXE_antsRegistration
         EXE_WarpImageMultiTransform = software.EXE_WarpImageMultiTransform
         ants_params = config.ants_params
     # Prepares data matrix for low-rank decomposition
@@ -217,7 +217,7 @@ def _runIteration(vector_length, level, currentIter, config, im_fns, sigma, grid
             # if currentIter > 1:
             # initialTransform = os.path.join(result_dir, iter_prefix + str(currentIter-1) + '_' + str(i) + '_0Warp.nii.gz')
             # else:
-            cmd += pyLAR.ANTS(EXE_ANTS, fixedIm, movingIm, outputTransformPrefix, ants_params)
+            cmd += pyLAR.ANTS(EXE_antsRegistration, fixedIm, movingIm, outputTransformPrefix, ants_params)
             # Generates the warped input image with the specified file name
             cmd += ";" + pyLAR.ANTSWarpImage(EXE_WarpImageMultiTransform, initialInputImage, newInputImage,
                                              reference_im_fn, outputTransformPrefix)
@@ -351,7 +351,7 @@ def check_requirements(config, software, configFileName=None, softwareFileName=N
     elif registration_type == 'Demons':
         required_software.extend(['EXE_BRAINSDemonWarp', 'EXE_BRAINSResample','EXE_InvertDeformationField'])
     elif registration_type == 'ANTS':
-        required_software.extend(['EXE_ANTS', 'EXE_WarpImageMultiTransform'])
+        required_software.extend(['EXE_antsRegistration', 'EXE_WarpImageMultiTransform'])
         pyLAR.containsRequirements(config, ['ants_params'], configFileName)
     if not config.num_of_iterations_per_level >= 0:
         raise Exception('Error in configuration file: "num_of_iterations_per_level"\
