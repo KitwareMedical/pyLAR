@@ -40,6 +40,9 @@ Configuration file must contain:
     Additional fields are required, depending on the chosen algorithm. For more information,
     check the docstring of the algorithm you want to run (e.g.in nglra.py).
 
+Optional:
+----------------------------------------------------
+    clean (boolean): If specified, output directory (=result_dir) content is removed before processing starts.
 """
 
 import sys
@@ -47,6 +50,7 @@ import pyLAR
 import os
 import argparse
 import logging
+import shutil
 
 def main(argv=None):
     """Parsing command line arguments and reading input files."""
@@ -72,6 +76,9 @@ def main(argv=None):
     data_dir = config.data_dir
     file_list_file_name = config.file_list_file_name
     im_fns = pyLAR.readTxtIntoList(os.path.join(data_dir, file_list_file_name))
+    # 'clean' needs to be done before configuring the logger that creates a file in the output directory
+    if hasattr(config, "clean") and config.clean:
+        shutil.rmtree(result_dir)
     # configure logger
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
