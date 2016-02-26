@@ -89,6 +89,7 @@ def _runIteration(vector_length, level, currentIter, config, im_fns, sigma, grid
     use_healthy_atlas = config.use_healthy_atlas
     registration_type = config.registration_type
     lamda = config.lamda
+    listOutputImages = []
     if registration_type == 'BSpline' or registration_type == 'Demons':
         EXE_BRAINSResample = software.EXE_BRAINSResample
         EXE_InvertDeformationField = software.EXE_InvertDeformationField
@@ -121,9 +122,9 @@ def _runIteration(vector_length, level, currentIter, config, im_fns, sigma, grid
 
     # Low-rank and sparse decomposition
     low_rank, sparse, n_iter, rank, sparsity, sum_sparse = pyLAR.rpca(Y, lamda)
-    pyLAR.saveImagesFromDM(low_rank, current_path_iter + '_LowRank_', reference_im_fn)
-    pyLAR.saveImagesFromDM(sparse, current_path_iter + '_Sparse_', reference_im_fn)
-
+    lr = pyLAR.saveImagesFromDM(low_rank, current_path_iter + '_LowRank_', reference_im_fn)
+    sp = pyLAR.saveImagesFromDM(sparse, current_path_iter + '_Sparse_', reference_im_fn)
+    listOutputImages = lr + sp
     # Visualize and inspect
     try:
         import matplotlib.pyplot as plt
@@ -164,7 +165,7 @@ def _runIteration(vector_length, level, currentIter, config, im_fns, sigma, grid
         except ImportError:
             pass
         reference_im_fn = atlasIm
-
+    listOutputImages += [reference_im_fn]
     cmd_list = [] # to use multiple processors
     for i in range(num_of_data):
         # Pipes command lines sequencially
@@ -224,6 +225,7 @@ def _runIteration(vector_length, level, currentIter, config, im_fns, sigma, grid
         else:
             raise('Unrecognized registration type:', registration_type)
         cmd_list.append(cmd)
+        listOutputImages += [newInputImage]
     ps = []  # to use multiple processors
     while len(cmd_list) > 0 and len(ps) < number_of_cpu:
         run_command(cmd_list, log, ps)
@@ -236,7 +238,7 @@ def _runIteration(vector_length, level, currentIter, config, im_fns, sigma, grid
         if len(cmd_list) > 0:
             run_command(cmd_list, log, ps)
 
-    return sparsity, sum_sparse
+    return sparsity, sum_sparse, listOutputImages
 
 
 def run_command(cmd_list, log, ps):
@@ -294,7 +296,7 @@ def run(config, software, im_fns, check=True):
                 log.info('Grid size: ' + str(gridSize))
                 maxDisp = z_dim / gridSize[2] * factor
 
-            _runIteration(vector_length, level, iterCount, config, im_fns,
+            _, _, listOutputImages = _runIteration(vector_length, level, iterCount, config, im_fns,
                           sigma, gridSize, maxDisp, software, number_of_cpu)
 
             # Adjust grid size for finner BSpline Registration
@@ -325,7 +327,7 @@ def run(config, software, im_fns, check=True):
             # print 'Current memory usage :',a/1024.0/1024.0,'GB'
             # h = hpy()
             # print h.heap()
-
+    pyLAR.writeTxtFromList(os.path.join(result_dir,'list_outputs.txt'),listOutputImages)
     e = time.time()
     l = e - s
     log.info('Total running time:  %f mins' % (l / 60.0))

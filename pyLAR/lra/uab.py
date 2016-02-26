@@ -180,6 +180,8 @@ def run(config, software, im_fns, check=True):
         lrIm = current_path + '_' + str(i) + '.nrrd'
         listOfImages.append(lrIm)
     pyLAR.AverageImages(software.EXE_AverageImages, listOfImages, atlasIm)
+    logging.debug("Saves list outputs:%s"%(os.path.join(result_dir,'list_outputs.txt')))
+    pyLAR.writeTxtFromList(os.path.join(result_dir,'list_outputs.txt'),[atlasIm])
     try:
         import matplotlib.pyplot as plt
         import SimpleITK as sitk

@@ -182,6 +182,7 @@ def saveImagesFromDM(dataMatrix, outputPrefix, referenceImName):
     im_ref_array = sitk.GetArrayFromImage(im_ref)  # get numpy array
     z_dim, x_dim, y_dim = im_ref_array.shape  # get 3D volume shape
     num_of_data = dataMatrix.shape[1]
+    list_files = []
     for i in range(num_of_data):
         im = np.array(dataMatrix[:, i]).reshape(z_dim, x_dim, y_dim)
         img = sitk.GetImageFromArray(im)
@@ -189,9 +190,10 @@ def saveImagesFromDM(dataMatrix, outputPrefix, referenceImName):
         img.SetSpacing(im_ref.GetSpacing())
         img.SetDirection(im_ref.GetDirection())
         fn = outputPrefix + str(i) + '.nrrd'
+        list_files.append(fn)
         sitk.WriteImage(img, fn, True)
     del im_ref, im_ref_array
-    return
+    return list_files
 
 
 def gridVisDVF(dvfImFileName, sliceNum=-1, titleString='DVF', saveFigPath='.', deformedImFileName=None, contourNum=40):

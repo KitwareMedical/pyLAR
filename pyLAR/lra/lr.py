@@ -94,8 +94,9 @@ def run(config, software, im_fns, check=True):
         del tmp
     # Low-Rank and sparse decomposition
     low_rank, sparse, n_iter, rank, sparsity, sum_sparse = pyLAR.rpca(Y, config.lamda)
-    pyLAR.saveImagesFromDM(low_rank, os.path.join(result_dir, 'L' + '_LowRank_'), reference_im_fn)
-    pyLAR.saveImagesFromDM(sparse, os.path.join(result_dir, 'L' + '_Sparse_'), reference_im_fn)
+    lr_fn = pyLAR.saveImagesFromDM(low_rank, os.path.join(result_dir, 'L' + '_LowRank_'), reference_im_fn)
+    sp_fn = pyLAR.saveImagesFromDM(sparse, os.path.join(result_dir, 'L' + '_Sparse_'), reference_im_fn)
+    pyLAR.writeTxtFromList(os.path.join(result_dir,'list_outputs.txt'),lr_fn+sp_fn)
     e = time.time()
     l = e - s
     log.info("Rank: " + str(rank))
