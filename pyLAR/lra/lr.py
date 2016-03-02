@@ -26,7 +26,7 @@ Configuration file must contain:
     result_dir (string): output directory where outputs will be saved.
     selection (list): select images that are processed in given list [must contain at least 1 value].
     reference_im_fn (string): reference image used for the registration.
-    registration (string): 'affine' or 'rigid'
+    registration (string): 'affine', 'rigid', or 'none'
 
 Optional for 'check_requirements'/required for 'run':
 ----------------------------------------------------
@@ -64,6 +64,8 @@ def run(config, software, im_fns, check=True):
     elif config.registration == 'rigid':
         log.info('Rigid registration')
         pyLAR.rigidRegistrationStep(software.EXE_BRAINSFit, im_fns, result_dir, selection, reference_im_fn)
+    elif config.registration == 'none':
+        pass
     else:
         raise Exception('Unknown registration')
     if config.histogram_matching:
@@ -82,7 +84,10 @@ def run(config, software, im_fns, check=True):
     del im_ref, im_ref_array
     Y = np.zeros((vector_length, num_of_data))
     for i in range(num_of_data):
-        im_file = os.path.join(result_dir, 'L0_Iter0_' + str(i) + '.nrrd')
+        if config.registration == 'none':
+            im_file = im_fns[selection[i]]
+        else:
+            im_file = os.path.join(result_dir, 'L0_Iter0_' + str(i) + '.nrrd')
         log.info("Input File: " + im_file)
         inIm = sitk.ReadImage(im_file)
         tmp = sitk.GetArrayFromImage(inIm)
