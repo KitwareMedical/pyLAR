@@ -1,2 +1,8 @@
 value1 = 1
 value2 = "value"
+value3 = True
+value4 = False
+value5 = [0,1]
+value6 = {'vdic1':'test'}
+value7 = 2.5
+

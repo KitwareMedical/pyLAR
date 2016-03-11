@@ -48,8 +48,14 @@ class filesTesting(unittest.TestCase):
         """
         file_path = os.path.join(self._data, "config-file-loadConfiguration-test1.txt")
         res = files.loadConfiguration(file_path, "config")
-        baseline = type('obj', (object,), {'value1': 1, 'value2': "value"})
-        self.assertTrue(baseline.value1 == res.value1 and baseline.value2 == res.value2)
+        baseline = type('obj', (object,), {'value1': 1, 'value2': "value", 'value3': True,
+                                           'value4': False, 'value7': 2.5})
+        setattr(baseline,'value5',[0,1])
+        setattr(baseline,'value6',{'vdic1':'test'})
+        self.assertTrue(baseline.value1 == res.value1 and baseline.value2 == res.value2
+                        and baseline.value3 == res.value3 and baseline.value4 == res.value4
+                        and baseline.value5 == res.value5 and baseline.value6 == res.value6
+                        and baseline.value7 == res.value7)
 
     def test_saveConfiguration(self):
         """Test save configuration
@@ -93,9 +99,10 @@ class filesTesting(unittest.TestCase):
     def test_containsRequirements(self):
         config = type('obj', (object,), {'value1': 1, 'value2': "value"})
         requirements = ['value1', 'value2']
-        self.assertTrue(files.containsRequirements(config, requirements))
+        files.containsRequirements(config, requirements)
         requirements.append('value3')
-        self.assertFalse(files.containsRequirements(config, requirements))
+        with self.assertRaisesRegexp(Exception, 'Requires.*'):
+            self.assertFalse(files.containsRequirements(config, requirements))
 
 
 if __name__ == '__main__':

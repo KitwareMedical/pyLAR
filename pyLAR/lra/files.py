@@ -22,15 +22,29 @@
 Utility functions load files (configuration or text files), and verify their content.
 """
 
-import imp
+import ast
 import logging
 
-def loadConfiguration(filename, type):
+def loadConfiguration(filename, _):
     log = logging.getLogger(__name__)
     log.info('Loading configuration file ' + filename)
+    config = type('obj', (object,), {})
     with open(filename) as f:
-        config = imp.load_source(type, '', f)
-        log.info(type + ': ' + filename)
+        lines = f.read().splitlines()
+        for line in lines:
+            args = line.rstrip().lstrip().split("=")
+            if len(args[0]) == 0 and len(args) == 1:  # empty line, jump to next line
+                continue
+            if len(args) != 0 and len(args) != 2:
+                raise Exception('Error while loading %s. Incomplete line: %s. %d arguments'
+                                % (filename, line, len(args)))
+            args[0]=args[0].rstrip()
+            args[1]=args[1].lstrip()
+            current_value = ast.literal_eval(args[1])
+            try:
+                setattr(config, args[0], current_value)
+            except:
+                Exception('Argument of unknown type: %s' % args[1])
     return config
 
 
