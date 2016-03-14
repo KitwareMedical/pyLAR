@@ -26,7 +26,10 @@ class IALMTesting(unittest.TestCase):
         """Test recovery from outliers.
         """
         # run recovery
-        lr, sp, _ = ialm.recover(self._data, None)
+        res = ialm.recover(self._data, None)
+        lr = res[0]
+        sp = res[1]
+
         # load baseline (no outliers)
         baseline = np.genfromtxt("im_baseline.dat")
         # Frobenius norm between recovered mat. and baseline
