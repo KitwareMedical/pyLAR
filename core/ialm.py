@@ -61,7 +61,7 @@ def main(argv=None):
         np.savetxt(options.sav, np.round(low_rank), delimiter=' ')
 
 
-def recover(D, gamma=None):
+def recover(D, gamma=None, tol=1e-07):
     """Recover low-rank and sparse part.
 
     Paramters
