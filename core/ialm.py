@@ -94,7 +94,6 @@ def recover(D, gamma=None, tol=1e-07):
     if gamma is None:
         gamma = 1/np.sqrt(np.amax([m, n]))
 
-    tol = 1e-07
     max_iter = 1000
 
     # l2n is the (matrix) 2-norm, i.e., the max singular value
