@@ -59,6 +59,10 @@ import multiprocessing
 
 def _runIteration(level, currentIter, ants_params, result_dir, selection, software, number_of_cpu):
     """Iterative Atlas-to-image registration"""
+    if os.name is not 'posix':
+        cmd_sep='&'
+    else:
+        cmd_sep=';'
     log = logging.getLogger(__name__)
     EXE_AverageImages = software.EXE_AverageImages
     EXE_antsRegistration = software.EXE_antsRegistration
@@ -102,7 +106,7 @@ def _runIteration(level, currentIter, ants_params, result_dir, selection, softwa
         fixedIm = atlasIm
         movingIm = initialInputImage
         cmd += pyLAR.ANTS(EXE_antsRegistration, fixedIm, movingIm, outputTransformPrefix, ants_params)
-        cmd += ";" + pyLAR.ANTSWarpImage(EXE_WarpImageMultiTransform, initialInputImage,\
+        cmd += cmd_sep + pyLAR.ANTSWarpImage(EXE_WarpImageMultiTransform, initialInputImage,\
                                          newInputImage, reference_im_fn, outputTransformPrefix)
         log.info("Running: " + cmd)
         cmd_list.append(cmd)

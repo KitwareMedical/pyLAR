@@ -53,6 +53,11 @@ def run(algorithm, config, software, im_fns, result_dir,
 def _get_formatter():
     return logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
+def close_handlers(logger):
+    handlers = logger.handlers[:]
+    for handler in handlers:
+        handler.close()
+        logger.removeHandler(handler)
 
 def _stream_logger(config, logger):
     # configure logger

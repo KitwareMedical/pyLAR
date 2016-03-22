@@ -24,6 +24,20 @@ Utility functions load files (configuration or text files), and verify their con
 
 import ast
 import logging
+import os
+import re
+
+def _normalize_path(path):
+    """
+    Normalizes path on Windows:
+    Replaces '\' with '/' because '\' creates issues when saved and read.
+    """
+    if os.name is not 'posix':
+        return '/'.join(re.split(r'\\|/',path ))
+    else:
+        return path
+
+
 
 def loadConfiguration(filename, _):
     log = logging.getLogger(__name__)
@@ -54,8 +68,8 @@ def saveConfiguration(filename, config):
         log.info('Saving configuration file in ' + filename)
         for i in [i for i in dir(config) if not i.startswith('__')]:
             f.write(str(i) + " = ")
-            if isinstance(getattr(config, i), str):
-                f.write('\''+getattr(config, i) + '\'\n')
+            if isinstance(getattr(config, i), basestring):
+                f.write('\''+_normalize_path(getattr(config, i)) + '\'\n')
             else:
                 f.write(str(getattr(config, i)) + '\n')
 
@@ -73,7 +87,7 @@ def writeTxtFromList(filename, content):
     log.info('Writing text file from list: ' + filename)
     with open(filename,'w') as f:
         for i in content:
-            f.write(i + '\n')
+            f.write(_normalize_path(i) + '\n')
 
 
 def containsRequirements(config, requirements, configFileName=None):

@@ -86,10 +86,13 @@ def main(argv=None):
     try:
         pyLAR.run(args.algorithm, config, software, im_fns, result_dir,
                   configFN, configSoftware, file_list_file_name)
+        val = 0
     except:
         logger.exception('Error while processing', exc_info=True)
-        return 1
-    return 0
+        val = 1
+    finally:
+        pyLAR.close_handlers(logger)
+        return val
 
 
 if __name__ == "__main__":
