@@ -33,8 +33,7 @@ Command line arguments (See command line help: -h):
 
 Configuration file must contain:
 --------------------------------
-    file_list_file_name (string): File containing path to input images.
-    data_dir (string): Folder containing the "file_list_file_name" file.
+    file_list_file_name (string): File containing input images paths.
     result_dir (string): output directory where outputs will be saved.
 
     Additional fields are required, depending on the chosen algorithm. For more information,
@@ -71,11 +70,10 @@ def main(argv=None):
     # Load software paths from file
     configSoftware = args.configSoftware
     software = pyLAR.loadConfiguration(configSoftware, 'software')
-    pyLAR.containsRequirements(config, ['data_dir', 'file_list_file_name', 'result_dir'], configFN)
+    pyLAR.containsRequirements(config, ['file_list_file_name', 'result_dir'], configFN)
     result_dir = config.result_dir
-    data_dir = config.data_dir
     file_list_file_name = config.file_list_file_name
-    im_fns = pyLAR.readTxtIntoList(os.path.join(data_dir, file_list_file_name))
+    im_fns = pyLAR.readTxtIntoList(file_list_file_name)
     # 'clean' needs to be done before configuring the logger that creates a file in the output directory
     if hasattr(config, "clean") and config.clean:
         shutil.rmtree(result_dir)

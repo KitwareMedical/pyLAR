@@ -31,7 +31,7 @@ def run(algorithm, config, software, im_fns, result_dir,
         configFN=None, configSoftware=None, file_list_file_name=None):
     if not os.path.isdir(result_dir):
         os.makedirs(result_dir)
-    config.data_dir = result_dir
+    config.file_list_file_name = os.path.join(config.result_dir,os.path.basename(file_list_file_name))
     savedFileName = lambda name, default: os.path.basename(name) if name else default
     pyLAR.saveConfiguration(os.path.join(result_dir, savedFileName(configFN, 'Config.txt')), config)
     pyLAR.saveConfiguration(os.path.join(result_dir, savedFileName(configSoftware, 'Software.txt')),
