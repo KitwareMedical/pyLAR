@@ -173,7 +173,7 @@ def _runIteration(vector_length, level, currentIter, config, im_fns, sigma, grid
     cmd_list = [] # to use multiple processors
     for i in range(num_of_data):
         # Pipes command lines sequencially
-        cmd = ''
+        cmd = []
         # Warps the low-rank image back to the initial state (the non-greedy way)
         invWarpedlowRankIm = ''
         if currentIter == 1:
@@ -208,13 +208,13 @@ def _runIteration(vector_length, level, currentIter, config, im_fns, sigma, grid
         if registration_type == 'BSpline':
             cmd += pyLAR.BSplineReg_BRAINSFit(EXE_BRAINSFit, fixedIm, movingIm, outputIm, outputTransform,
                                               gridSize, maxDisp)
-            cmd += cmd_sep + pyLAR.ConvertTransform(EXE_BSplineToDeformationField, reference_im_fn,
+            cmd += [cmd_sep] + pyLAR.ConvertTransform(EXE_BSplineToDeformationField, reference_im_fn,
                                                 outputTransform, outputDVF)
-            cmd += cmd_sep + pyLAR.updateInputImageWithDVF(EXE_BRAINSResample, initialInputImage, reference_im_fn,
+            cmd += [cmd_sep] + pyLAR.updateInputImageWithDVF(EXE_BRAINSResample, initialInputImage, reference_im_fn,
                                                        outputDVF, newInputImage)
         elif registration_type == 'Demons':
             cmd += pyLAR.DemonsReg(EXE_BRAINSDemonWarp, fixedIm, movingIm, outputIm, outputDVF)
-            cmd += cmd_sep + pyLAR.updateInputImageWithDVF(EXE_BRAINSResample, initialInputImage, reference_im_fn,
+            cmd += [cmd_sep] + pyLAR.updateInputImageWithDVF(EXE_BRAINSResample, initialInputImage, reference_im_fn,
                                                        outputDVF, newInputImage)
         elif registration_type == 'ANTS':
             # Generates a warp(DVF) file and an affine file
@@ -224,7 +224,7 @@ def _runIteration(vector_length, level, currentIter, config, im_fns, sigma, grid
             # else:
             cmd += pyLAR.ANTS(EXE_antsRegistration, fixedIm, movingIm, outputTransformPrefix, ants_params)
             # Generates the warped input image with the specified file name
-            cmd += cmd_sep + pyLAR.ANTSWarpImage(EXE_WarpImageMultiTransform, initialInputImage, newInputImage,
+            cmd += [cmd_sep] + pyLAR.ANTSWarpImage(EXE_WarpImageMultiTransform, initialInputImage, newInputImage,
                                              reference_im_fn, outputTransformPrefix)
         else:
             raise('Unrecognized registration type:', registration_type)

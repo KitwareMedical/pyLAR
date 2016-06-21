@@ -97,7 +97,7 @@ def _runIteration(level, currentIter, ants_params, result_dir, selection, softwa
 
     cmd_list = [] # to use multiple processors
     for i in range(num_of_data):
-        cmd = ''
+        cmd = []
         initialInputImage= os.path.join(result_dir, prefix + '0_' + str(i) + '.nrrd')
         newInputImage = current_prefix_path + '_' + str(i) + '.nrrd'
 
@@ -106,9 +106,9 @@ def _runIteration(level, currentIter, ants_params, result_dir, selection, softwa
         fixedIm = atlasIm
         movingIm = initialInputImage
         cmd += pyLAR.ANTS(EXE_antsRegistration, fixedIm, movingIm, outputTransformPrefix, ants_params)
-        cmd += cmd_sep + pyLAR.ANTSWarpImage(EXE_WarpImageMultiTransform, initialInputImage,\
+        cmd += [cmd_sep] + pyLAR.ANTSWarpImage(EXE_WarpImageMultiTransform, initialInputImage,\
                                          newInputImage, reference_im_fn, outputTransformPrefix)
-        log.info("Running: " + cmd)
+        log.info("Running: " + str(cmd))
         cmd_list.append(cmd)
     ps = []  # to use multiple processors
     while len(cmd_list) > 0 and len(ps) < number_of_cpu:

@@ -88,20 +88,17 @@ def AffineReg(EXE_BRAINSFit, fixedIm, movingIm, outputIm, outputTransform=None):
         outputTransform = outputIm + '.tfm'
 
     result_folder = os.path.dirname(outputIm)
-    arguments = ' --fixedVolume  ' + fixedIm \
-                + ' --movingVolume ' + movingIm \
-                + ' --outputVolume ' + outputIm \
-                + ' --linearTransform ' + outputTransform \
-                + ' --initializeTransformMode  useMomentsAlign --useAffine --samplingPercentage 0.1   \
-                  --numberOfIterations 1500 --maskProcessingMode NOMASK --outputVolumePixelType float \
-                  --backgroundFillValue 0 --maskInferiorCutOffFromCenter 1000 --interpolationMode Linear \
-                  --minimumStepLength 0.005 --translationScale 1000 --reproportionScale 1 --skewScale 1 \
-                  --numberOfHistogramBins 50 --numberOfMatchPoints 10 --fixedVolumeTimeIndex 0 \
-                  --movingVolumeTimeIndex 0 --medianFilterSize 0,0,0 --removeIntensityOutliers 0 \
-                  --ROIAutoDilateSize 0 --ROIAutoClosingSize 9 --relaxationFactor 0.5 --maximumStepLength 0.2 \
-                  --failureExitCode -1 --numberOfThreads -1 --debugLevel 0 --costFunctionConvergenceFactor 1e+09 \
-                  --projectedGradientTolerance 1e-05 --costMetric MMI'
-    cmd = executable + ' ' + arguments
+    arguments = ['--fixedVolume',fixedIm,'--movingVolume',movingIm,'--outputVolume',outputIm,'--linearTransform',
+                 outputTransform,'--initializeTransformMode','useMomentsAlign','--useAffine','--samplingPercentage','0.1',
+                  '--numberOfIterations','1500','--maskProcessingMode','NOMASK','--outputVolumePixelType','float',
+                  '--backgroundFillValue','0','--maskInferiorCutOffFromCenter','1000','--interpolationMode','Linear',
+                  '--minimumStepLength','0.005','--translationScale','1000','--reproportionScale','1','--skewScale','1',
+                  '--numberOfHistogramBins','50','--numberOfMatchPoints','10','--fixedVolumeTimeIndex','0',
+                  '--movingVolumeTimeIndex','0','--medianFilterSize','0,0,0','--removeIntensityOutliers','0',
+                  '--ROIAutoDilateSize','0','--ROIAutoClosingSize','9','--relaxationFactor','0.5','--maximumStepLength','0.2',
+                  '--failureExitCode','-1','--numberOfThreads','-1','--debugLevel','0','--costFunctionConvergenceFactor','1e+09',
+                  '--projectedGradientTolerance','1e-05','--costMetric','MMI']
+    cmd = [executable] + arguments
     _execute(cmd)
     return cmd
 
@@ -127,20 +124,17 @@ def RigidReg(EXE_BRAINSFit, fixedIm, movingIm, outputIm, outputTransform=None):
         outputTransform = outputIm + '.tfm'
 
     result_folder = os.path.dirname(outputIm)
-    arguments = ' --fixedVolume  ' + fixedIm \
-                + ' --movingVolume ' + movingIm \
-                + ' --outputVolume ' + outputIm \
-                + ' --linearTransform ' + outputTransform \
-                + ' --initializeTransformMode  useMomentsAlign --useRigid --samplingPercentage 0.1   \
-                  --numberOfIterations 1500 --maskProcessingMode NOMASK --outputVolumePixelType float \
-                  --backgroundFillValue 0 --maskInferiorCutOffFromCenter 1000 --interpolationMode Linear \
-                  --minimumStepLength 0.005 --translationScale 1000 --reproportionScale 1 --skewScale 1 \
-                  --numberOfHistogramBins 50 --numberOfMatchPoints 10 --fixedVolumeTimeIndex 0 \
-                  --movingVolumeTimeIndex 0 --medianFilterSize 0,0,0 --removeIntensityOutliers 0 \
-                  --ROIAutoDilateSize 0 --ROIAutoClosingSize 9 --relaxationFactor 0.5 --maximumStepLength 0.2 \
-                  --failureExitCode -1 --numberOfThreads -1 --debugLevel 0 --costFunctionConvergenceFactor 1e+09 \
-                  --projectedGradientTolerance 1e-05 --costMetric MMI'
-    cmd = executable + ' ' + arguments
+    arguments = ['--fixedVolume',fixedIm,'--movingVolume',movingIm,'--outputVolume',outputIm,'--linearTransform',outputTransform,
+                 '--initializeTransformMode','useMomentsAlign','--useRigid','--samplingPercentage','0.1',
+                  '--numberOfIterations','1500','--maskProcessingMode','NOMASK','--outputVolumePixelType','float',
+                  '--backgroundFillValue','0','--maskInferiorCutOffFromCenter','1000','--interpolationMode','Linear',
+                  '--minimumStepLength','0.005','--translationScale','1000','--reproportionScale','1','--skewScale','1',
+                  '--numberOfHistogramBins','50','--numberOfMatchPoints','10','--fixedVolumeTimeIndex','0',
+                  '--movingVolumeTimeIndex','0','--medianFilterSize', '0,0,0', '--removeIntensityOutliers', '0',
+                  '--ROIAutoDilateSize', '0', '--ROIAutoClosingSize', '9', '--relaxationFactor', '0.5', '--maximumStepLength', '0.2',
+                  '--failureExitCode','-1','--numberOfThreads','-1','--debugLevel','0','--costFunctionConvergenceFactor','1e+09',
+                  '--projectedGradientTolerance', '1e-05','--costMetric','MMI']
+    cmd = [executable]+ arguments
     _execute(cmd)
     return cmd
 
@@ -183,20 +177,20 @@ def ANTS(EXE_antsRegistration, fixedIm, movingIm, outputTransformPrefix, params,
     # "Mattes[fixedImage,movingImage,metricWeight,numberOfBins,<samplingStrategy={None,Regular,Random}>,<samplingPercentage=[0,1]>]" );
     # "Demons[fixedImage,movingImage,metricWeight,radius=NA,<samplingStrategy={None,Regular,Random}>,<samplingPercentage=[0,1]>]" );
     # option->SetUsageOption( 10, "SyN[gradientStep,updateFieldVarianceInVoxelSpace,totalFieldVarianceInVoxelSpace]" );
-    arguments = ' --dimensionality ' + str(dim) \
-                + ' --float 1' \
-                + ' --interpolation Linear' \
-                + ' --output [%s,%sWarped.nrrd]' % (outputTransformPrefix, outputTransformPrefix) \
-                + ' --interpolation Linear' \
-                + ' --transform ' + TRANSFORM \
-                + ' -m ' + METRIC \
-                + ' --convergence ' + CONVERGENCE \
-                + ' --shrink-factors ' + SHRINKFACTORS \
-                + ' --smoothing-sigmas ' + SMOOTHINGSIGMAS
-    #            +' --use-histogram-match'
+    arguments = ['--dimensionality',str(dim),
+                '--float','1',
+                '--interpolation','Linear',
+                '--output', '[%s,%sWarped.nrrd]' % (outputTransformPrefix, outputTransformPrefix),
+                '--interpolation','Linear',
+                '--transform', TRANSFORM,
+                '-m',METRIC,
+                '--convergence',CONVERGENCE,
+                '--shrink-factors',SHRINKFACTORS,
+                '--smoothing-sigmas',SMOOTHINGSIGMAS]
+    #           '--use-histogram-match']
     if initialTransform:
-        arguments += ' --initial-moving-transform  %s' % (initialTransform)
-    cmd = executable + ' ' + arguments
+        arguments += ['--initial-moving-transform',initialTransform]
+    cmd = [executable] + arguments
     if EXECUTE:
         _execute(cmd, outputTransformPrefix + 'ANTS.log')
     return cmd
@@ -291,8 +285,8 @@ def ANTSWarpImage(EXE_WarpImageMultiTransform, inputIm, outputIm, referenceIm,
         t = transformPrefix + '0Warp.nii.gz'
     else:
         t = transformPrefix + '0InverseWarp.nii.gz'
-    arguments = str(dim) + ' %s  %s  -R %s %s ' % (inputIm, outputIm, referenceIm, t)
-    cmd = executable + ' ' + arguments
+    arguments = [str(dim),inputIm, outputIm, '-R', referenceIm,t]
+    cmd = [executable] + arguments
     if EXECUTE:
         _execute(cmd, os.path.join(result_folder, 'ANTSWarpImage.log'))
     return cmd
@@ -307,8 +301,8 @@ def ANTSWarp2DImage(EXE_WarpImageMultiTransform, inputIm, outputIm, referenceIm,
         t = transformPrefix + '0Warp.nii.gz'
     else:
         t = transformPrefix + '0InverseWarp.nii.gz'
-    arguments = str(dim) + ' %s  %s  -R %s %s ' % (inputIm, outputIm, referenceIm, t)
-    cmd = executable + ' ' + arguments
+    arguments = [str(dim),inputIm,outputIm,'-R',referenceIm, t]
+    cmd = [executable] + arguments
     if EXECUTE:
         _execute(cmd, os.path.join(result_folder, 'ANTSWarpImage.log'))
     return cmd
@@ -318,8 +312,8 @@ def createJacobianDeterminantImage(EXE_CreateJacobianDeterminantImage, imageDime
                                    outputIm, EXECUTE=False):
     executable = EXE_CreateJacobianDeterminantImage
     result_folder = os.path.dirname(outputIm)
-    arguments = str(imageDimension) + ' %s  %s ' % (dvfImage, outputIm)
-    cmd = executable + ' ' + arguments
+    arguments = [imageDimension, dvfImage, outputIm]
+    cmd = [executable] + arguments
     if EXECUTE:
         _execute(cmd, os.path.join(result_folder, 'CreateJacobianDeterminantImage.log'))
     return cmd
@@ -328,21 +322,21 @@ def createJacobianDeterminantImage(EXE_CreateJacobianDeterminantImage, imageDime
 def DemonsReg(EXE_BRAINSDemonWarp, fixedIm, movingIm, outputIm, outputDVF, EXECUTE=False):
     executable = EXE_BRAINSDemonWarp
     result_folder = os.path.dirname(movingIm)
-    arguments = '--movingVolume ' + movingIm \
-                + ' --fixedVolume ' + fixedIm \
-                + ' --inputPixelType float ' \
-                + ' --outputVolume ' + outputIm \
-                + ' --outputDisplacementFieldVolume ' + outputDVF \
-                + ' --outputPixelType float ' \
-                + ' --interpolationMode Linear --registrationFilterType Diffeomorphic \
-       --smoothDisplacementFieldSigma 1 --numberOfPyramidLevels 3 \
-       --minimumFixedPyramid 8,8,8 --minimumMovingPyramid 8,8,8 \
-       --arrayOfPyramidLevelIterations 300,50,30,20,15 \
-       --numberOfHistogramBins 256 --numberOfMatchPoints 2 --medianFilterSize 0,0,0 --maskProcessingMode NOMASK \
---lowerThresholdForBOBF 0 --upperThresholdForBOBF 70 --backgroundFillValue 0 --seedForBOBF 0,0,0 \
---neighborhoodForBOBF 1,1,1 --outputDisplacementFieldPrefix none --checkerboardPatternSubdivisions 4,4,4 \
---gradient_type 0 --upFieldSmoothing 0 --max_step_length 2 --numberOfBCHApproximationTerms 2 --numberOfThreads -1'
-    cmd = executable + ' ' + arguments
+    arguments = ['--movingVolume', movingIm,
+                 '--fixedVolume', fixedIm,
+                 '--inputPixelType','float',
+                 '--outputVolume',outputIm,
+                 '--outputDisplacementFieldVolume',outputDVF,
+                 '--outputPixelType','float',
+                 '--interpolationMode','Linear','--registrationFilterType','Diffeomorphic',
+                 '--smoothDisplacementFieldSigma','1','--numberOfPyramidLevels','3',
+                 '--minimumFixedPyramid','8,8,8','--minimumMovingPyramid','8,8,8',
+                 '--arrayOfPyramidLevelIterations','300,50,30,20,15',
+                 '--numberOfHistogramBins','256','--numberOfMatchPoints','2','--medianFilterSize','0,0,0','--maskProcessingMode','NOMASK',
+                 '--lowerThresholdForBOBF','0','--upperThresholdForBOBF','70','--backgroundFillValue','0','--seedForBOBF','0,0,0',
+                 '--neighborhoodForBOBF', '1,1,1', '--outputDisplacementFieldPrefix', 'none','--checkerboardPatternSubdivisions', '4,4,4',
+                 '--gradient_type', '0', '--upFieldSmoothing', '0', '--max_step_length', '2', '--numberOfBCHApproximationTerms', '2', '--numberOfThreads','-1']
+    cmd = [executable] + arguments
     if EXECUTE:
         _execute(cmd)
     return cmd
@@ -353,17 +347,17 @@ def BSplineReg_BRAINSFit(EXE_BRAINSFit, fixedIm, movingIm, outputIm, outputTrans
     result_folder = os.path.dirname(movingIm)
     string_gridSize = ','.join([str(gridSize[0]), str(gridSize[1]), str(gridSize[2])])
     executable = EXE_BRAINSFit
-    arguments = ' --fixedVolume  ' + fixedIm \
-                + ' --movingVolume ' + movingIm \
-                + ' --outputVolume ' + outputIm \
-                + ' --outputTransform ' + outputTransform \
-                + ' --initializeTransformMode Off --useBSpline \
-                  --samplingPercentage 0.1  --splineGridSize ' + string_gridSize \
-                + ' --maxBSplineDisplacement  ' + str(maxDisp) \
-                + ' --numberOfHistogramBins 50  --numberOfIterations 500 --maskProcessingMode NOMASK\
-                 --outputVolumePixelType float --backgroundFillValue 0   --numberOfThreads -1 --costMetric MMI'
+    arguments = ['--fixedVolume', fixedIm,
+                '--movingVolume', movingIm,
+                '--outputVolume', outputIm,
+                '--outputTransform', outputTransform,
+                '--initializeTransformMode', 'Off', '--useBSpline',
+                '--samplingPercentage', '0.1', '--splineGridSize',string_gridSize,
+                '--maxBSplineDisplacement',str(maxDisp),
+                '--numberOfHistogramBins', '50', '--numberOfIterations', '500', '--maskProcessingMode', 'NOMASK',
+                '--outputVolumePixelType', 'float', '--backgroundFillValue', '0', '--numberOfThreads', '-1', '--costMetric', 'MMI']
 
-    cmd = executable + ' ' + arguments
+    cmd = [executable] + arguments
     if EXECUTE:
         _execute(cmd)
     return cmd
@@ -373,15 +367,14 @@ def BSplineReg_Legacy(EXE_BSplineDeformableRegistration, fixedIm, movingIm, outp
                       iterationNum=20, EXECUTE=False):
     result_folder = os.path.dirname(movingIm)
     executable = EXE_BSplineDeformableRegistration
-    arguments = '  --iterations ' + str(iterationNum) \
-                + ' --gridSize ' + str(gridSize) \
-                + ' --histogrambins 100 --spatialsamples 50000 ' \
-                + ' --outputwarp ' + outputDVF \
-                + ' --resampledmovingfilename ' + outputIm \
-                + ' ' + fixedIm \
-                + ' ' + movingIm
+    arguments = ['--iterations', str(iterationNum),
+                '--gridSize', str(gridSize),
+                '--histogrambins', '100', '--spatialsamples', '50000',
+                '--outputwarp', outputDVF,
+                '--resampledmovingfilename', outputIm,
+                fixedIm, movingIm]
 
-    cmd = executable + ' ' + arguments
+    cmd = [executable] + arguments
     if EXECUTE:
         _execute(cmd)
     return cmd
@@ -389,10 +382,10 @@ def BSplineReg_Legacy(EXE_BSplineDeformableRegistration, fixedIm, movingIm, outp
 
 def ConvertTransform(EXE_BSplineToDeformationField, fixedIm, outputTransform, outputDVF, EXECUTE=False):
     result_folder = os.path.dirname(outputDVF)
-    cmd = EXE_BSplineToDeformationField \
-          + ' --tfm ' + outputTransform \
-          + ' --refImage ' + fixedIm \
-          + ' --defImage ' + outputDVF
+    cmd = [EXE_BSplineToDeformationField,
+          '--tfm', outputTransform,
+          '--refImage', fixedIm,
+          '--defImage', outputDVF]
     if EXECUTE:
         _execute(cmd)
     return cmd
@@ -401,14 +394,10 @@ def ConvertTransform(EXE_BSplineToDeformationField, fixedIm, outputTransform, ou
 def WarpImageMultiDVF(EXE_WarpImageMultiTransform, movingImage, refImage,
                       DVFImageList, outputImage, EXECUTE=False):
     result_folder = os.path.dirname(outputImage)
-    string_DVFImageList = ' '.join(DVFImageList)
 
-    cmd = EXE_WarpImageMultiTransform \
-          + ' 3 ' \
-          + '  ' + movingImage \
-          + '  ' + outputImage \
-          + ' -R  ' + refImage \
-          + '  ' + string_DVFImageList
+    cmd = [EXE_WarpImageMultiTransform,
+          '3', movingImage, outputImage,
+          '-R', refImage] + DVFImageList
     if EXECUTE:
         _execute(cmd)
     return cmd
@@ -418,13 +407,10 @@ def composeMultipleDVFs(EXE_ComposeMultiTransform, refImage, DVFImageList,
                         outputDVFImage, EXECUTE=False):
     result_folder = os.path.dirname(outputDVFImage)
     # T3(T2(T1(I))) = T3*T2*T1(I), need to reverse the sequence of the DVFs
-    string_DVFImageList = ' '.join(DVFImageList[::-1])
 
-    cmd = EXE_ComposeMultiTransform \
-          + ' 3 ' \
-          + '  ' + outputDVFImage \
-          + ' -R  ' + refImage \
-          + '  ' + string_DVFImageList
+    cmd = [EXE_ComposeMultiTransform,
+          '3', outputDVFImage,
+          '-R', refImage] + DVFImageList[::-1]
     if EXECUTE:
         _execute(cmd)
     return cmd
@@ -433,13 +419,13 @@ def composeMultipleDVFs(EXE_ComposeMultiTransform, refImage, DVFImageList,
 def applyLinearTransform(EXE_BRAINSResample, inputImage, refImage, transform,
                          newInputImage, EXECUTE=False):
     result_folder = os.path.dirname(newInputImage)
-    cmd = EXE_BRAINSResample \
-          + ' --inputVolume ' + inputImage \
-          + ' --referenceVolume ' + refImage \
-          + ' --outputVolume ' + newInputImage \
-          + ' --pixelType float ' \
-          + ' --warpTransform ' + transform \
-          + ' --defaultValue 0 --numberOfThreads -1 '
+    cmd = [EXE_BRAINSResample,
+          '--inputVolume', inputImage,
+          '--referenceVolume', refImage,
+          '--outputVolume', newInputImage,
+          '--pixelType', 'float',
+          '--warpTransform', transform,
+          '--defaultValue', '0', '--numberOfThreads','-1']
     if EXECUTE:
         _execute(cmd)
     return cmd
@@ -448,13 +434,13 @@ def applyLinearTransform(EXE_BRAINSResample, inputImage, refImage, transform,
 def updateInputImageWithDVF(EXE_BRAINSResample, inputImage, refImage, DVFImage,
                             newInputImage, EXECUTE=False):
     result_folder = os.path.dirname(newInputImage)
-    cmd = EXE_BRAINSResample \
-          + ' --inputVolume ' + inputImage \
-          + ' --referenceVolume ' + refImage \
-          + ' --outputVolume ' + newInputImage \
-          + ' --pixelType float ' \
-          + ' --deformationVolume ' + DVFImage \
-          + ' --defaultValue 0 --numberOfThreads -1 '
+    cmd = [EXE_BRAINSResample,
+          '--inputVolume', inputImage,
+          '--referenceVolume', refImage,
+          '--outputVolume', newInputImage,
+          '--pixelType', 'float',
+          '--deformationVolume', DVFImage,
+          '--defaultValue', '0', '--numberOfThreads', '-1']
     if EXECUTE:
         _execute(cmd)
     return cmd
@@ -463,13 +449,13 @@ def updateInputImageWithDVF(EXE_BRAINSResample, inputImage, refImage, DVFImage,
 def updateInputImageWithTFM(EXE_BRAINSResample, inputImage, refImage, transform,
                             newInputImage, EXECUTE=False):
     result_folder = os.path.dirname(newInputImage)
-    cmd = EXE_BRAINSResample \
-          + ' --inputVolume ' + inputImage \
-          + ' --referenceVolume ' + refImage \
-          + ' --outputVolume ' + newInputImage \
-          + ' --pixelType float ' \
-          + ' --warpTransform ' + transform \
-          + ' --defaultValue 0 --numberOfThreads -1 '
+    cmd = [EXE_BRAINSResample,
+          '--inputVolume', inputImage,
+          '--referenceVolume', refImage,
+          '--outputVolume', newInputImage,
+          '--pixelType', 'float',
+          '--warpTransform', transform,
+          '--defaultValue', '0', '--numberOfThreads', '-1' ]
     if EXECUTE:
         _execute(cmd)
     return cmd
@@ -477,18 +463,16 @@ def updateInputImageWithTFM(EXE_BRAINSResample, inputImage, refImage, transform,
 
 def AverageImages(EXE_AverageImages, listOfImages, outputIm):
     result_folder = os.path.dirname(outputIm)
-    arguments = ' 3 ' + outputIm + '  0  ' + ' '.join(listOfImages)
-    cmd = EXE_AverageImages + ' ' + arguments
+    arguments = ['3', outputIm, '0'] + listOfImages
+    cmd = [EXE_AverageImages] + arguments
     _execute(cmd)
     return cmd
 
 
 def genInverseDVF(EXE_InvertDeformationField, DVFImage, InverseDVFImage, EXECUTE=False):
     result_folder = os.path.dirname(InverseDVFImage)
-    cmd = EXE_InvertDeformationField \
-          + DVFImage \
-          + ' ' \
-          + InverseDVFImage
+    cmd = [EXE_InvertDeformationField,
+           DVFImage, InverseDVFImage]
     if EXECUTE:
         _execute(cmd)
     return cmd
