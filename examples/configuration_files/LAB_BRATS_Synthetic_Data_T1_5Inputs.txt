@@ -1,0 +1,24 @@
+use_healthy_atlas = False
+
+# data directory setting
+reference_im_fn = '/Users/xiaoxiaoliu/work/data/SRI24/T1_Crop.nii.gz'
+data_dir = '/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Synthetic_Data'
+result_dir = '/Users/xiaoxiaoliu/work/data/BRATS/BRATS-2/Synthetic_Data/results/LAB_T1_5Inputs'
+
+lamda = 1.0
+sigma = 0
+file_list_file_name = 'T1_FN.txt'
+modality = 'T1'
+selection = [1,2,3,5,7]
+
+num_of_iterations_per_level = 5
+num_of_levels = 1
+
+registration_type = 'ANTS'
+ants_params = {'Convergence' : '[100x50x25,1e-6,10]',\
+          'Dimension': 3,\
+          'ShrinkFactors' : '4x2x1',\
+          'SmoothingSigmas' : '2x1x0vox',\
+          'Transform' :'SyN[0.25,3,0]',\
+          #'Transform' :'TimeVaryingVelocityField[0.5,4,3,0,0,0]',\
+          'Metric': 'MeanSquares[fixedIm,movingIm,1,0]'}

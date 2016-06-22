@@ -1,3 +1,24 @@
+#!/usr/bin/env python
+
+# Library: pyLAR
+#
+# Copyright 2014 Kitware Inc. 28 Corporate Drive,
+# Clifton Park, NY, 12065, USA.
+#
+# All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 """ex1.py
 
 Load a checkerboard image, specify the percentage of outliers
@@ -27,8 +48,8 @@ except ImportError:
     sys.exit(-1)
 
 # make sure ialm is found and import
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)),'..'))
-import core.ialm as ialm
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
+import pyLAR.alm.ialm as ialm
 
 
 def main(argv=None):
@@ -55,13 +76,13 @@ def main(argv=None):
 
     # write outlier image
     J = sitk.GetImageFromArray(X)
-    sitk.WriteImage(J, sys.argv[3])
+    sitk.WriteImage(J, sys.argv[3], True)
 
     # decompose X into L+S
-    L, S, _ = ialm.recover(X)
+    L, S, _, _, _, _ = ialm.recover(X)
 
     C = sitk.GetImageFromArray(np.asarray(L, dtype=np.uint8))
-    sitk.WriteImage(C, sys.argv[4])
+    sitk.WriteImage(C, sys.argv[4], True)
 
     # compute mean-square error and Frobenius norm
     print "MSE: %.4g" % np.sqrt(np.asmatrix((L-sitk.GetArrayFromImage(I))**2).sum())
