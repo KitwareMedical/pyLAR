@@ -51,11 +51,11 @@ def _execute(cmd, log_file=None):
     log.info(cmd)
     if log_file:
         tempFile = open(log_file, 'w')
-        process = subprocess.Popen(cmd, stdout=tempFile, stderr=tempFile, shell=True)
+        process = subprocess.Popen(cmd, stdout=tempFile, stderr=tempFile)
         process.wait()
         tempFile.close()
     else:
-        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = process.communicate()
     if log_file:
         with open(log_file, 'r') as f:
