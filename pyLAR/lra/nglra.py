@@ -39,12 +39,6 @@ Configuration file must contain:
                   'Transform' :'SyN[0.5]',\
                   'Metric': 'Mattes[fixedIm,movingIm,1,50,Regular,0.95]'}
 
-Optional:
---------
-    number_of_cpu (integer): Number of diffeomorphic registration run in parallel. In not specified,
-                             it will run as many processes as there are CPU available. Beware, the processes might
-                             already be multithreaded.
-
 Configuration Software file must contain:
 -----------------------------------------
     Required:
@@ -80,12 +74,8 @@ import gc
 import multiprocessing
 import logging
 
-def _runIteration(vector_length, level, currentIter, config, im_fns, sigma, gridSize, maxDisp, software, number_of_cpu):
+def _runIteration(vector_length, level, currentIter, config, im_fns, sigma, gridSize, maxDisp, software):
     """Iterative unbiased low-rank atlas creation from a selection of images"""
-    if os.name is not 'posix':
-        cmd_sep='&'
-    else:
-        cmd_sep=';'
     log = logging.getLogger(__name__)
     result_dir = config.result_dir
     selection = config.selection
@@ -170,10 +160,7 @@ def _runIteration(vector_length, level, currentIter, config, im_fns, sigma, grid
             pass
         reference_im_fn = atlasIm
     listOutputImages += [reference_im_fn]
-    cmd_list = [] # to use multiple processors
     for i in range(num_of_data):
-        # Pipes command lines sequencially
-        cmd = []
         # Warps the low-rank image back to the initial state (the non-greedy way)
         invWarpedlowRankIm = ''
         if currentIter == 1:
@@ -206,50 +193,31 @@ def _runIteration(vector_length, level, currentIter, config, im_fns, sigma, grid
         newInputImage = current_path_iter + '_' + str(i) + '.nrrd'
 
         if registration_type == 'BSpline':
-            cmd += pyLAR.BSplineReg_BRAINSFit(EXE_BRAINSFit, fixedIm, movingIm, outputIm, outputTransform,
-                                              gridSize, maxDisp)
-            cmd += [cmd_sep] + pyLAR.ConvertTransform(EXE_BSplineToDeformationField, reference_im_fn,
-                                                outputTransform, outputDVF)
-            cmd += [cmd_sep] + pyLAR.updateInputImageWithDVF(EXE_BRAINSResample, initialInputImage, reference_im_fn,
-                                                       outputDVF, newInputImage)
+            pyLAR.BSplineReg_BRAINSFit(EXE_BRAINSFit, fixedIm, movingIm, outputIm, outputTransform,
+                                              gridSize, maxDisp, EXECUTE=True)
+            pyLAR.ConvertTransform(EXE_BSplineToDeformationField, reference_im_fn,
+                                                outputTransform, outputDVF, EXECUTE=True)
+            pyLAR.updateInputImageWithDVF(EXE_BRAINSResample, initialInputImage, reference_im_fn,
+                                                       outputDVF, newInputImage, EXECUTE=True)
         elif registration_type == 'Demons':
-            cmd += pyLAR.DemonsReg(EXE_BRAINSDemonWarp, fixedIm, movingIm, outputIm, outputDVF)
-            cmd += [cmd_sep] + pyLAR.updateInputImageWithDVF(EXE_BRAINSResample, initialInputImage, reference_im_fn,
-                                                       outputDVF, newInputImage)
+            pyLAR.DemonsReg(EXE_BRAINSDemonWarp, fixedIm, movingIm, outputIm, outputDVF, EXECUTE=True)
+            pyLAR.updateInputImageWithDVF(EXE_BRAINSResample, initialInputImage, reference_im_fn,
+                                                       outputDVF, newInputImage, EXECUTE=True)
         elif registration_type == 'ANTS':
             # Generates a warp(DVF) file and an affine file
             outputTransformPrefix = current_path_iter + '_' + str(i) + '_'
             # if currentIter > 1:
             # initialTransform = os.path.join(result_dir, iter_prefix + str(currentIter-1) + '_' + str(i) + '_0Warp.nii.gz')
             # else:
-            cmd += pyLAR.ANTS(EXE_antsRegistration, fixedIm, movingIm, outputTransformPrefix, ants_params)
+            pyLAR.ANTS(EXE_antsRegistration, fixedIm, movingIm, outputTransformPrefix, ants_params, EXECUTE=True)
             # Generates the warped input image with the specified file name
-            cmd += [cmd_sep] + pyLAR.ANTSWarpImage(EXE_WarpImageMultiTransform, initialInputImage, newInputImage,
-                                             reference_im_fn, outputTransformPrefix)
+            pyLAR.ANTSWarpImage(EXE_WarpImageMultiTransform, initialInputImage, newInputImage,
+                                             reference_im_fn, outputTransformPrefix, EXECUTE=True)
         else:
             raise('Unrecognized registration type:', registration_type)
-        cmd_list.append(cmd)
         listOutputImages += [newInputImage]
-    ps = []  # to use multiple processors
-    while len(cmd_list) > 0 and len(ps) < number_of_cpu:
-        run_command(cmd_list, log, ps)
-    while len(ps) > 0:
-        stdout, stderr = ps.pop(0).communicate()
-        if stdout:
-            log.info(stdout)
-        if stderr:
-            log.error(stderr)
-        if len(cmd_list) > 0:
-            run_command(cmd_list, log, ps)
-
     return sparsity, sum_sparse, listOutputImages
 
-
-def run_command(cmd_list, log, ps):
-    cmd = cmd_list.pop(0)
-    log.info(cmd)
-    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-    ps.append(process)
 
 
 def run(config, software, im_fns, check=True):
@@ -263,10 +231,6 @@ def run(config, software, im_fns, check=True):
     selection = config.selection
     lamda = config.lamda
     sigma = config.sigma
-    if hasattr(config, 'number_of_cpu'):
-        number_of_cpu = config.number_of_cpu
-    else:
-        number_of_cpu = multiprocessing.cpu_count()
     num_of_iterations_per_level = config.num_of_iterations_per_level
     num_of_levels = config.num_of_levels  # Multi-scale blurring (coarse-to-fine)
     registration_type = config.registration_type
@@ -301,7 +265,7 @@ def run(config, software, im_fns, check=True):
                 maxDisp = z_dim / gridSize[2] * factor
 
             _, _, listOutputImages = _runIteration(vector_length, level, iterCount, config, im_fns,
-                          sigma, gridSize, maxDisp, software, number_of_cpu)
+                          sigma, gridSize, maxDisp, software)
 
             # Adjust grid size for finner BSpline Registration
             if registration_type == 'BSpline' and gridSize[0] < 10:
