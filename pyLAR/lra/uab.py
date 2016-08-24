@@ -33,6 +33,9 @@ Configuration file must contain:
                   'SmoothingSigmas' : '2x1x0vox',\
                   'Transform' :'SyN[0.5]',\
                   'Metric': 'Mattes[fixedIm,movingIm,1,50,Regular,0.95]'}
+Optional for 'check_requirements'/required for 'run':
+----------------------------------------------------
+    histogram_matching (boolean): If not specified or set to False, no histogram matching performed.
 
 Configuration Software file must contain:
 -----------------------------------------
@@ -113,8 +116,8 @@ def run(config, software, im_fns, check=True):
     s = time.time()
 
     pyLAR.affineRegistrationStep(software.EXE_BRAINSFit, im_fns, result_dir, selection, reference_im_fn)
-    #cnormalizeIntensityStep()
-    #histogramMatchingStep()
+    if config.histogram_matching:
+        pyLAR.histogramMatchingStep(selection, result_dir)
 
     num_of_data = len(selection)
     iterCount = 0
@@ -178,6 +181,10 @@ def check_requirements(config, software, configFileName=None, softwareFileName=N
     required_software = ['EXE_BRAINSFit', 'EXE_AverageImages', 'EXE_antsRegistration', 'EXE_WarpImageMultiTransform']
     pyLAR.containsRequirements(software, required_software, softwareFileName)
 
+    if not hasattr(config, "histogram_matching"):
+        config.histogram_matching = False
+    if config.histogram_matching:
+        log.info("Script will perform histogram matching.")
     if not config.num_of_iterations_per_level >= 0:
         raise Exception("'num_of_iterations_per_level' must be a positive integer (>=0).")
     if not config.num_of_levels >= 1:
