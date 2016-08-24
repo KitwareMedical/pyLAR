@@ -48,6 +48,18 @@ __status__ = "Development"
 
 def _execute(cmd, log_file=None):
     log = logging.getLogger(__name__)
+    # Check if executable is given as 'Path_to_Slicer --launch executable'
+    executable=cmd[0]
+    if ' ' in executable:
+      # Check that executable is of the format 'Path_to_Slicer --launch executable'
+      split_executable=executable.split(' ')
+      if len(split_executable) == 3 \
+         and os.path.isfile(split_executable[0]) \
+         and split_executable[1] == '--launch':
+        cmd[0]=split_executable[0]
+        cmd.insert(1,split_executable[1])
+        cmd.insert(2,split_executable[2])
+    # Run command
     log.info(cmd)
     if log_file:
         tempFile = open(log_file, 'w')
