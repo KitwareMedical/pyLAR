@@ -61,7 +61,7 @@ def main(argv=None):
     )
     parser.add_argument('-c', "--configFN", required=True, help="Parameter configuration file")
     parser.add_argument('-s', "--configSoftware", required=True, help="Software configuration file")
-    parser.add_argument('-a', "--algorithm", required=True, choices=['lr', 'uab', 'nglra'],
+    parser.add_argument('-a', "--algorithm", required=True, choices=['lr', 'lr2D', 'uab', 'nglra','nglra2D'],
                         help="Software configuration file")
     args = parser.parse_args(argv[1:])
     # Assign parameters from the input config txt file

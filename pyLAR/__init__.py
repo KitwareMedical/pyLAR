@@ -19,5 +19,4 @@
 
 from . import alm
 from .lra import *
-from script_fct import *
-
+from .script_fct import *

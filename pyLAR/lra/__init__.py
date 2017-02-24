@@ -22,6 +22,11 @@ from .robust_pca import *
 from .files import *
 from .images import *
 from .batch import *
-import lr
-import nglra
-import uab
+from .lr import *
+from .lr2D import *
+from .nglra import *
+from .nglra2D import *
+from .uab import *
+#import lr
+#import nglra
+#import uab

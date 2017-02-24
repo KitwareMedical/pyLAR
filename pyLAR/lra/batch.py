@@ -26,6 +26,7 @@ import os
 import pyLAR
 import SimpleITK as sitk
 import logging
+import shutil
 
 def affineRegistrationStep(EXE_BRAINSFit, im_fns, result_dir, selection, reference_im_fn):
     """Affine registering each input image to the reference(healthy atlas) image."""
@@ -36,6 +37,18 @@ def affineRegistrationStep(EXE_BRAINSFit, im_fns, result_dir, selection, referen
     for i in range(num_of_data):
         outputIm = os.path.join(result_dir, 'L0_Iter0_' + str(i) + '.nrrd')
         pyLAR.AffineReg(EXE_BRAINSFit, reference_im_fn, im_fns[selection[i]], outputIm, None)
+    return
+
+# This jumps over the affine registration
+def initializeStep(im_fns, result_dir, selection, reference_im_fn):
+    """Affine registering each input image to the reference(healthy atlas) image."""
+    num_of_data = len(selection)
+    log = logging.getLogger(__name__)
+    log.info('initializeStep')
+    log.info('Selection: '+repr(selection))
+    for i in range(num_of_data):
+        outputIm = os.path.join(result_dir, 'L0_Iter0_' + str(i) + '.nii.gz')
+        shutil.copyfile(im_fns[selection[i]], outputIm)
     return
 
 

@@ -1,0 +1,12 @@
+EXE_antsRegistration = '/Users/yimingxiao/Documents/software/ANTs-package/build/bin/antsRegistration'
+EXE_WarpImageMultiTransform = '/Users/yimingxiao/Documents/software/ANTs-package/build/bin/WarpImageMultiTransform'
+EXE_CreateJacobianDeterminantImage = '/Users/yimingxiao/Documents/software/ANTs-package/build/bin/CreateJacobianDeterminantImage'
+EXE_BRAINSDemonWarp = '/Applications/Slicer.app/Contents/lib/Slicer-4.5/cli-modules/BRAINSDemonWarp'
+EXE_ComposeMultiTransform = '/Users/yimingxiao/Documents/software/ANTs-package/build/bin/ComposeMultiTransform'
+EXE_BRAINSResample = '/Applications/Slicer.app/Contents/lib/Slicer-4.5/cli-modules/BRAINSResample'
+EXE_InvertDeformationField = '/Users/yimingxiao/Documents/software/ITKUtils/build/InvertDeformationField'
+EXE_AverageImages = '/Users/yimingxiao/Documents/software/ANTs-package/build/bin/AverageImages'
+EXE_BRAINSFit = '/Applications/Slicer.app/Contents/lib/Slicer-4.5/cli-modules/BRAINSFit'
+EXE_BSplineToDeformationField = '/Applications/Slicer.app/Contents/lib/Slicer-4.5/cli-modules/BSplineToDeformationField'
+EXE_BSplineDeformableRegistration = '/Applications/Slicer.app/Contents/lib/Slicer-4.5/cli-modules/BSplineDeformableRegistration'
+

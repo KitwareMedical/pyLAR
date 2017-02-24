@@ -93,7 +93,7 @@ def run(config, software, im_fns, check=True):
         tmp = sitk.GetArrayFromImage(inIm)
         if sigma > 0:  # blurring
             log.info("Blurring: " + str(sigma))
-            outIm = pyLAR.GaussianBlur(inIm, None, sigma)
+            outIm = pyLAR.GaussianBlur(im_file, None, sigma)
             tmp = sitk.GetArrayFromImage(outIm)
         Y[:, i] = tmp.reshape(-1)
         del tmp

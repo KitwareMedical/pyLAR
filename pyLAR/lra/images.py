@@ -133,7 +133,7 @@ def showSlice(dataMatrix, title, color, subplotRow, referenceImName, slice_nr=-1
     try:
         import matplotlib.pyplot as plt
     except ImportError:
-        print "ShowSlice not supported - matplotlib not available"
+        print("ShowSlice not supported - matplotlib not available")
         return
     im_ref = sitk.ReadImage(referenceImName)
     im_ref_array = sitk.GetArrayFromImage(im_ref)  # get numpy array
@@ -151,12 +151,35 @@ def showSlice(dataMatrix, title, color, subplotRow, referenceImName, slice_nr=-1
     del im_ref, im_ref_array
     return
 
+# added for 2D support
+def showSlice2D(dataMatrix, title, color, subplotRow, referenceImName):
+    """Display a 2D slice within a given figure."""
+    try:
+        import matplotlib.pyplot as plt
+    except ImportError:
+        print("ShowSlice not supported - matplotlib not available")
+        return
+    im_ref = sitk.ReadImage(referenceImName)
+    im_ref_array = sitk.GetArrayFromImage(im_ref)  # get numpy array
+    x_dim, y_dim = im_ref_array.shape  # get 3D volume shape
+    
+    num_of_data = dataMatrix.shape[1]
+    for i in range(num_of_data):
+        plt.subplot2grid((3, num_of_data), (subplotRow, i))
+        im = np.array(dataMatrix[:, i]).reshape(x_dim, y_dim)
+        implot = plt.imshow(np.fliplr(np.flipud(im)), color)
+        plt.axis('off')
+        plt.title(title + ' ' + str(i))
+        # plt.colorbar()
+    del im_ref, im_ref_array
+    return
+
 
 def showImageMidSlice(reference_im_fn, size_x=15, size_y=5):
     try:
         import matplotlib.pyplot as plt
     except ImportError:
-        print "showImageMidSlice not supported - matplotlib not available"
+        print("showImageMidSlice not supported - matplotlib not available")
         return
     im_ref = sitk.ReadImage(reference_im_fn)  # image in SITK format
     im_ref_array = sitk.GetArrayFromImage(im_ref)  # get numpy array
@@ -176,7 +199,7 @@ def showImageMidSlice(reference_im_fn, size_x=15, size_y=5):
     return
 
 
-def saveImagesFromDM(dataMatrix, outputPrefix, referenceImName):
+def saveImagesFromDM(dataMatrix, outputPrefix, referenceImName): # this is also still 3D
     """Save 3D images from data matrix."""
     im_ref = sitk.ReadImage(referenceImName)
     im_ref_array = sitk.GetArrayFromImage(im_ref)  # get numpy array
@@ -195,19 +218,37 @@ def saveImagesFromDM(dataMatrix, outputPrefix, referenceImName):
     del im_ref, im_ref_array
     return list_files
 
+def saveImagesFromDM2D(dataMatrix, outputPrefix, referenceImName): # 2D version
+    """Save 2D images from data matrix."""
+    im_ref = sitk.ReadImage(referenceImName)
+    im_ref_array = sitk.GetArrayFromImage(im_ref)  # get numpy array
+    x_dim, y_dim = im_ref_array.shape  # get 2D volume shape
+    num_of_data = dataMatrix.shape[1]
+    list_files = []
+    for i in range(num_of_data):
+        im = np.array(dataMatrix[:, i]).reshape(x_dim, y_dim)
+        img = sitk.GetImageFromArray(im)
+        img.SetOrigin(im_ref.GetOrigin())
+        img.SetSpacing(im_ref.GetSpacing())
+        img.SetDirection(im_ref.GetDirection())
+        fn = outputPrefix + str(i) + '.nii.gz' # maybe convert this to nii?
+        list_files.append(fn)
+        sitk.WriteImage(img, fn, True)
+    del im_ref, im_ref_array
+    return list_files
 
 def gridVisDVF(dvfImFileName, sliceNum=-1, titleString='DVF', saveFigPath='.', deformedImFileName=None, contourNum=40):
     """Visualize deformation fields on a mesh grid."""
     try:
         import matplotlib.pyplot as plt
     except ImportError:
-        print "gridVisDVF not supported - matplotlib not available"
+        print("gridVisDVF not supported - matplotlib not available")
         return
     dvf = sitk.ReadImage(dvfImFileName)
     dvfIm = sitk.GetArrayFromImage(dvf)  # get numpy array
     z_dim, y_dim, x_dim, channels = dvfIm.shape  # get 3D volume shape
     if not (channels == 3):
-        print "dvf image expected to have three scalar channels"
+        print("dvf image expected to have three scalar channels")
 
     if sliceNum == -1:
         sliceNum = z_dim / 2

@@ -186,7 +186,7 @@ def recover(D, gamma=None):
                    "rank(P)=%.4d" % svp,
                    "|C|_0=%.4d" % non_zero,
                    "crit=%.4g" % stop_crit]
-        print ' '.join(message)
+        print(' '.join(message)) # changed to Python3 style
 
         k = k+1
         # handle non-convergence

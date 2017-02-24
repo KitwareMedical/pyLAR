@@ -42,10 +42,14 @@ def run(algorithm, config, software, im_fns, result_dir,
         os.environ["ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS"] = str(config.ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS)
     if algorithm == "lr":
         pyLAR.lr.run(config, software, im_fns)
+    elif algorithm == "lr2D":
+        pyLAR.lr2D.run(config, software, im_fns)
     elif algorithm == "uab":
         pyLAR.uab.run(config, software, im_fns)
     elif algorithm == "nglra":
         pyLAR.nglra.run(config, software, im_fns)
+    elif algorithm == "nglra2D":
+        pyLAR.nglra2D.run(config, software, im_fns)
     else:
         raise Exception("Algorithm selected is not part of pyLAR")
 

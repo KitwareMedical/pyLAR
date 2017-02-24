@@ -54,7 +54,10 @@ def loadConfiguration(filename, _):
                                 % (filename, line, len(args)))
             args[0]=args[0].rstrip()
             args[1]=args[1].lstrip()
-            current_value = ast.literal_eval(args[1])
+            print args[1]
+            #current_value = ast.literal_eval(str(args[1])) # changed here to ensure that configuration reads fine
+            current_value = eval(args[1])
+            print current_value
             try:
                 setattr(config, args[0], current_value)
             except:

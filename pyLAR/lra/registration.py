@@ -192,7 +192,7 @@ def ANTS(EXE_antsRegistration, fixedIm, movingIm, outputTransformPrefix, params,
     arguments = ['--dimensionality',str(dim),
                 '--float','1',
                 '--interpolation','Linear',
-                '--output', '[%s,%sWarped.nrrd]' % (outputTransformPrefix, outputTransformPrefix),
+                '--output', '[%s,%sWarped.nii.gz]' % (outputTransformPrefix, outputTransformPrefix),
                 '--interpolation','Linear',
                 '--transform', TRANSFORM,
                 '-m',METRIC,
@@ -268,7 +268,7 @@ def geodesicDistance3D(EXE_antsRegistration, inputImage, referenceImage, outputT
         logFile = outputTransformPrefix + 'ANTS.log'
         geodesicDis = getANTSOutputVelocityNorm(logFile)
     else:
-        print "affine registraion failed: no affine results are generated"
+        print("affine registraion failed: no affine results are generated")
     return geodesicDis
 
 
@@ -480,6 +480,12 @@ def AverageImages(EXE_AverageImages, listOfImages, outputIm):
     _execute(cmd)
     return cmd
 
+def AverageImages2D(EXE_AverageImages, listOfImages, outputIm):
+    result_folder = os.path.dirname(outputIm)
+    arguments = ['2', outputIm, '0'] + listOfImages
+    cmd = [EXE_AverageImages] + arguments
+    _execute(cmd)
+    return cmd
 
 def genInverseDVF(EXE_InvertDeformationField, DVFImage, InverseDVFImage, EXECUTE=False):
     result_folder = os.path.dirname(InverseDVFImage)

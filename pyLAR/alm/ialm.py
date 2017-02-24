@@ -112,7 +112,7 @@ def recover(D, gamma=None, tol=1e-07):
     """
     log = logging.getLogger(__name__)
 
-    m, n = D.shape
+    m, n = D.shape  # added z to deal with the 3rd dimension?
     Y=D
 
     if gamma is None:

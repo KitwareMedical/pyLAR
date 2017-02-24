@@ -112,7 +112,7 @@ def _runIteration(vector_length, level, currentIter, config, im_fns, sigma, grid
         tmp = sitk.GetArrayFromImage(inIm)
         if sigma > 0:  # blurring
             log.info("Blurring: " + str(sigma))
-            outIm = pyLAR.GaussianBlur(inIm, None, sigma)
+            outIm = pyLAR.GaussianBlur(im_file, None, sigma)
             tmp = sitk.GetArrayFromImage(outIm)
         Y[:, i] = tmp.reshape(-1)
         del tmp
@@ -156,6 +156,7 @@ def _runIteration(vector_length, level, currentIter, config, im_fns, sigma, grid
         try:
             import matplotlib.pyplot as plt
             plt.figure()
+    # need to deal with dimension issues
             implot = plt.imshow(np.flipud(im_array[z_dim / 2, :, :]), plt.cm.gray)
             plt.title(iter_prefix + str(currentIter) + ' atlas')
             plt.savefig(current_path_iter + '.png')
@@ -163,6 +164,8 @@ def _runIteration(vector_length, level, currentIter, config, im_fns, sigma, grid
             pass
         reference_im_fn = atlasIm
     listOutputImages += [reference_im_fn]
+
+    # this is the part that might need to be parallized
     for i in range(num_of_data):
         # Warps the low-rank image back to the initial state (the non-greedy way)
         invWarpedlowRankIm = ''
@@ -242,7 +245,7 @@ def run(config, software, im_fns, check=True):
         gridSize = config.gridSize
 
     s = time.time()
-    pyLAR.showImageMidSlice(reference_im_fn)
+    #pyLAR.showImageMidSlice(reference_im_fn)
     pyLAR.affineRegistrationStep(software.EXE_BRAINSFit, im_fns, result_dir,
                                  selection, reference_im_fn)
     if config.histogram_matching:
@@ -276,8 +279,8 @@ def run(config, software, im_fns, check=True):
                 gridSize = np.add(gridSize, [1, 2, 1])
 
             # Reduce the amount of  blurring sizes gradually
-            if sigma > 0:
-                sigma = sigma - 0.5
+            #if sigma > 0:
+            #    sigma = sigma - 0.5
 
             gc.collect()  # Garbage collection
 
@@ -291,10 +294,16 @@ def run(config, software, im_fns, check=True):
 
             if gridSize[0] < 10:
                 gridSize = np.add(gridSize, [1, 2, 1])
-            if sigma > 0:
-                sigma = sigma - 1
-            factor = factor * 0.5
+            #if sigma > 0:
+            #    sigma = sigma - 1
 
+            factor = factor * 0.5
+        if level < num_of_levels - 1:
+            if sigma > 0:
+                sigma = sigma * 0.5 # this should be scaled with respect to levels
+            #factor = factor * 0.5
+        else:
+            sigma = 0
             # a = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
             # print 'Current memory usage :',a/1024.0/1024.0,'GB'
             # h = hpy()
